@@ -72,8 +72,22 @@ input,textarea,select{font-family:Outfit,sans-serif;}
 .help-btn:hover{background:var(--cyan);color:#041210;box-shadow:0 0 16px rgba(0,169,157,.55);transform:scale(1.08);}
 .sidelink .help-mini{margin-left:auto;width:19px;height:19px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;background:rgba(255,255,255,.06);color:#94a3b8;border:1px solid rgba(255,255,255,.12);transition:all .15s;}
 .sidelink .help-mini:hover{background:var(--cyan);color:#041210;border-color:var(--cyan);}
-.diploma-preview{position:relative;background:radial-gradient(circle at 50% 25%,#121a22 0%,#070a0e 100%);border:2px solid #d4af37;border-radius:18px;padding:28px 24px;box-shadow:0 24px 60px rgba(0,0,0,.75),inset 0 0 0 4px rgba(212,175,55,.15);overflow:hidden;}
+.diploma-preview{position:relative;background:radial-gradient(circle at 50% 25%,#121a22 0%,#070a0e 100%);border:2px solid #d4af37;border-radius:18px;padding:28px 24px;box-shadow:0 24px 60px rgba(0,0,0,.75),inset 0 0 0 4px rgba(212,175,55,.15);overflow:hidden;transition:all .22s ease;}
 .diploma-preview::before{content:"";position:absolute;inset:10px;border:1px solid rgba(0,169,157,.32);border-radius:12px;pointer-events:none;}
+.diploma-preview.ink-saver{background:#ffffff !important;color:#0f172a !important;border:2px solid #0d9488 !important;box-shadow:0 16px 40px rgba(0,0,0,.22),inset 0 0 0 4px rgba(217,119,6,.15) !important;}
+.diploma-preview.ink-saver::before{border-color:#d97706 !important;}
+.diploma-preview.ink-saver .dp-title{color:#0f172a !important;}
+.diploma-preview.ink-saver .dp-gold{color:#b45309 !important;}
+.diploma-preview.ink-saver .dp-teal{color:#0f766e !important;}
+.diploma-preview.ink-saver .dp-body{color:#1e293b !important;}
+.diploma-preview.ink-saver .dp-muted{color:#475569 !important;}
+.diploma-preview.ink-saver .dp-line{border-color:#cbd5e1 !important;}
+@media print {
+  @page { size: A4 landscape; margin: 10mm; }
+  body * { visibility: hidden !important; }
+  #diplomaPreviewBox, #diplomaPreviewBox * { visibility: visible !important; }
+  #diplomaPreviewBox { position: fixed !important; inset: 0 !important; width: 100% !important; margin: 0 !important; box-shadow: none !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
 </style>
 </head>
 <body>
@@ -521,6 +535,17 @@ const MODULE_HELP = {
       "Usá el botón «🔎 Abrir en Pantalla Completa / Imprimir» si querés descargarlo o enviarlo por WhatsApp."
     ],
     tip: "El progreso de tu checklist dentro del manual se guarda automáticamente en tu navegador."
+  },
+  camelot: {
+    icon: "🎹",
+    title: "Rueda de Camelot Interactiva, Tap BPM & Calculadora de Pitch",
+    what: "Laboratorio musical en vivo para clases y práctica en cabina: muestra al instante todas las combinaciones armónicas compatibles en la Rueda de Camelot (1A–12B), mide el BPM de cualquier canción por pulsación (Tap BPM) y calcula el % exacto de Pitch entre dos tracks.",
+    steps: [
+      "Hacé clic en cualquier llave de la Rueda de Camelot (ej. 8A · La menor) para iluminar al instante sus mezclas armónicas compatibles: Misma Tónica (8A), Subir Energía +1 (9A), Bajar Energía -1 (7A), Relativa Mayor/Menor (8B) y Salto Diagonal (+2).",
+      "En el Medidor Tap BPM, pulsá el botón «🥁 TAP BPM» (o la barra espaciadora del teclado) al ritmo del bombo para medir los BPM en tiempo real.",
+      "En la Calculadora de Pitch Fader, ingresá el BPM del Track Saliente (A) y del Track Entrante (B) para saber qué porcentaje exacto (+% o -%) mover el pitch."
+    ],
+    tip: "Si el ajuste de Pitch supera el ±3%, activá siempre Master Tempo / Key Lock en la CDJ o controladora para que no cambie la tonalidad Camelot de la canción."
   }
 };
 
@@ -574,7 +599,7 @@ function closeHelpModal(){
 function shell(content){
   const u=store.profile;
   const roleLabel={student:"Alumno",instructor:"Instructor",admin:"Administrador"}[u.role];
-  const links=[["dashboard","🏠","Inicio"],["material","📚","Material"],["herramientas","🛠️","Herramientas"]];
+  const links=[["dashboard","🏠","Inicio"],["material","📚","Material"],["camelot","🎹","Camelot & BPM"],["herramientas","🛠️","Herramientas"]];
   if(u.role==="student"){
     links.push(["tareas","📝","Mis Tareas"]);
     links.push(["asistencia","📲","Asistencia QR"]);
@@ -1416,44 +1441,60 @@ async function markManualAtt(session_id,student_id,status){
 
 /* ---------- CERTIFICADOS DIGITALES CON VISTA PREVIA EN VIVO Y VALIDACIÓN QR ---------- */
 function renderDiplomaPreview(d){
+  const isLight = state.certTheme === "light";
   const vUrl = `${location.origin}/verificar?code=${encodeURIComponent(d.code||"DJ-RGL-2026-MUESTRA")}`;
-  const qr = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=6&data=${encodeURIComponent(vUrl)}`;
-  return `<div class="diploma-preview text-center my-4" id="diplomaPreviewBox">
+  const qr = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=6&color=${isLight?'0f172a':'00a99d'}&bgcolor=ffffff&data=${encodeURIComponent(vUrl)}`;
+  return `<div class="diploma-preview ${isLight?'ink-saver':''} text-center my-4" id="diplomaPreviewBox">
     <div class="flex items-center justify-center gap-3 mb-2">
       <img src="JUVENTUD.png" alt="Casa de la Juventud" style="height:40px;width:auto;object-fit:contain">
     </div>
-    <div class="mono text-[10px] uppercase tracking-[0.28em] text-teal-400 font-bold">Municipalidad de Río Gallegos · Casa de la Juventud</div>
-    <h2 class="text-xl md:text-2xl font-extrabold uppercase tracking-widest mt-1" style="color:#fbba00">Certificado Oficial de Aprobación</h2>
-    <p class="text-xs text-gray-400 mt-2">Por cuanto se certifica que</p>
-    <div id="dpStudentName" class="text-2xl md:text-3xl font-extrabold text-white my-2 py-1.5 px-6 inline-block border-b-2" style="border-color:rgba(0,169,157,.45)">${esc(d.student_name||"Nombre del Alumno")}</div>
-    <p class="text-xs md:text-sm text-gray-300 max-w-2xl mx-auto leading-relaxed mt-1">
-      ha completado y aprobado satisfactoriamente los <b>6 módulos teórico-prácticos</b> y la evaluación final en cabina del <b>Taller Municipal de DJ y Producción Sonora</b>, acreditando <b id="dpHours" class="text-white">${esc(d.hours||48)} horas reloj</b> de formación con una calificación final de <b id="dpGrade" style="color:#fbba00">${esc(d.final_grade||9)}/10</b>.
+    <div class="dp-teal mono text-[10px] uppercase tracking-[0.28em] text-teal-400 font-bold">Municipalidad de Río Gallegos · Casa de la Juventud</div>
+    <h2 class="dp-gold text-xl md:text-2xl font-extrabold uppercase tracking-widest mt-1" style="color:#fbba00">Certificado Oficial de Aprobación</h2>
+    <p class="dp-muted text-xs text-gray-400 mt-2">Por cuanto se certifica que</p>
+    <div id="dpStudentName" class="dp-title text-2xl md:text-3xl font-extrabold text-white my-2 py-1.5 px-6 inline-block border-b-2" style="border-color:rgba(0,169,157,.45)">${esc(d.student_name||"Nombre del Alumno")}</div>
+    <p class="dp-body text-xs md:text-sm text-gray-300 max-w-2xl mx-auto leading-relaxed mt-1">
+      ha completado y aprobado satisfactoriamente los <b>6 módulos teórico-prácticos</b> y la evaluación final en cabina del <b>Taller Municipal de DJ y Producción Sonora</b>, acreditando <b id="dpHours" class="dp-title text-white">${esc(d.hours||48)} horas reloj</b> de formación con una calificación final de <b id="dpGrade" class="dp-gold" style="color:#fbba00">${esc(d.final_grade||9)}/10</b>.
     </p>
-    <div class="grid grid-cols-1 sm:grid-cols-3 items-center gap-4 mt-6 pt-4 border-t" style="border-color:rgba(255,255,255,.08)">
+    <div class="dp-line grid grid-cols-1 sm:grid-cols-3 items-center gap-4 mt-6 pt-4 border-t" style="border-color:rgba(255,255,255,.08)">
       <div class="text-center">
-        <div class="w-40 mx-auto border-t pt-1.5 text-xs font-bold text-white" style="border-color:rgba(255,255,255,.25)">Gisel Duarte</div>
-        <div class="text-[10px] text-gray-400">Instructora · Dirección Académica</div>
+        <div class="dp-line dp-title w-40 mx-auto border-t pt-1.5 text-xs font-bold text-white" style="border-color:rgba(255,255,255,.25)">Gisel Duarte</div>
+        <div class="dp-muted text-[10px] text-gray-400">Instructora · Dirección Académica</div>
       </div>
       <div class="flex flex-col items-center">
-        <div class="bg-white p-2 rounded-xl shadow-md"><img id="dpQrImg" src="${qr}" alt="QR Validación" style="width:76px;height:76px;display:block"></div>
-        <div id="dpCodeTxt" class="mono text-[10px] text-teal-300 mt-1.5 font-bold">${esc(d.code||"DJ-RGL-2026-PREVIEW")}</div>
-        <div class="text-[9px] text-gray-500">${d.issued?'✓ Registrado Oficialmente':'Vista Previa antes de emitir'}</div>
+        <div class="bg-white p-2 rounded-xl shadow-md border border-slate-200"><img id="dpQrImg" src="${qr}" alt="QR Validación" style="width:76px;height:76px;display:block"></div>
+        <div id="dpCodeTxt" class="dp-teal mono text-[10px] text-teal-300 mt-1.5 font-bold">${esc(d.code||"DJ-RGL-2026-PREVIEW")}</div>
+        <div class="dp-muted text-[9px] text-gray-500">${d.issued?'✓ Registrado Oficialmente':'Vista Previa antes de emitir'}</div>
       </div>
       <div class="text-center">
-        <div class="w-40 mx-auto border-t pt-1.5 text-xs font-bold text-white" style="border-color:rgba(255,255,255,.25)">Casa de la Juventud</div>
-        <div class="text-[10px] text-gray-400">Municipalidad de Río Gallegos</div>
+        <div class="dp-line dp-title w-40 mx-auto border-t pt-1.5 text-xs font-bold text-white" style="border-color:rgba(255,255,255,.25)">Casa de la Juventud</div>
+        <div class="dp-muted text-[10px] text-gray-400">Municipalidad de Río Gallegos</div>
       </div>
     </div>
-    <div class="mt-4 pt-2 border-t flex items-center justify-center gap-2 flex-wrap" style="border-color:rgba(255,255,255,.05)">
-      <img src="logo-desarrollar.png" alt="SISTEMAS DesarrollAR" style="height:18px;width:auto;object-fit:contain;opacity:.85">
-      <span class="text-[10px] text-gray-300 font-medium" style="font-family:'Outfit',sans-serif">Hecho con orgullo en Río Gallegos, Santa Cruz, Argentina 🇦🇷</span>
+    <div class="dp-line mt-4 pt-2 border-t flex items-center justify-center gap-2 flex-wrap" style="border-color:rgba(255,255,255,.05)">
+      <img src="logo-desarrollar.png" alt="SISTEMAS DesarrollAR" style="height:18px;width:auto;object-fit:contain;opacity:.9">
+      <span class="dp-muted text-[10px] text-gray-300 font-medium" style="font-family:'Outfit',sans-serif">Hecho con orgullo en Río Gallegos, Santa Cruz, Argentina 🇦🇷</span>
     </div>
   </div>`;
+}
+
+function setCampusCertTheme(mode){
+  state.certTheme = mode;
+  render();
+}
+function printCampusDiplomaPreview(mode){
+  state.certTheme = mode;
+  render();
+  setTimeout(()=>window.print(), 220);
 }
 
 function viewCertificados(){
   const u=store.profile, isStaff=u.role!=="student";
   const certs=store.certificates||[];
+  const isLight = state.certTheme === "light";
+  const themeControls = `<div class="flex items-center gap-2 flex-wrap">
+    <button class="btn ${isLight?'btn-primary':'btn-ghost'} px-3 py-1.5 text-xs" onclick="setCampusCertTheme('light')">☀️ Fondo Blanco (Ahorro de Tinta)</button>
+    <button class="btn ${!isLight?'btn-primary':'btn-ghost'} px-3 py-1.5 text-xs" onclick="setCampusCertTheme('dark')">🌙 Fondo Oscuro (Digital)</button>
+  </div>`;
   if(!isStaff){
     const myCert=certs.find(c=>c.student_id===u.id);
     const pct=progressPct(u.id), att=studentAttPct(u.id), avg=studentAvgGrade(u.id);
@@ -1463,9 +1504,14 @@ function viewCertificados(){
     const vUrl=myCert?`${location.origin}/verificar?code=${encodeURIComponent(myCert.code)}`:"";
     return `<div class="flex items-center justify-between flex-wrap gap-3 mb-2">
         <div class="flex items-center gap-2.5"><h1 class="text-2xl font-bold text-white">🎓 ${myCert?'Mi Certificado Oficial QR':'Vista Previa y Estado de mi Diploma'}</h1>${helpBtn('certificados','¿Cómo funciona?')}</div>
-        ${myCert?`<div class="flex gap-2"><a href="/verificar?code=${encodeURIComponent(myCert.code)}" target="_blank" class="btn btn-primary px-4 py-2 text-xs">🖨️ Abrir en A4 / Imprimir PDF</a><button class="btn btn-ghost px-3 py-2 text-xs" onclick="navigator.clipboard.writeText('${vUrl}');alert('Link público copiado.')">🔗 Copiar Link</button></div>`:''}
+        <div class="flex gap-2 flex-wrap">
+          ${myCert?`<a href="/verificar?code=${encodeURIComponent(myCert.code)}&mode=light&autoprint=1" target="_blank" class="btn btn-primary px-4 py-2 text-xs">🖨️ Imprimir en Blanco (Ahorro Tinta)</a>
+          <a href="/verificar?code=${encodeURIComponent(myCert.code)}" target="_blank" class="btn btn-ghost px-3.5 py-2 text-xs">🌙 Abrir Versión Oscura</a>
+          <button class="btn btn-ghost px-3 py-2 text-xs" onclick="navigator.clipboard.writeText('${vUrl}');alert('Link público copiado.')">🔗 Copiar Link</button>`
+          :`<button class="btn btn-ghost px-3.5 py-2 text-xs" onclick="printCampusDiplomaPreview('light')">🖨️ Imprimir Vista Previa (Blanco)</button>`}
+        </div>
       </div>
-      <p class="text-gray-400 mb-5">${myCert?'Tu diploma oficial ya fue emitido y cuenta con validación QR pública municipal.':'Cumplí los 3 requisitos del curso para que tu instructor habilite tu diploma oficial. Abajo podés ver la vista previa en vivo de cómo quedará tu certificado.'}</p>
+      <p class="text-gray-400 mb-5">${myCert?'Tu diploma oficial ya fue emitido y cuenta con validación QR pública municipal. Podés alternar entre Fondo Blanco (Ahorro de Tinta) o Fondo Oscuro.':'Cumplí los 3 requisitos del curso para que tu instructor habilite tu diploma oficial. Abajo podés ver la vista previa en vivo en Fondo Blanco (Ahorro de Tinta) o Fondo Oscuro.'}</p>
       <div class="grid sm:grid-cols-3 gap-4 mb-6">
         <div class="card p-4"><div class="text-xs text-gray-400">1. Lectura de Módulos</div><div class="text-2xl font-bold text-white mt-1">${pct}%</div><div class="text-[11px] text-gray-500 mt-1">Avance en los 6 módulos</div></div>
         <div class="card p-4"><div class="text-xs text-gray-400">2. Asistencia Presencial</div><div class="text-2xl font-bold text-emerald-400 mt-1">${att}%</div><div class="text-[11px] text-gray-500 mt-1">Clases en Casa de la Juventud</div></div>
@@ -1474,7 +1520,7 @@ function viewCertificados(){
       <div class="card p-5">
         <div class="flex items-center justify-between flex-wrap gap-2 mb-2">
           <div class="text-xs font-bold uppercase tracking-wider text-teal-400">👁️ ${myCert?'Vista Oficial de tu Diploma':'Vista Previa de tu Diploma Oficial'}</div>
-          <span class="badge" style="background:${myCert?'rgba(16,185,129,.18);color:#34d399':'rgba(251,186,0,.15);color:#fbba00'}">${myCert?'✓ Emitido Oficialmente':'Vista Previa Académica'}</span>
+          ${themeControls}
         </div>
         ${renderDiplomaPreview(previewObj)}
       </div>`;
@@ -1503,7 +1549,8 @@ function viewCertificados(){
       </div>
       <div class="flex items-center gap-2 flex-wrap">
         <button class="btn btn-ghost px-3.5 py-2 text-xs" onclick="selectCertPreviewStudent('${st.id}')">👁️ Vista Previa</button>
-        ${c?`<a href="/verificar?code=${encodeURIComponent(c.code)}" target="_blank" class="btn btn-primary px-4 py-2 text-xs">🖨️ Abrir A4 / Imprimir</a>
+        ${c?`<a href="/verificar?code=${encodeURIComponent(c.code)}&mode=light&autoprint=1" target="_blank" class="btn btn-primary px-3.5 py-2 text-xs" title="Imprimir con fondo blanco ahorro de tinta">🖨️ Imprimir Blanco</a>
+             <a href="/verificar?code=${encodeURIComponent(c.code)}" target="_blank" class="btn btn-ghost px-3.5 py-2 text-xs" title="Abrir diploma con fondo oscuro">🌙 A4 Oscuro</a>
              <button class="btn text-xs px-3 py-2" style="background:rgba(239,68,68,.14);color:#f87171" onclick="revokeCert('${c.id}')">Revocar</button>`
            :`<button class="btn btn-primary px-4 py-2 text-xs" onclick="issueStudentCert('${st.id}','${esc(st.name)}',${avg||9})">🏅 Emitir Certificado QR</button>`}
       </div>
@@ -1511,7 +1558,7 @@ function viewCertificados(){
   }).join("");
 
   return `<div class="flex items-center justify-between flex-wrap gap-3 mb-6">
-    <div><div class="flex items-center gap-2.5"><h1 class="text-2xl font-bold text-white">🎓 Vista Previa y Emisión de Certificados QR</h1>${helpBtn('certificados','¿Cómo funciona?')}</div><p class="text-gray-400">Previsualizá el diploma en vivo, ajustá la nota o carga horaria y emití el certificado oficial verificable en <span class="mono text-teal-400">/verificar</span>.</p></div>
+    <div><div class="flex items-center gap-2.5"><h1 class="text-2xl font-bold text-white">🎓 Vista Previa y Emisión de Certificados QR</h1>${helpBtn('certificados','¿Cómo funciona?')}</div><p class="text-gray-400">Previsualizá el diploma en vivo en <b>Modo Blanco (Ahorro de Tinta)</b> o <b>Modo Oscuro</b> y emití el certificado oficial verificable en <span class="mono text-teal-400">/verificar</span>.</p></div>
   </div>
   <div class="bento-card p-6 mb-7" style="border-color:rgba(212,175,55,.35)">
     <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
@@ -1519,7 +1566,10 @@ function viewCertificados(){
         <div class="mono text-[10px] uppercase tracking-widest text-amber-400 font-bold">🎨 Estudio de Certificación en Vivo</div>
         <h3 class="text-lg font-extrabold text-white">Vista Previa del Certificado a Emitir</h3>
       </div>
-      <span class="badge" style="background:${existingCert?'rgba(16,185,129,.18);color:#34d399':'rgba(251,186,0,.15);color:#fbba00'}">${existingCert?'✓ Certificado Ya Emitido':'Borrador en Vista Previa'}</span>
+      <div class="flex items-center gap-2 flex-wrap">
+        ${themeControls}
+        <span class="badge" style="background:${existingCert?'rgba(16,185,129,.18);color:#34d399':'rgba(251,186,0,.15);color:#fbba00'}">${existingCert?'✓ Certificado Ya Emitido':'Borrador en Vista Previa'}</span>
+      </div>
     </div>
     <div class="grid sm:grid-cols-4 gap-3 mb-4 p-4 rounded-xl" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.07)">
       <div class="sm:col-span-2">
@@ -1536,8 +1586,10 @@ function viewCertificados(){
       </div>
     </div>
     ${renderDiplomaPreview({ student_name: selStu.name, final_grade: defAvg, hours: defHours, code: previewCode, issued: !!existingCert })}
-    <div class="flex items-center justify-end gap-3 flex-wrap mt-4">
-      ${existingCert?`<a href="/verificar?code=${encodeURIComponent(existingCert.code)}" target="_blank" class="btn btn-ghost px-4 py-2.5 text-xs">🖨️ Abrir Versión A4 Imprimible</a>`:""}
+    <div class="flex items-center justify-end gap-2.5 flex-wrap mt-4">
+      <button class="btn btn-ghost px-4 py-2.5 text-xs" onclick="printCampusDiplomaPreview('light')">🖨️ Imprimir en Blanco (Ahorro de Tinta)</button>
+      <button class="btn btn-ghost px-4 py-2.5 text-xs" onclick="printCampusDiplomaPreview('dark')">🖨️ Imprimir Fondo Oscuro</button>
+      ${existingCert?`<a href="/verificar?code=${encodeURIComponent(existingCert.code)}&mode=light" target="_blank" class="btn btn-ghost px-4 py-2.5 text-xs">🔎 Abrir en /verificar (Blanco)</a>`:""}
       <button class="btn btn-primary px-6 py-3 text-xs font-bold" onclick="issueFromPreview()">🏅 ${existingCert?'Actualizar y Re-Emitir Certificado':'Confirmar y Emitir Certificado Oficial QR'}</button>
     </div>
   </div>
@@ -1666,6 +1718,295 @@ async function saveMyCard(){
   }
 }
 
+/* ---------- RUEDA DE CAMELOT INTERACTIVA & TAP BPM ---------- */
+const CAMELOT_DATA = [
+  { num: 1,  a: { code: "1A",  note: "G#m / Abm", es: "Sol# menor", color: "#00d2b8" }, b: { code: "1B",  note: "B",   es: "Si Mayor",    color: "#00f0d4" } },
+  { num: 2,  a: { code: "2A",  note: "D#m / Ebm", es: "Re# menor",  color: "#18d87c" }, b: { code: "2B",  note: "F#",  es: "Fa# Mayor",   color: "#2bf092" } },
+  { num: 3,  a: { code: "3A",  note: "A#m / Bbm", es: "La# menor",  color: "#6ce043" }, b: { code: "3B",  note: "Db",  es: "Reb Mayor",   color: "#84f55a" } },
+  { num: 4,  a: { code: "4A",  note: "Fm",        es: "Fa menor",   color: "#b8dc28" }, b: { code: "4B",  note: "Ab",  es: "Lab Mayor",   color: "#ccf03c" } },
+  { num: 5,  a: { code: "5A",  note: "Cm",        es: "Do menor",   color: "#f5b81c" }, b: { code: "5B",  note: "Eb",  es: "Mib Mayor",   color: "#ffca36" } },
+  { num: 6,  a: { code: "6A",  note: "Gm",        es: "Sol menor",  color: "#f78222" }, b: { code: "6B",  note: "Bb",  es: "Sib Mayor",   color: "#ff983d" } },
+  { num: 7,  a: { code: "7A",  note: "Dm",        es: "Re menor",   color: "#f24b3a" }, b: { code: "7B",  note: "F",   es: "Fa Mayor",    color: "#ff6454" } },
+  { num: 8,  a: { code: "8A",  note: "Am",        es: "La menor",   color: "#ec3478" }, b: { code: "8B",  note: "C",   es: "Do Mayor",    color: "#ff4f90" } },
+  { num: 9,  a: { code: "9A",  note: "Em",        es: "Mi menor",   color: "#d438b8" }, b: { code: "9B",  note: "G",   es: "Sol Mayor",   color: "#ea52ce" } },
+  { num: 10, a: { code: "10A", note: "Bm",        es: "Si menor",   color: "#9848e8" }, b: { code: "10B", note: "D",   es: "Re Mayor",    color: "#af63fa" } },
+  { num: 11, a: { code: "11A", note: "F#m",       es: "Fa# menor",  color: "#5268f2" }, b: { code: "11B", note: "A",   es: "La Mayor",    color: "#6d82ff" } },
+  { num: 12, a: { code: "12A", note: "C#m / Dbm", es: "Do# menor",  color: "#0ca6e8" }, b: { code: "12B", note: "E",   es: "Mi Mayor",    color: "#2bbdff" } }
+];
+
+let tapTimes = [];
+let selectedCamelot = "8A";
+
+function getCamelotInfo(code){
+  const num = parseInt(code, 10) || 8;
+  const letter = code.endsWith("B") ? "B" : "A";
+  const row = CAMELOT_DATA.find(r => r.num === num) || CAMELOT_DATA[7];
+  const cur = letter === "B" ? row.b : row.a;
+  const prevNum = num === 1 ? 12 : num - 1;
+  const nextNum = num === 12 ? 1 : num + 1;
+  const boostNum = ((num + 1) % 12) + 1;
+  const diagNum = letter === "A" ? prevNum : nextNum;
+  const findKey = (n, l) => {
+    const rw = CAMELOT_DATA.find(x => x.num === n);
+    return l === "B" ? rw.b : rw.a;
+  };
+  return {
+    current: cur,
+    same: cur,
+    up: findKey(nextNum, letter),
+    down: findKey(prevNum, letter),
+    relative: findKey(num, letter === "A" ? "B" : "A"),
+    boost: findKey(boostNum, letter),
+    diag: findKey(diagNum, letter === "A" ? "B" : "A")
+  };
+}
+
+function selectCamelotKey(code){
+  selectedCamelot = code;
+  render();
+}
+
+function buildCamelotWheelSvg(selCode){
+  const info = getCamelotInfo(selCode);
+  const compatCodes = new Set([info.same.code, info.up.code, info.down.code, info.relative.code]);
+  const boostCodes = new Set([info.boost.code, info.diag.code]);
+  const cx = 210, cy = 210;
+  const rOuter1 = 192, rOuter0 = 132;
+  const rInner1 = 128, rInner0 = 70;
+
+  const polar = (r, deg) => {
+    const rad = (deg - 90) * Math.PI / 180;
+    return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)];
+  };
+  const wedgePath = (r0, r1, a0, a1) => {
+    const [x0, y0] = polar(r1, a0);
+    const [x1, y1] = polar(r1, a1);
+    const [x2, y2] = polar(r0, a1);
+    const [x3, y3] = polar(r0, a0);
+    return `M ${x0.toFixed(1)} ${y0.toFixed(1)} A ${r1} ${r1} 0 0 1 ${x1.toFixed(1)} ${y1.toFixed(1)} L ${x2.toFixed(1)} ${y2.toFixed(1)} A ${r0} ${r0} 0 0 0 ${x3.toFixed(1)} ${y3.toFixed(1)} Z`;
+  };
+
+  let paths = "";
+  CAMELOT_DATA.forEach((item, idx) => {
+    // Place 12 at top (0 deg), 1 at 30 deg, etc. like a clock
+    const centerDeg = (item.num % 12) * 30;
+    const a0 = centerDeg - 14.2;
+    const a1 = centerDeg + 14.2;
+
+    // Outer ring (B - Major)
+    const bCode = item.b.code;
+    const bSel = bCode === selCode;
+    const bComp = compatCodes.has(bCode);
+    const bBoost = boostCodes.has(bCode);
+    const bOpacity = bSel ? "1" : (bComp ? "0.92" : (bBoost ? "0.62" : "0.24"));
+    const bStroke = bSel ? "#ffffff" : (bComp ? "#ffffff" : "rgba(255,255,255,0.12)");
+    const bSw = bSel ? "3.2" : (bComp ? "2" : "1");
+    const [bx, by] = polar((rOuter0 + rOuter1) / 2, centerDeg);
+
+    paths += `<g class="cursor-pointer" onclick="selectCamelotKey('${bCode}')">
+      <path d="${wedgePath(rOuter0, rOuter1, a0, a1)}" fill="${item.b.color}" fill-opacity="${bOpacity}" stroke="${bStroke}" stroke-width="${bSw}"/>
+      <text x="${bx.toFixed(1)}" y="${(by - 4).toFixed(1)}" text-anchor="middle" fill="${bSel||bComp?'#05080c':'#f8fafc'}" font-size="13" font-weight="800" font-family="JetBrains Mono,monospace">${bCode}</text>
+      <text x="${bx.toFixed(1)}" y="${(by + 11).toFixed(1)}" text-anchor="middle" fill="${bSel||bComp?'#0f172a':'#cbd5e1'}" font-size="9.5" font-weight="700">${item.b.note}</text>
+    </g>`;
+
+    // Inner ring (A - Minor)
+    const aCode = item.a.code;
+    const aSel = aCode === selCode;
+    const aComp = compatCodes.has(aCode);
+    const aBoost = boostCodes.has(aCode);
+    const aOpacity = aSel ? "1" : (aComp ? "0.92" : (aBoost ? "0.62" : "0.24"));
+    const aStroke = aSel ? "#ffffff" : (aComp ? "#ffffff" : "rgba(255,255,255,0.12)");
+    const aSw = aSel ? "3.2" : (aComp ? "2" : "1");
+    const [ax, ay] = polar((rInner0 + rInner1) / 2, centerDeg);
+
+    paths += `<g class="cursor-pointer" onclick="selectCamelotKey('${aCode}')">
+      <path d="${wedgePath(rInner0, rInner1, a0, a1)}" fill="${item.a.color}" fill-opacity="${aOpacity}" stroke="${aStroke}" stroke-width="${aSw}"/>
+      <text x="${ax.toFixed(1)}" y="${(ay - 3).toFixed(1)}" text-anchor="middle" fill="${aSel||aComp?'#05080c':'#f8fafc'}" font-size="12" font-weight="800" font-family="JetBrains Mono,monospace">${aCode}</text>
+      <text x="${ax.toFixed(1)}" y="${(ay + 10).toFixed(1)}" text-anchor="middle" fill="${aSel||aComp?'#0f172a':'#cbd5e1'}" font-size="8.5" font-weight="700">${item.a.note.split('/')[0].trim()}</text>
+    </g>`;
+  });
+
+  return `<svg viewBox="0 0 420 420" class="w-full max-w-[390px] mx-auto select-none drop-shadow-2xl">
+    <circle cx="${cx}" cy="${cy}" r="200" fill="#080b10" stroke="rgba(0,169,157,0.25)" stroke-width="1.5"/>
+    ${paths}
+    <circle cx="${cx}" cy="${cy}" r="64" fill="#0b0f15" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+    <text x="${cx}" y="${cy - 16}" text-anchor="middle" fill="#5eead4" font-size="9" font-family="JetBrains Mono,monospace" letter-spacing="1.5">LLAVE ACTIVA</text>
+    <text x="${cx}" y="${cy + 10}" text-anchor="middle" fill="#ffffff" font-size="26" font-weight="800" font-family="JetBrains Mono,monospace">${info.current.code}</text>
+    <text x="${cx}" y="${cy + 27}" text-anchor="middle" fill="#fbba00" font-size="11" font-weight="700">${info.current.note}</text>
+    <text x="${cx}" y="${cy + 41}" text-anchor="middle" fill="#94a3b8" font-size="9">${info.current.es}</text>
+  </svg>`;
+}
+
+function viewCamelot(){
+  const info = getCamelotInfo(selectedCamelot);
+  const compatCard = (badge, title, item, desc) => `
+    <div class="card p-3.5 flex items-center justify-between gap-3 cursor-pointer hover:border-teal-400/50 transition-all" onclick="selectCamelotKey('${item.code}')">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-12 h-12 rounded-2xl flex flex-col items-center justify-center flex-shrink-0 font-extrabold text-slate-950 shadow-md" style="background:${item.color}">
+          <span class="mono text-sm leading-none">${item.code}</span>
+          <span class="text-[9px] leading-tight mt-0.5">${item.note.split('/')[0]}</span>
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-xs font-bold text-white">${title}</span>
+            <span class="badge" style="background:rgba(0,169,157,.15);color:#5eead4;font-size:9px">${badge}</span>
+          </div>
+          <div class="text-xs text-gray-400 mt-0.5">${item.es} (${item.note}) — ${desc}</div>
+        </div>
+      </div>
+      <span class="text-xs text-teal-400 font-bold flex-shrink-0">Ver →</span>
+    </div>`;
+
+  return `<div class="flex items-center justify-between flex-wrap gap-3 mb-2">
+    <div class="flex items-center gap-2.5"><h1 class="text-2xl font-bold text-white">🎹 Rueda de Camelot Interactiva & Tap BPM</h1>${helpBtn('camelot','¿Cómo funciona?')}</div>
+    <span class="badge" style="background:rgba(230,0,126,.15);color:#f472b6">🎛️ Laboratorio en Vivo para Clases y Cabina</span>
+  </div>
+  <p class="text-gray-400 mb-6">Seleccioná cualquier tonalidad en la rueda para ver al instante todas sus mezclas armónicas compatibles, o medí el BPM en vivo pulsando al ritmo del track.</p>
+
+  <div class="grid lg:grid-cols-12 gap-6 mb-7">
+    <div class="lg:col-span-6 bento-card p-5 flex flex-col items-center justify-center">
+      <div class="bento-glow" style="background:#00a99d"></div>
+      <div class="flex items-center justify-between w-full mb-2">
+        <span class="mono text-[10px] uppercase tracking-widest text-teal-400 font-bold">Rueda Armónica (1A–12B)</span>
+        <span class="text-[11px] text-gray-400">Anillo Int: Menores (A) · Ext: Mayores (B)</span>
+      </div>
+      ${buildCamelotWheelSvg(selectedCamelot)}
+      <div class="flex flex-wrap justify-center gap-1.5 mt-3">
+        ${CAMELOT_DATA.map(r=>`<button class="px-2 py-1 rounded text-[11px] mono font-bold transition-all" style="background:${selectedCamelot===r.a.code?r.a.color:'rgba(255,255,255,.05)'};color:${selectedCamelot===r.a.code?'#05080c':'#cbd5e1'}" onclick="selectCamelotKey('${r.a.code}')">${r.a.code}</button><button class="px-2 py-1 rounded text-[11px] mono font-bold transition-all" style="background:${selectedCamelot===r.b.code?r.b.color:'rgba(255,255,255,.05)'};color:${selectedCamelot===r.b.code?'#05080c':'#cbd5e1'}" onclick="selectCamelotKey('${r.b.code}')">${r.b.code}</button>`).join("")}
+      </div>
+    </div>
+
+    <div class="lg:col-span-6 flex flex-col gap-3">
+      <div class="bento-card p-4" style="border-color:rgba(0,169,157,.35)">
+        <div class="mono text-[10px] uppercase tracking-widest text-amber-400 font-bold">Tonalidad del Track en Aire (Deck A)</div>
+        <div class="flex items-center justify-between gap-3 mt-1">
+          <div>
+            <div class="text-2xl font-extrabold text-white">${info.current.code} · ${info.current.es}</div>
+            <div class="text-xs text-gray-400">Cifrado americano: <b class="text-teal-300">${info.current.note}</b></div>
+          </div>
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center mono text-xl font-extrabold text-slate-950 shadow-lg" style="background:${info.current.color}">${info.current.code}</div>
+        </div>
+      </div>
+      <div class="text-xs font-bold uppercase tracking-wider text-gray-300 mt-1">✨ Combinaciones Armónicas Compatibles (Deck B):</div>
+      ${compatCard("Misma Tónica", "Mezcla Unísono (0)", info.same, "Transición invisible, misma escala exacta.")}
+      ${compatCard("Subir +1", "Quinta Ascendente (+1)", info.up, "Sube la energía de la pista de forma natural.")}
+      ${compatCard("Bajar -1", "Quinta Descendente (-1)", info.down, "Relaja y profundiza la atmósfera del set.")}
+      ${compatCard("Mayor ↔ Menor", "Relativa Armónica (A/B)", info.relative, "Misma notas, cambia el clima emocional (alegre ↔ hipnótico).")}
+      ${compatCard("Boost +2 / Diagonal", "Salto de Energía (" + info.boost.code + " / " + info.diag.code + ")", info.boost, "Modulación de alto impacto para momentos pico.")}
+    </div>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="bento-card p-6">
+      <div class="bento-glow" style="background:#e6007e"></div>
+      <div class="flex items-center justify-between mb-2">
+        <div>
+          <div class="mono text-[10px] uppercase tracking-widest text-pink-400 font-bold">🥁 Medidor de Tempo en Vivo</div>
+          <h3 class="text-lg font-extrabold text-white">Tap BPM Manual por Pulsación</h3>
+        </div>
+        <button class="btn btn-ghost px-3 py-1.5 text-xs" onclick="resetTapBpm()">Reiniciar</button>
+      </div>
+      <p class="text-xs text-gray-400 mb-4">Pulsá el botón (al menos 4 veces seguidas) al ritmo del bombo (kick) para medir los BPM exactos de cualquier vinilo o track.</p>
+      <div class="grid grid-cols-2 gap-3 mb-4 text-center">
+        <div class="p-4 rounded-2xl" style="background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.07)">
+          <div class="text-[11px] text-gray-400">BPM Detectado</div>
+          <div id="tapBpmVal" class="mono text-4xl font-extrabold text-white mt-1">—</div>
+          <div id="tapBpmGenre" class="text-[11px] text-teal-400 mt-1">Esperando pulsaciones…</div>
+        </div>
+        <div class="p-4 rounded-2xl flex flex-col justify-center" style="background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.07)">
+          <div class="text-[11px] text-gray-400">Golpes registrados</div>
+          <div id="tapCountVal" class="mono text-2xl font-bold text-pink-400 mt-1">0 taps</div>
+          <div id="tapMsVal" class="text-[11px] text-gray-500 mt-1">Intervalo: — ms</div>
+        </div>
+      </div>
+      <button id="tapBtnMain" class="btn btn-magenta w-full py-4 text-base font-extrabold tracking-wide shadow-lg" onclick="triggerTapBpm()">🥁 PULSAR AL RITMO DEL BOMBO (TAP)</button>
+    </div>
+
+    <div class="bento-card p-6">
+      <div class="bento-glow" style="background:#fbba00"></div>
+      <div class="mono text-[10px] uppercase tracking-widest text-amber-400 font-bold">🎛️ Sincronización de Velocidad</div>
+      <h3 class="text-lg font-extrabold text-white mb-2">Calculadora de Pitch Fader (%)</h3>
+      <p class="text-xs text-gray-400 mb-4">Calculá qué porcentaje exacto debés mover el fader de Pitch en el Deck B para igualar el BPM del Deck A.</p>
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <label class="text-xs text-gray-400 font-semibold block mb-1">BPM Track A (En Aire)</label>
+          <input id="pitchBpmA" type="number" step="0.1" value="124" oninput="calcPitchDiff()" class="fld mono text-lg font-bold text-white">
+        </div>
+        <div>
+          <label class="text-xs text-gray-400 font-semibold block mb-1">BPM Track B (Entrante)</label>
+          <input id="pitchBpmB" type="number" step="0.1" value="128" oninput="calcPitchDiff()" class="fld mono text-lg font-bold text-white">
+        </div>
+      </div>
+      <div id="pitchResultBox" class="p-4 rounded-2xl text-center" style="background:rgba(0,169,157,.1);border:1px solid rgba(0,169,157,.3)">
+        <div class="text-xs text-gray-300">Ajuste de Pitch necesario en Deck B:</div>
+        <div class="mono text-3xl font-extrabold text-teal-300 my-1">-3.13%</div>
+        <div class="text-xs text-gray-300">Rango CDJ sugerido: <b>±6%</b> · Activá <b>Master Tempo</b> para mantener la llave Camelot.</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function triggerTapBpm(){
+  const now = performance.now();
+  if(tapTimes.length > 0 && (now - tapTimes[tapTimes.length - 1]) > 2800){
+    tapTimes = [];
+  }
+  tapTimes.push(now);
+  if(tapTimes.length > 12) tapTimes.shift();
+
+  const valEl = document.getElementById("tapBpmVal");
+  const genEl = document.getElementById("tapBpmGenre");
+  const cntEl = document.getElementById("tapCountVal");
+  const msEl  = document.getElementById("tapMsVal");
+  if(cntEl) cntEl.textContent = tapTimes.length + (tapTimes.length === 1 ? " tap" : " taps");
+
+  if(tapTimes.length >= 2){
+    let sum = 0;
+    for(let i = 1; i < tapTimes.length; i++) sum += (tapTimes[i] - tapTimes[i-1]);
+    const avgMs = sum / (tapTimes.length - 1);
+    const bpm = Math.round((60000 / avgMs) * 10) / 10;
+    if(valEl) valEl.textContent = bpm.toFixed(1);
+    if(msEl) msEl.textContent = "Intervalo: " + Math.round(avgMs) + " ms";
+    let genre = "Tempo Libre";
+    if(bpm >= 85 && bpm < 105) genre = "Reggaetón / Hip-Hop / RKT";
+    else if(bpm >= 105 && bpm < 118) genre = "Indie Dance / Nu-Disco / Midtempo";
+    else if(bpm >= 118 && bpm < 124) genre = "Deep House / Organic / Progressive";
+    else if(bpm >= 124 && bpm <= 130) genre = "House / Tech House / Melodic Techno";
+    else if(bpm > 130 && bpm <= 145) genre = "Techno / Peak Time / Hard Groove / Trance";
+    else if(bpm > 160 && bpm <= 180) genre = "Drum & Bass / Jungle";
+    if(genEl) genEl.textContent = "Estilo típico: " + genre;
+    const bIn = document.getElementById("pitchBpmA");
+    if(bIn) { bIn.value = bpm.toFixed(1); calcPitchDiff(); }
+  }
+}
+
+function resetTapBpm(){
+  tapTimes = [];
+  const valEl = document.getElementById("tapBpmVal");
+  const genEl = document.getElementById("tapBpmGenre");
+  const cntEl = document.getElementById("tapCountVal");
+  const msEl  = document.getElementById("tapMsVal");
+  if(valEl) valEl.textContent = "—";
+  if(genEl) genEl.textContent = "Esperando pulsaciones…";
+  if(cntEl) cntEl.textContent = "0 taps";
+  if(msEl) msEl.textContent = "Intervalo: — ms";
+}
+
+function calcPitchDiff(){
+  const a = parseFloat(document.getElementById("pitchBpmA")?.value || "0");
+  const b = parseFloat(document.getElementById("pitchBpmB")?.value || "0");
+  const box = document.getElementById("pitchResultBox");
+  if(!box || !a || !b || b <= 0) return;
+  const pct = ((a - b) / b) * 100;
+  const sign = pct > 0 ? "+" : "";
+  const abs = Math.abs(pct);
+  const range = abs <= 6 ? "±6% (Alta precisión)" : (abs <= 10 ? "±10%" : (abs <= 16 ? "±16%" : "WIDE (Cambio extremo)"));
+  const warn = abs > 3.5 ? "⚠️ Supera ±3.5%: activá sí o sí Master Tempo / Key Lock." : "✅ Rango ideal para mezcla orgánica y armónica.";
+  box.innerHTML = `<div class="text-xs text-gray-300">Ajuste de Pitch necesario en Deck B:</div>
+    <div class="mono text-3xl font-extrabold text-teal-300 my-1">${sign}${pct.toFixed(2)}%</div>
+    <div class="text-xs text-gray-300">Rango CDJ: <b>${range}</b> · ${warn}</div>`;
+}
+
 /* ===================== ROUTER ===================== */
 function render(){
   const app=document.getElementById("app");
@@ -1674,6 +2015,7 @@ function render(){
   switch(state.route.name){
     case "dashboard": content=viewDashboard(); break;
     case "material": content=viewMaterial(); break;
+    case "camelot": content=viewCamelot(); break;
     case "tareas": content=viewTareas(); break;
     case "tarea": content=viewTarea(); break;
     case "gestion": content=viewGestion(); break;
@@ -1718,7 +2060,7 @@ function render(){
   render();
 })();
 
-Object.assign(window,{go,doLogin,doSetup,logout,openHelpModal,closeHelpModal,toggleLesson,submitWork,createAssignment,grade,calcRubricAvg,drawWave,clickWave,seekAudio,postTimeComment,delTimeComment,studentCheckin,createAttSession,toggleAttSession,delAttSession,markManualAtt,selectCertPreviewStudent,updateCertPreview,issueFromPreview,issueStudentCert,revokeCert,postAnn,delAnn,adminCreateUser,adminSetRole,adminDeleteUser,addTool,deleteTool,logDownload,saveMyCard});
+Object.assign(window,{go,doLogin,doSetup,logout,openHelpModal,closeHelpModal,toggleLesson,submitWork,createAssignment,grade,calcRubricAvg,drawWave,clickWave,seekAudio,postTimeComment,delTimeComment,studentCheckin,createAttSession,toggleAttSession,delAttSession,markManualAtt,setCampusCertTheme,printCampusDiplomaPreview,selectCertPreviewStudent,updateCertPreview,issueFromPreview,issueStudentCert,revokeCert,selectCamelotKey,triggerTapBpm,resetTapBpm,calcPitchDiff,postAnn,delAnn,adminCreateUser,adminSetRole,adminDeleteUser,addTool,deleteTool,logDownload,saveMyCard});
 </script>
 </body>
 </html>
