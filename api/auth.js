@@ -4,6 +4,7 @@
 // ============================================================
 
 import crypto from "crypto";
+import bcrypt from "bcryptjs";
 import { queryOne, execute } from "./db.js";
 
 export function hashPassword(password) {
@@ -13,7 +14,16 @@ export function hashPassword(password) {
 }
 
 export function verifyPassword(password, storedHash) {
-  if (!storedHash || !storedHash.includes(":")) return false;
+  if (!storedHash) return false;
+  // Soporte nativo para contraseñas históricas migradas de Supabase (bcrypt $2a$ / $2b$)
+  if (storedHash.startsWith("$2a$") || storedHash.startsWith("$2b$") || storedHash.startsWith("$2y$")) {
+    try {
+      return bcrypt.compareSync(password, storedHash);
+    } catch (_) {
+      return false;
+    }
+  }
+  if (!storedHash.includes(":")) return false;
   const [salt, originalHash] = storedHash.split(":");
   const testHash = crypto.scryptSync(password, salt, 64).toString("hex");
   return crypto.timingSafeEqual(Buffer.from(testHash, "hex"), Buffer.from(originalHash, "hex"));

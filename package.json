@@ -8,6 +8,7 @@
     "start": "node api/index.js"
   },
   "dependencies": {
-    "@libsql/client": "^0.15.15"
+    "@libsql/client": "^0.15.15",
+    "bcryptjs": "^3.0.3"
   }
 }
