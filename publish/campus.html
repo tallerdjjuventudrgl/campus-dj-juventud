@@ -83,10 +83,11 @@ input,textarea,select{font-family:Outfit,sans-serif;}
 .diploma-preview.ink-saver .dp-muted{color:#475569 !important;}
 .diploma-preview.ink-saver .dp-line{border-color:#cbd5e1 !important;}
 @media print {
-  @page { size: A4 landscape; margin: 10mm; }
+  @page { size: A4 landscape; margin: 0mm; }
+  html, body { margin: 0 !important; padding: 0 !important; height: auto !important; }
   body * { visibility: hidden !important; }
   #diplomaPreviewBox, #diplomaPreviewBox * { visibility: visible !important; }
-  #diplomaPreviewBox { position: fixed !important; inset: 0 !important; width: 100% !important; margin: 0 !important; box-shadow: none !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  #diplomaPreviewBox { position: fixed !important; left: 10mm !important; right: 10mm !important; top: 8mm !important; width: auto !important; margin: 0 !important; box-shadow: none !important; page-break-inside: avoid !important; break-inside: avoid !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 </style>
 </head>
