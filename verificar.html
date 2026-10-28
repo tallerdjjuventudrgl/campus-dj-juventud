@@ -53,14 +53,15 @@ body{font-family:'Outfit',sans-serif;background:radial-gradient(circle at 50% 0%
 .diploma-frame.ink-saver .dip-div{background:#cbd5e1 !important;}
 .diploma-frame.ink-saver .dip-qr-box{background:#ffffff !important;border-color:#0d9488 !important;}
 @media print {
-  @page { size: A4 landscape; margin: 8mm 10mm; }
-  html, body{margin:0 !important;padding:0 !important;height:auto !important;min-height:0 !important;background:#0b0e12 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  @page { size: A4 landscape; margin: 0mm; }
+  html, body{width:297mm !important;height:209mm !important;min-height:0 !important;max-height:209mm !important;margin:0 !important;padding:0 !important;overflow:hidden !important;background:#0b0e12 !important;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
   body.print-ink-saver{background:#ffffff !important;color:#0f172a !important;}
-  .no-print{display:none !important;}
-  main{padding:0 !important;margin:0 !important;max-width:100% !important;width:100% !important;}
-  .diploma-frame{display:block !important;box-shadow:none !important;border:2.5px solid #00a99d !important;margin:0 !important;width:100% !important;height:184mm !important;box-sizing:border-box !important;page-break-inside:avoid !important;break-inside:avoid !important;}
-  body.print-ink-saver .diploma-frame{background:#ffffff !important;border:2.5px solid #0d9488 !important;}
-  .diploma-inner{padding:22px 34px !important;margin:8px !important;height:calc(100% - 16px) !important;box-sizing:border-box !important;display:flex !important;flex-direction:column !important;justify-content:space-between !important;}
+  .no-print, nav, footer{display:none !important;}
+  main, #verifyBox{display:block !important;width:297mm !important;height:209mm !important;max-width:none !important;margin:0 !important;padding:0 !important;overflow:hidden !important;}
+  #verifyBox{padding:7mm 8mm !important;box-sizing:border-box !important;}
+  .diploma-frame{display:block !important;box-shadow:none !important;border:3px solid #00a99d !important;border-radius:20px !important;margin:0 !important;padding:10px !important;width:100% !important;height:100% !important;box-sizing:border-box !important;page-break-inside:avoid !important;page-break-after:avoid !important;break-inside:avoid !important;}
+  body.print-ink-saver .diploma-frame{background:#ffffff !important;border:3px solid #0d9488 !important;}
+  .diploma-inner{padding:26px 40px !important;margin:0 !important;width:100% !important;height:100% !important;box-sizing:border-box !important;display:flex !important;flex-direction:column !important;justify-content:space-between !important;border-radius:14px !important;}
   .dip-center-block{padding-top:10px !important;padding-bottom:10px !important;}
   .dip-footer-block{margin-top:10px !important;padding-top:10px !important;}
 }
@@ -376,18 +377,18 @@ async function verifyNow(codeParam){
 
           <div class="dip-border grid grid-cols-1 sm:grid-cols-3 gap-5 items-end pt-5 border-t border-white/10">
             <div class="text-center">
-              <div class="dip-title-white text-sm font-bold text-white">Gisel Duarte</div>
+              <div class="dip-border w-52 mx-auto border-t border-white/25 pt-2 dip-title-white text-sm font-bold text-white">Gisel Duarte</div>
               <div class="dip-teal text-[11px] text-teal-400 uppercase tracking-wider font-semibold">Instructora Principal DJ</div>
-              <div class="dip-muted text-[10px] text-gray-500 mt-0.5">Casa de la Juventud RGL</div>
+              <div class="dip-muted text-[10px] text-gray-500 mt-0.5">Dirección Académica · Casa de la Juventud</div>
             </div>
             <div class="flex flex-col items-center justify-center">
-              <img id="dipQrImg" src="${qrLight}" alt="QR Verificación" class="dip-qr-box w-20 h-20 rounded-xl border border-slate-300 p-1.5 bg-white shadow-sm">
-              <span class="dip-muted mono text-[9px] text-gray-400 mt-1">Escaneá para validar</span>
+              <img id="dipQrImg" src="${qrLight}" alt="QR Verificación" class="dip-qr-box w-24 h-24 rounded-xl border border-slate-300 p-1.5 bg-white shadow-sm">
+              <span class="dip-muted mono text-[9px] text-gray-400 mt-1">Escaneá el QR para validar</span>
             </div>
             <div class="text-center">
-              <div class="dip-title-white text-sm font-bold text-white">Franco Esquivel</div>
-              <div class="dip-pink text-[11px] text-pink-400 uppercase tracking-wider font-semibold">Instructor Técnico DJ</div>
-              <div class="dip-muted text-[10px] text-gray-500 mt-0.5">Emitido el ${fmtDate(c.issued_at)}</div>
+              <div class="dip-border w-52 mx-auto border-t border-white/25 pt-2 dip-title-white text-sm font-bold text-white">Franco Esquivel</div>
+              <div class="dip-pink text-[11px] text-pink-400 uppercase tracking-wider font-semibold">Instructor Técnico</div>
+              <div class="dip-muted text-[10px] text-gray-500 mt-0.5">Casa de la Juventud · Emitido el ${fmtDate(c.issued_at)}</div>
             </div>
           </div>
 
