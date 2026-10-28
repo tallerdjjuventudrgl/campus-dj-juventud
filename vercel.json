@@ -4,6 +4,8 @@
     { "source": "/api/(.*)", "destination": "/api/index.js" },
     { "source": "/campus", "destination": "/campus.html" },
     { "source": "/verificar", "destination": "/verificar.html" },
+    { "source": "/manual-admin", "destination": "/manual-admin.html" },
+    { "source": "/manual-alumno", "destination": "/manual-alumno.html" },
     { "source": "/guia", "destination": "/GUIA-INSTRUCTORES-google-drive.html" }
   ],
   "headers": [
