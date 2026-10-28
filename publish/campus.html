@@ -184,7 +184,6 @@ async function refresh(){
     console.error("Error refreshing data:", err);
   }
 }
-}
 
 /* ---------- NAV ---------- */
 async function go(name,params={}){ state.route={name,...params}; document.getElementById("app").innerHTML=loader(); await refresh(); render(); window.scrollTo(0,0); }
@@ -206,7 +205,7 @@ function viewLogin(){
         <input id="aUser" class="fld mt-1 mb-4" placeholder="tu usuario" autocapitalize="none" autocomplete="username">
         <label class="text-xs text-gray-400 font-semibold">Contraseña</label>
         <input id="aPw" class="fld mt-1 mb-5" type="password" placeholder="tu contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
-        <button id="authBtn" class="btn btn-primary w-full py-3" onclick="doLogin()">Entrar</button>
+        <button id="authBtn" class="btn btn-primary w-full py-3 font-bold" onclick="doLogin()">Ingresar al campus</button>
       </div>
       <p class="text-center text-xs text-gray-600 mt-5">¿No tenés usuario? Pedíselo a tu instructor.</p>
       <p class="text-center text-[11px] text-gray-700 mt-2"><a href="index.html" class="hover:text-gray-400">← Volver al sitio público</a></p>
@@ -227,16 +226,21 @@ function viewSetup(){
         <input id="sName" class="fld mt-1 mb-4" placeholder="Gisel Duarte">
         <label class="text-xs text-gray-400 font-semibold">Contraseña (mín. 6)</label>
         <input id="sPw" class="fld mt-1 mb-5" type="password" placeholder="••••••">
-        <button id="authBtn" class="btn btn-primary w-full py-3" onclick="doSetup()">Crear mi cuenta</button>
+        <button id="authBtn" class="btn btn-primary w-full py-3 font-bold" onclick="doSetup()">Crear mi cuenta</button>
       </div>
     </div>
   </div>`;
 }
 function authMsg(text,ok){ const el=document.getElementById("authMsg"); if(!el)return; el.textContent=text; el.className="text-sm mb-4 p-3 rounded-lg"; el.style.background=ok?"rgba(0,169,157,.12)":"rgba(239,68,68,.12)"; el.style.color=ok?"#5eead4":"#f87171"; el.classList.remove("hidden"); }
 async function doLogin(){
-  const user=document.getElementById("lUser").value.trim().toLowerCase().replace(/\s+/g,""), pw=document.getElementById("lPw").value;
+  const userEl = document.getElementById("aUser") || document.getElementById("lUser");
+  const pwEl = document.getElementById("aPw") || document.getElementById("lPw");
+  if(!userEl || !pwEl){ authMsg("Error en el formulario de inicio de sesión."); return; }
+  const user = userEl.value.trim().toLowerCase().replace(/\s+/g,"");
+  const pw = pwEl.value;
   if(!user||!pw){authMsg("Completá usuario y contraseña.");return;}
-  const btn=document.getElementById("authBtn"); btn.disabled=true; btn.textContent="Entrando…";
+  const btn=document.getElementById("authBtn");
+  if(btn){ btn.disabled=true; btn.textContent="Ingresando…"; }
   try {
     const data = await api("/api/auth/login", {
       method: "POST",
@@ -247,13 +251,12 @@ async function doLogin(){
     store.user = data.user;
     store.profile = data.profile;
     state.route = { name: "dashboard" };
-    document.getElementById("app").innerHTML = loader();
+    document.getElementById("app").innerHTML = loader("Cargando campus…");
     await refresh();
     render();
   } catch(err) {
     authMsg(err.message || "Usuario o contraseña incorrectos.");
-    btn.disabled = false;
-    btn.textContent = "Entrar";
+    if(btn){ btn.disabled = false; btn.textContent = "Ingresar al campus"; }
   }
 }
 async function doSetup(){
