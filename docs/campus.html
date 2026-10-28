@@ -125,7 +125,7 @@ const initials=n=>(n||"?").split(" ").map(s=>s[0]).slice(0,2).join("").toUpperCa
 /* ---------- LOGO ---------- */
 const HAND='M13 2c-.6 0-1 .4-1 1v6h-1V4c0-.6-.4-1-1-1s-1 .4-1 1v5H7V6c0-.6-.4-1-1-1s-1 .4-1 1v8c0 3.3 2.7 6 6 6s6-2.7 6-6V8c0-.6-.4-1-1-1s-1 .4-1 1v1h-1V3c0-.6-.4-1-1-1z';
 function hand(c,w,h){return '<svg width="'+w+'" height="'+h+'" viewBox="0 0 24 24" fill="'+c+'"><path d="'+HAND+'"/></svg>';}
-function logo(size){return '<img src="JUVENTUD.png" alt="JUVENTUD" style="height:'+size+'px;width:auto">';}
+function logo(size){return '<img src="JUVENTUD.png" alt="JUVENTUD" style="height:'+size+'px;width:auto;object-fit:contain;display:inline-block">';}
 function loader(msg){return '<div class="min-h-screen flex flex-col items-center justify-center gap-4"><div class="spin"></div><div class="text-sm text-gray-500">'+(msg||"Cargando…")+'</div></div>';}
 
 /* ---------- DATA LOADERS (Turso Scaler) ---------- */

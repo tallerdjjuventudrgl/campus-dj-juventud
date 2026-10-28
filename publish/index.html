@@ -57,16 +57,16 @@ nav{background:rgba(6,6,15,.88);backdrop-filter:blur(24px);border-bottom:1px sol
 <div class="max-w-6xl mx-auto px-6 flex items-center justify-between" style="height:72px">
   <div class="flex items-center gap-4">
     <a onclick="show('inicio')" style="cursor:pointer" class="flex flex-col items-start select-none">
-      <img src="JUVENTUD.png" alt="JUVENTUD" style="height:60px;width:auto;margin-bottom:4px">
-      <div class="brandsub">LA&nbsp;&nbsp;CASA</div>
+      <img src="JUVENTUD.png" alt="JUVENTUD" style="height:36px;width:auto;object-fit:contain;display:block">
+      <div class="brandsub" style="font-size:8px;letter-spacing:.22em;color:#94a3b8;margin-top:2px">LA&nbsp;CASA&nbsp;DE&nbsp;LA</div>
     </a>
-    <div class="hidden sm:block w-px h-9" style="background:rgba(255,255,255,.12)"></div>
-    <div class="hidden sm:block">
-      <h1 class="text-[13px] font-extrabold leading-none uppercase tracking-tight text-white">Taller de DJ</h1>
-      <p class="mono text-[9px] uppercase tracking-widest mt-1" style="color:#00a99d">R&iacute;o Gallegos &middot; Oficio Digital</p>
+    <div class="hidden sm:block w-px h-8 flex-shrink-0" style="background:rgba(255,255,255,.12)"></div>
+    <div class="hidden sm:flex flex-col justify-center flex-shrink-0">
+      <h1 class="text-xs sm:text-[13px] font-extrabold leading-none uppercase tracking-tight text-white whitespace-nowrap">Taller de DJ</h1>
+      <p class="mono text-[9px] uppercase tracking-wider mt-1 whitespace-nowrap" style="color:#00a99d">R&iacute;o Gallegos &middot; Oficio Digital</p>
     </div>
   </div>
-  <div class="hidden md:flex items-center gap-8">
+  <div class="hidden md:flex items-center gap-3 lg:gap-5 xl:gap-7 flex-shrink-0">
     <button onclick="show('inicio')" class="nav-btn">Bienvenida</button>
     <button onclick="show('programa')" class="nav-btn">Programa</button>
     <button onclick="show('contenido')" class="nav-btn">Contenidos</button>
@@ -74,7 +74,9 @@ nav{background:rgba(6,6,15,.88);backdrop-filter:blur(24px);border-bottom:1px sol
     <button onclick="show('metodologia')" class="nav-btn">Metodolog&iacute;a</button>
     <button onclick="show('practica')" class="nav-btn">Pasant&iacute;as</button>
     <button onclick="show('nosotros')" class="nav-btn">Nosotros</button>
-    <a href="/campus" class="px-4 py-2 rounded-lg font-bold text-[11px] uppercase tracking-widest transition-all hover:scale-105" style="background:var(--cyan);color:#0a0c0d">Ingresar al Campus</a>
+    <a href="/campus" class="whitespace-nowrap flex-shrink-0 px-3.5 lg:px-4 py-2 rounded-lg font-bold text-[11px] uppercase tracking-wider transition-all hover:scale-105 text-center shadow-md" style="background:var(--cyan);color:#0a0c0d">
+      Ingresar al Campus
+    </a>
   </div>
   <button class="md:hidden text-gray-400 hover:text-white" onclick="toggleMob()">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -100,7 +102,7 @@ nav{background:rgba(6,6,15,.88);backdrop-filter:blur(24px);border-bottom:1px sol
         <div class="pulse-dot"></div>
         <span class="mono text-[10px] uppercase tracking-widest text-gray-500">Inscripciones Abiertas &middot; +16 a&ntilde;os &middot; Gratuito</span>
       </div>
-      <h2 class="display leading-[0.88] mb-6 text-white" style="font-size:clamp(72px,11vw,128px)">
+      <h2 class="display leading-[0.88] mb-6 text-white" style="font-size:clamp(46px,7.5vw,96px)">
         EL ARTE<br>DE <span style="color:var(--cyan)" class="glow-cyan">CREAR</span><br>LA PISTA.
       </h2>
       <p class="text-gray-400 text-lg mb-10 leading-relaxed max-w-md">
@@ -359,8 +361,8 @@ nav{background:rgba(6,6,15,.88);backdrop-filter:blur(24px);border-bottom:1px sol
 <div class="max-w-6xl mx-auto px-6 py-12">
   <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-10">
     <div>
-      <img src="JUVENTUD.png" alt="JUVENTUD" style="height:230px;width:auto;display:block;margin:0;padding:0;line-height:1">
-      <div class="brandsub" style="font-size:9px;margin-top:-5px;margin-bottom:0">LA&nbsp;&nbsp;CASA&nbsp;&nbsp;DE&nbsp;&nbsp;LA&nbsp;&nbsp;JUVENTUD</div>
+      <img src="JUVENTUD.png" alt="JUVENTUD" style="height:64px;width:auto;object-fit:contain;display:block;margin:0 0 6px 0">
+      <div class="brandsub" style="font-size:9px;letter-spacing:.22em;color:#94a3b8;margin-bottom:4px">LA&nbsp;CASA&nbsp;DE&nbsp;LA&nbsp;JUVENTUD</div>
       <h2 class="display text-4xl text-white leading-none mb-2">TALLER DE DJ</h2>
       <p class="mono text-[10px] uppercase tracking-widest" style="color:var(--cyan)">Casa de la Juventud &middot; R&iacute;o Gallegos &middot; Santa Cruz</p>
     </div>
@@ -372,9 +374,24 @@ nav{background:rgba(6,6,15,.88);backdrop-filter:blur(24px);border-bottom:1px sol
     <div><p class="mono text-[10px] uppercase tracking-widest mb-3 text-gray-600">Lugar</p><p class="font-bold text-white">Casa de la Juventud</p><p class="text-gray-500 text-xs mt-1">R&iacute;o Gallegos, Santa Cruz</p></div>
     <div><p class="mono text-[10px] uppercase tracking-widest mb-3 text-gray-600">Instructores</p><p class="font-bold text-white">Gisel Duarte &amp; Franco Esquivel</p><p class="text-gray-500 text-xs mt-1">Taller de Oficio Digital</p></div>
   </div>
-  <div class="mt-10 pt-6 border-t text-center" style="border-color:rgba(255,255,255,.06)">
-    <p class="mono text-[11px] uppercase tracking-widest text-gray-400 mb-1">Sistemas &middot; <span style="color:var(--cyan)">Desarroll</span><span style="color:var(--purple)">AR</span> &middot; de Jorge Adrian Duarte</p>
-    <p class="mono text-xs text-gray-400 font-semibold mt-1">Hecho con orgullo en Río Gallegos, Santa Cruz, Argentina 🇦🇷</p>
+  <div class="mt-10 pt-6 border-t flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left" style="border-color:rgba(255,255,255,.06)">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm shadow-lg" style="background:linear-gradient(135deg,#00a99d,#e6007e);color:#fff">
+        D
+      </div>
+      <div class="text-left">
+        <p class="mono text-[11px] uppercase tracking-widest font-bold text-gray-300">
+          SISTEMAS &middot; <span style="color:var(--cyan)">Desarroll</span><span style="color:var(--magenta)">AR</span>
+        </p>
+        <p class="text-[10px] text-gray-500">Jorge Adrián Duarte</p>
+      </div>
+    </div>
+    <div>
+      <p class="mono text-xs text-gray-300 font-semibold tracking-wide flex items-center gap-1.5 justify-center md:justify-end">
+        <span>Hecho con orgullo en Río Gallegos, Santa Cruz, Argentina</span> <span>🇦🇷</span>
+      </p>
+      <p class="text-[10px] text-gray-500 text-center md:text-right mt-0.5">Tecnología de Alto Rendimiento &middot; Vercel Pro + Turso Scaler</p>
+    </div>
   </div>
 </div>
 </footer>
