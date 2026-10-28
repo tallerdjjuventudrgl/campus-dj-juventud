@@ -1116,7 +1116,7 @@ function viewUsuarios(){
       <option value="admin" ${x.role==='admin'?'selected':''}>Admin</option></select>`;
   };
   const delBtn=(x)=>{
-    if(x.id===me.id || x.role==='admin') return '';
+    if(x.id===me.id) return '';
     return `<button class="btn" style="background:rgba(239,68,68,.13);color:#f87171;padding:7px 11px;font-size:13px" onclick="adminDeleteUser('${x.id}')" title="Eliminar usuario">🗑️</button>`;
   };
   const rows=store.allUsers.map(x=>`<div class="card p-4 mb-2 flex items-center justify-between gap-3 flex-wrap"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm" style="background:linear-gradient(135deg,#00a99d,#e6007e);color:#fff">${initials(x.name)}</div><div><div class="font-semibold text-white text-sm">${esc(x.name)}</div><div class="text-xs text-gray-500">@${esc(x.username||'')}</div></div></div><div class="flex items-center gap-2">${roleSel(x)}${delBtn(x)}</div></div>`).join('');

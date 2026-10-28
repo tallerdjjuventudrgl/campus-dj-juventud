@@ -1066,11 +1066,6 @@ export default async function handler(req, res) {
         return sendJson(res, 400, { error: "No podés eliminarte a vos mismo." });
       }
 
-      const targetUser = await queryOne("SELECT role FROM users WHERE id = ?", [targetId]);
-      if (targetUser && targetUser.role === "admin") {
-        return sendJson(res, 403, { error: "No se puede eliminar a otro administrador." });
-      }
-
       await execute("DELETE FROM users WHERE id = ?", [targetId]);
       return sendJson(res, 200, { ok: true });
     }
