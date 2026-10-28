@@ -1442,11 +1442,14 @@ async function markManualAtt(session_id,student_id,status){
 /* ---------- CERTIFICADOS DIGITALES CON VISTA PREVIA EN VIVO Y VALIDACIÓN QR ---------- */
 function renderDiplomaPreview(d){
   const isLight = state.certTheme === "light";
-  const vUrl = `${location.origin}/verificar?code=${encodeURIComponent(d.code||"DJ-RGL-2026-MUESTRA")}`;
+  const extraParams = d.issued ? "" : `&student=${encodeURIComponent(d.student_name||"Alumno")}&grade=${encodeURIComponent(d.final_grade||9)}&hours=${encodeURIComponent(d.hours||48)}`;
+  const vUrl = `${location.origin}/verificar?code=${encodeURIComponent(d.code||"DJ-RGL-2026-MUESTRA")}${extraParams}`;
   const qr = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=6&color=${isLight?'0f172a':'00a99d'}&bgcolor=ffffff&data=${encodeURIComponent(vUrl)}`;
   return `<div class="diploma-preview ${isLight?'ink-saver':''} text-center my-4" id="diplomaPreviewBox">
-    <div class="flex items-center justify-center gap-3 mb-2">
-      <img src="JUVENTUD.png" alt="Casa de la Juventud" style="height:40px;width:auto;object-fit:contain">
+    <div class="flex items-center justify-center gap-4 mb-2 flex-wrap">
+      <img src="escudo-rgl.png" alt="Municipalidad de Río Gallegos" style="height:44px;width:auto;object-fit:contain">
+      <div class="dp-line h-8 w-px" style="background:rgba(255,255,255,.18)"></div>
+      <img src="JUVENTUD.png" alt="Casa de la Juventud" style="height:38px;width:auto;object-fit:contain">
     </div>
     <div class="dp-teal mono text-[10px] uppercase tracking-[0.28em] text-teal-400 font-bold">Municipalidad de Río Gallegos · Casa de la Juventud</div>
     <h2 class="dp-gold text-xl md:text-2xl font-extrabold uppercase tracking-widest mt-1" style="color:#fbba00">Certificado Oficial de Aprobación</h2>
@@ -1463,7 +1466,7 @@ function renderDiplomaPreview(d){
       <div class="flex flex-col items-center">
         <div class="bg-white p-2 rounded-xl shadow-md border border-slate-200"><img id="dpQrImg" src="${qr}" alt="QR Validación" style="width:76px;height:76px;display:block"></div>
         <div id="dpCodeTxt" class="dp-teal mono text-[10px] text-teal-300 mt-1.5 font-bold">${esc(d.code||"DJ-RGL-2026-PREVIEW")}</div>
-        <div class="dp-muted text-[9px] text-gray-500">${d.issued?'✓ Registrado Oficialmente':'Vista Previa antes de emitir'}</div>
+        <div class="dp-muted text-[9px] text-gray-500">${d.issued?'✓ Registrado Oficialmente':'Escaneá el QR para ver el Cartel Institucional Móvil'}</div>
       </div>
       <div class="text-center">
         <div class="dp-line dp-title w-40 mx-auto border-t pt-1.5 text-xs font-bold text-white" style="border-color:rgba(255,255,255,.25)">Casa de la Juventud</div>
@@ -1587,9 +1590,10 @@ function viewCertificados(){
     </div>
     ${renderDiplomaPreview({ student_name: selStu.name, final_grade: defAvg, hours: defHours, code: previewCode, issued: !!existingCert })}
     <div class="flex items-center justify-end gap-2.5 flex-wrap mt-4">
+      <a href="/verificar?code=${encodeURIComponent(previewCode)}&student=${encodeURIComponent(selStu.name)}&grade=${encodeURIComponent(defAvg)}&hours=${encodeURIComponent(defHours)}" target="_blank" class="btn btn-ghost px-3.5 py-2.5 text-xs">📱 Ver Cartel Móvil QR (Válido)</a>
+      <a href="/verificar?code=DJ-RGL-CODIGO-ADULTERADO" target="_blank" class="btn btn-ghost px-3.5 py-2.5 text-xs">⚠️ Probar Cartel QR (No Válido)</a>
       <button class="btn btn-ghost px-4 py-2.5 text-xs" onclick="printCampusDiplomaPreview('light')">🖨️ Imprimir en Blanco (Ahorro de Tinta)</button>
       <button class="btn btn-ghost px-4 py-2.5 text-xs" onclick="printCampusDiplomaPreview('dark')">🖨️ Imprimir Fondo Oscuro</button>
-      ${existingCert?`<a href="/verificar?code=${encodeURIComponent(existingCert.code)}&mode=light" target="_blank" class="btn btn-ghost px-4 py-2.5 text-xs">🔎 Abrir en /verificar (Blanco)</a>`:""}
       <button class="btn btn-primary px-6 py-3 text-xs font-bold" onclick="issueFromPreview()">🏅 ${existingCert?'Actualizar y Re-Emitir Certificado':'Confirmar y Emitir Certificado Oficial QR'}</button>
     </div>
   </div>
