@@ -7,40 +7,51 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Outfit:wght@300;400;500;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0a0c0d;--surface:#13171b;--surface2:#1a1f24;--cyan:#00a99d;--magenta:#e6007e;--yellow:#fbba00;--orange:#f39200;--dteal:#0f8a7e;}
+:root{--bg:#07090b;--surface:#11151a;--surface2:#171c23;--cyan:#00a99d;--magenta:#e6007e;--yellow:#fbba00;--orange:#f39200;--dteal:#0f8a7e;}
 *{box-sizing:border-box;}
-body{font-family:Outfit,sans-serif;background:var(--bg);color:#e2e8f0;margin:0;overflow-x:hidden;}
+body{font-family:Outfit,sans-serif;background:var(--bg);color:#e2e8f0;margin:0;overflow-x:hidden;background-image:radial-gradient(circle at 12% 0%,rgba(0,169,157,.07),transparent 40%),radial-gradient(circle at 88% 10%,rgba(230,0,126,.06),transparent 40%);}
 .mono{font-family:"JetBrains Mono",monospace;}
 .brandlogo{font-family:"Fredoka",sans-serif;font-weight:700;line-height:.9;letter-spacing:.5px;}
 .brandsub{font-family:"Fredoka",sans-serif;font-weight:600;font-size:8px;letter-spacing:.34em;color:#8b969d;margin-top:3px;}
 input,textarea,select{font-family:Outfit,sans-serif;}
-.fld{width:100%;background:#0c0f12;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:11px 14px;color:#fff;font-size:14px;outline:none;transition:border-color .2s;}
-.fld:focus{border-color:var(--cyan);}
-.btn{cursor:pointer;border:none;border-radius:10px;font-weight:600;transition:all .15s;}
+.fld{width:100%;background:#0a0d10;border:1px solid rgba(255,255,255,.1);border-radius:11px;padding:11px 14px;color:#fff;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s;}
+.fld:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,169,157,.14);}
+.btn{cursor:pointer;border:none;border-radius:11px;font-weight:600;transition:all .18s cubic-bezier(.16,1,.3,1);}
 .btn:active{transform:scale(.97);}
 .btn:disabled{opacity:.55;cursor:not-allowed;}
-.btn-primary{background:var(--cyan);color:#06100f;}
-.btn-primary:hover{box-shadow:0 0 22px rgba(0,169,157,.4);}
-.btn-ghost{background:transparent;border:1px solid rgba(255,255,255,.14);color:#cbd5e1;}
-.btn-ghost:hover{border-color:var(--cyan);color:#fff;}
-.card{background:var(--surface);border:1px solid rgba(255,255,255,.07);border-radius:16px;}
-.sidelink{display:flex;align-items:center;gap:11px;padding:11px 14px;border-radius:10px;cursor:pointer;color:#94a3b8;font-weight:500;font-size:14px;transition:all .15s;}
+.btn-primary{background:linear-gradient(135deg,#00a99d,#0d9488);color:#041210;box-shadow:0 4px 16px rgba(0,169,157,.25);}
+.btn-primary:hover{box-shadow:0 0 26px rgba(0,169,157,.48);transform:translateY(-1px);}
+.btn-magenta{background:linear-gradient(135deg,#e6007e,#be185d);color:#fff;box-shadow:0 4px 16px rgba(230,0,126,.25);}
+.btn-magenta:hover{box-shadow:0 0 24px rgba(230,0,126,.45);transform:translateY(-1px);}
+.btn-ghost{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.12);color:#cbd5e1;}
+.btn-ghost:hover{border-color:var(--cyan);color:#fff;background:rgba(0,169,157,.07);}
+.card{background:linear-gradient(180deg,rgba(23,28,35,.88),rgba(15,19,24,.94));border:1px solid rgba(255,255,255,.075);border-radius:18px;box-shadow:0 12px 32px -12px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.06);backdrop-filter:blur(12px);}
+.bento-card{position:relative;overflow:hidden;background:linear-gradient(165deg,rgba(24,30,38,.92),rgba(13,17,22,.96));border:1px solid rgba(255,255,255,.08);border-radius:20px;box-shadow:0 16px 36px -14px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.07);transition:transform .22s ease,border-color .22s ease;}
+.bento-card:hover{border-color:rgba(0,169,157,.28);transform:translateY(-2px);}
+.bento-glow{position:absolute;width:150px;height:150px;border-radius:50%;filter:blur(48px);opacity:.18;pointer-events:none;right:-30px;top:-30px;}
+.sidelink{display:flex;align-items:center;gap:11px;padding:10px 13px;border-radius:11px;cursor:pointer;color:#94a3b8;font-weight:500;font-size:13.5px;transition:all .15s;border:1px solid transparent;}
 .sidelink:hover{background:rgba(255,255,255,.04);color:#fff;}
-.sidelink.on{background:rgba(0,169,157,.12);color:#fff;}
+.sidelink.on{background:linear-gradient(90deg,rgba(0,169,157,.16),rgba(0,169,157,.04));color:#fff;border-color:rgba(0,169,157,.25);}
 .sidelink.on .ic{color:var(--cyan);}
 .ic{width:18px;text-align:center;}
-.badge{font-size:10px;font-weight:700;padding:2px 9px;border-radius:99px;text-transform:uppercase;letter-spacing:.05em;}
+.badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:99px;text-transform:uppercase;letter-spacing:.05em;display:inline-flex;align-items:center;gap:4px;}
 .chip{font-size:11px;padding:3px 10px;border-radius:99px;background:rgba(255,255,255,.05);color:#94a3b8;border:1px solid rgba(255,255,255,.08);}
+.pulse-dot{width:7px;height:7px;border-radius:50%;background:#10b981;box-shadow:0 0 0 0 rgba(16,185,129,.7);animation:pdot 2s infinite;}
+@keyframes pdot{0%{box-shadow:0 0 0 0 rgba(16,185,129,.7);}70%{box-shadow:0 0 0 7px rgba(16,185,129,0);}100%{box-shadow:0 0 0 0 rgba(16,185,129,0);}}
 ::-webkit-scrollbar{width:7px;height:7px;}
 ::-webkit-scrollbar-thumb{background:rgba(0,169,157,.3);border-radius:4px;}
-.fade{animation:f .35s ease;}
-@keyframes f{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.fade{animation:f .3s ease;}
+@keyframes f{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 .acc-body{max-height:0;overflow:hidden;transition:max-height .35s ease;}
-.acc.open .acc-body{max-height:2600px;}
+.acc.open .acc-body{max-height:2800px;}
 .acc.open .acc-chev{transform:rotate(90deg);}
 .acc-chev{transition:transform .3s;}
 .spin{width:34px;height:34px;border:3px solid rgba(255,255,255,.12);border-top-color:var(--cyan);border-radius:50%;animation:sp .8s linear infinite;}
 @keyframes sp{to{transform:rotate(360deg);}}
+.wave-box{position:relative;background:#080b0e;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;}
+.wave-canvas{width:100%;height:68px;cursor:pointer;display:block;border-radius:8px;}
+.rubric-bar{height:7px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;}
+.rubric-fill{height:100%;border-radius:99px;transition:width .4s ease;}
 </style>
 </head>
 <body>
@@ -108,19 +119,73 @@ const COURSE = {id:"dj", title:"Taller de DJ", modules:[
 ]};
 
 /* ---------- STORE ---------- */
-const store={ user:null, profile:null, assignments:[], submissions:[], announcements:[], progress:{}, students:[], allProgress:[], allUsers:[] };
+const store={ user:null, profile:null, assignments:[], submissions:[], comments:[], announcements:[], progress:{}, students:[], allProgress:[], allUsers:[], attendance:{sessions:[],records:[]}, certificates:[], storageMode:"turso_edge" };
 let state={ route:{name:"login"} };
 
 /* ---------- HELPERS ---------- */
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmtDate=d=>{ if(!d)return"-"; const x=new Date(d); return x.toLocaleDateString("es-AR",{day:"2-digit",month:"short",year:"numeric"}); };
 const fmtSize=b=>!b?"":(b>1048576?(b/1048576).toFixed(1)+" MB":(b/1024).toFixed(0)+" KB");
+const fmtTime=sec=>{ const s=Math.max(0,Math.floor(+sec||0)); return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"); };
 const lessonsAll=()=>COURSE.modules.flatMap(m=>m.lessons);
 const subFor=(aid,sid)=>store.submissions.find(s=>s.assignment_id===aid && s.student_id===sid);
 const doneCountFor=id=>{ if(store.profile&&store.profile.role!=="student") return store.allProgress.filter(p=>p.user_id===id).length; return Object.keys(store.progress).length; };
 const progressPct=id=>Math.round(doneCountFor(id)/lessonsAll().length*100);
 const dueBadge=due=>{ const days=Math.ceil((new Date(due)-Date.now())/86400000); if(days<0) return '<span class="badge" style="background:rgba(239,68,68,.15);color:#f87171">Vencida</span>'; if(days<=3) return '<span class="badge" style="background:rgba(251,186,0,.15);color:var(--yellow)">Vence en '+days+'d</span>'; return '<span class="badge" style="background:rgba(0,169,157,.13);color:var(--cyan)">'+fmtDate(due)+'</span>'; };
 const initials=n=>(n||"?").split(" ").map(s=>s[0]).slice(0,2).join("").toUpperCase();
+const studentAttPct=sid=>{
+  const sess=store.attendance.sessions||[];
+  if(!sess.length) return 100;
+  const recs=(store.attendance.records||[]).filter(r=>r.student_id===sid&&(r.status==="present"||r.status==="late"||r.status==="excused"));
+  return Math.min(100,Math.round(recs.length/sess.length*100));
+};
+const studentAvgGrade=sid=>{
+  const graded=store.submissions.filter(s=>s.student_id===sid&&s.status==="graded"&&s.grade!=null);
+  if(!graded.length) return null;
+  return +(graded.reduce((a,b)=>a+(+b.grade),0)/graded.length).toFixed(1);
+};
+
+/* ---------- HYBRID CLOUD UPLOADER (Cloudflare R2 Presigned + Turso Chunked Streamer) ---------- */
+async function uploadMediaFile(file, folder, onProgress) {
+  if(onProgress) onProgress(2, "Inicializando subida cloud…");
+  const init = await api("/api/storage/init", {
+    method: "POST",
+    body: JSON.stringify({ file_name: file.name, file_type: file.type || "application/octet-stream", file_size: file.size, folder })
+  });
+  if (init.mode === "cloudflare_r2" && init.upload_url) {
+    if(onProgress) onProgress(15, "Subiendo directo a Cloudflare R2…");
+    const putRes = await fetch(init.upload_url, {
+      method: "PUT",
+      headers: { "Content-Type": file.type || "application/octet-stream" },
+      body: file
+    });
+    if (!putRes.ok) throw new Error("Error subiendo a Cloudflare R2 (" + putRes.status + ")");
+    if(onProgress) onProgress(100, "¡Archivo subido a Cloudflare R2!");
+    return { url: init.public_url, file_id: init.file_id, mode: "cloudflare_r2" };
+  }
+  const CHUNK_SIZE = 750 * 1024;
+  const totalChunks = Math.ceil(file.size / CHUNK_SIZE) || 1;
+  for (let idx = 0; idx < totalChunks; idx++) {
+    const slice = file.slice(idx * CHUNK_SIZE, Math.min(file.size, (idx + 1) * CHUNK_SIZE));
+    const b64 = await new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => {
+        const res = String(r.result || "");
+        resolve(res.includes(",") ? res.split(",")[1] : res);
+      };
+      r.onerror = reject;
+      r.readAsDataURL(slice);
+    });
+    const pct = Math.round(((idx + 1) / totalChunks) * 95);
+    if(onProgress) onProgress(pct, `Subiendo bloque ${idx+1}/${totalChunks} (${pct}%)…`);
+    await api("/api/storage/chunk", {
+      method: "POST",
+      body: JSON.stringify({ file_id: init.file_id, chunk_index: idx, total_chunks: totalChunks, data_base64: b64 })
+    });
+  }
+  if(onProgress) onProgress(100, "¡Subida completada!");
+  return { url: init.public_url, file_id: init.file_id, mode: "turso_edge" };
+}
 
 /* ---------- LOGO ---------- */
 const HAND='M13 2c-.6 0-1 .4-1 1v6h-1V4c0-.6-.4-1-1-1s-1 .4-1 1v5H7V6c0-.6-.4-1-1-1s-1 .4-1 1v8c0 3.3 2.7 6 6 6s6-2.7 6-6V8c0-.6-.4-1-1-1s-1 .4-1 1v1h-1V3c0-.6-.4-1-1-1z';
@@ -148,16 +213,24 @@ async function refresh(){
   if(!store.profile) return;
   const role=store.profile.role, uid=store.user.id;
   try {
-    const [as, an, tl, subs] = await Promise.all([
+    const [as, an, tl, subs, comms, att, certs, stCfg] = await Promise.all([
       api("/api/assignments"),
       api("/api/announcements"),
       api("/api/tools"),
-      api("/api/submissions")
+      api("/api/submissions"),
+      api("/api/submissions/comments").catch(()=>[]),
+      api("/api/attendance").catch(()=>({sessions:[],records:[]})),
+      api("/api/certificates").catch(()=>[]),
+      api("/api/storage/config").catch(()=>({mode:"turso_edge"}))
     ]);
     store.assignments = as || [];
     store.announcements = an || [];
     store.tools = tl || [];
     store.submissions = subs || [];
+    store.comments = comms || [];
+    store.attendance = att || {sessions:[],records:[]};
+    store.certificates = certs || [];
+    store.storageMode = stCfg?.mode || "turso_edge";
     for(const s of store.submissions){ s.fileUrl = s.file_path || null; }
 
     if(role==="student"){
@@ -298,14 +371,27 @@ function shell(content){
   const u=store.profile;
   const roleLabel={student:"Alumno",instructor:"Instructor",admin:"Administrador"}[u.role];
   const links=[["dashboard","🏠","Inicio"],["material","📚","Material"],["herramientas","🛠️","Herramientas"]];
-  if(u.role==="student") links.push(["tareas","📝","Mis Tareas"]);
-  if(u.role==="instructor"||u.role==="admin"){ links.push(["gestion","🗂️","Tareas y Entregas"]); links.push(["alumnos","👥","Alumnos"]); links.push(["nosotros","👤","Mi Tarjeta"]); }
+  if(u.role==="student"){
+    links.push(["tareas","📝","Mis Tareas"]);
+    links.push(["asistencia","📲","Asistencia QR"]);
+    links.push(["certificados","🎓","Mi Certificado"]);
+  }
+  if(u.role==="instructor"||u.role==="admin"){
+    links.push(["gestion","🗂️","Tareas y Rúbricas"]);
+    links.push(["asistencia","📲","Asistencia QR"]);
+    links.push(["certificados","🎓","Certificados QR"]);
+    links.push(["alumnos","👥","Alumnos"]);
+    links.push(["nosotros","👤","Mi Tarjeta"]);
+  }
   links.push(["anuncios","📢","Anuncios"]);
   if(u.role==="admin") links.push(["usuarios","⚙️","Usuarios"]);
   const side=links.map(l=>`<div class="sidelink ${state.route.name===l[0]?'on':''}" onclick="go('${l[0]}')"><span class="ic">${l[1]}</span> ${l[2]}</div>`).join('');
   return `<div class="flex min-h-screen">
     <aside class="hidden md:flex flex-col w-64 flex-shrink-0 p-4 border-r" style="border-color:rgba(255,255,255,.06);background:var(--surface)">
-      <div class="flex items-center gap-2 px-2 py-3 mb-4"><div class="flex items-end gap-[2px]">${hand("#e6007e",10,12)}${hand("#00a99d",10,14)}${hand("#fbba00",10,12)}</div>${logo(17)}</div>
+      <div class="flex items-center justify-between gap-2 px-2 py-3 mb-3">
+        <div class="flex items-center gap-2"><div class="flex items-end gap-[2px]">${hand("#e6007e",10,12)}${hand("#00a99d",10,14)}${hand("#fbba00",10,12)}</div>${logo(17)}</div>
+        <span class="badge" style="background:rgba(16,185,129,.12);color:#34d399;border:1px solid rgba(16,185,129,.25)"><span class="pulse-dot"></span>v3.0</span>
+      </div>
       <nav class="flex flex-col gap-1 flex-1">${side}</nav>
       <div class="border-t pt-3 mt-3" style="border-color:rgba(255,255,255,.06)">
         <div class="flex items-center gap-3 px-2">
@@ -314,7 +400,7 @@ function shell(content){
         </div>
         <button class="btn btn-ghost w-full py-2 text-xs mt-3" onclick="logout()">Cerrar sesión</button>
         <p class="mono text-[9px] uppercase tracking-widest text-gray-400 text-center mt-4">Sistemas · <span style="color:var(--cyan)">Desarroll</span><span style="color:var(--magenta)">AR</span> · de Jorge Adrian Duarte</p>
-        <div class="flex items-center justify-center gap-2 mb-2">
+        <div class="flex items-center justify-center gap-2 mb-2 mt-1">
           <img src="logo-desarrollar.png" alt="SISTEMAS DesarrollAR" style="height:26px;width:auto;object-fit:contain;display:block;opacity:0.85">
         </div>
         <p class="text-[10px] text-gray-300 font-medium text-center tracking-normal mt-1" style="font-family:'Outfit',sans-serif">Hecho con orgullo en Río Gallegos, Santa Cruz, Argentina 🇦🇷</p>
@@ -330,36 +416,89 @@ function shell(content){
   </div>`;
 }
 
-/* ---------- DASHBOARD ---------- */
+/* ---------- DASHBOARD (CULT UI BENTO GRID) ---------- */
 function viewDashboard(){ return store.profile.role==="student"?dashStudent():dashStaff(); }
 function dashStudent(){
-  const u=store.profile, pct=progressPct(u.id);
+  const u=store.profile, pct=progressPct(u.id), attPct=studentAttPct(u.id), avg=studentAvgGrade(u.id);
   const pend=store.assignments.map(a=>({a,s:subFor(a.id,u.id)})).filter(x=>!x.s||x.s.status==="pending");
-  return `<h1 class="text-2xl font-bold text-white mb-1">Hola, ${esc(u.name.split(" ")[0])} 👋</h1>
-  <p class="text-gray-500 mb-7">Este es tu panel del Taller de DJ.</p>
-  <div class="grid sm:grid-cols-3 gap-4 mb-7">
-    <div class="card p-5"><div class="text-xs text-gray-500 mb-2">Progreso del curso</div><div class="text-3xl font-bold text-white mb-2">${pct}%</div><div class="h-2 rounded-full" style="background:rgba(255,255,255,.08)"><div class="h-2 rounded-full" style="width:${pct}%;background:linear-gradient(90deg,#00a99d,#e6007e)"></div></div></div>
-    <div class="card p-5"><div class="text-xs text-gray-500 mb-2">Tareas pendientes</div><div class="text-3xl font-bold text-white">${pend.length}</div><div class="text-xs text-gray-500 mt-2">de ${store.assignments.length} en total</div></div>
-    <div class="card p-5"><div class="text-xs text-gray-500 mb-2">Módulos</div><div class="text-3xl font-bold text-white">${COURSE.modules.length}</div><div class="text-xs text-gray-500 mt-2">${lessonsAll().length} lecciones</div></div>
+  const myCert=(store.certificates||[]).find(c=>c.student_id===u.id);
+  return `<div class="flex items-center justify-between flex-wrap gap-3 mb-6">
+    <div>
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-semibold mb-2" style="background:rgba(0,169,157,.1);border:1px solid rgba(0,169,157,.25);color:#5eead4"><span class="pulse-dot"></span> Campus Universitario DJ · Casa de la Juventud</div>
+      <h1 class="text-2xl md:text-3xl font-extrabold text-white">Hola, ${esc(u.name.split(" ")[0])} 🎧</h1>
+    </div>
+    <div class="flex gap-2">
+      <button class="btn btn-primary px-4 py-2.5 text-xs" onclick="go('asistencia')">📲 Dar Presente QR</button>
+      <button class="btn btn-ghost px-4 py-2.5 text-xs" onclick="go('certificados')">🎓 ${myCert?'Ver mi Diploma':'Estado de Diploma'}</button>
+    </div>
+  </div>
+  <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
+    <div class="bento-card p-5"><div class="bento-glow" style="background:#00a99d"></div>
+      <div class="text-xs text-gray-400 font-medium mb-1">Progreso Teórico</div>
+      <div class="text-3xl font-extrabold text-white mb-2">${pct}%</div>
+      <div class="h-2 rounded-full" style="background:rgba(255,255,255,.08)"><div class="h-2 rounded-full" style="width:${pct}%;background:linear-gradient(90deg,#00a99d,#e6007e)"></div></div>
+      <div class="text-[11px] text-gray-500 mt-2">${doneCountFor(u.id)} de ${lessonsAll().length} lecciones</div>
+    </div>
+    <div class="bento-card p-5 cursor-pointer" onclick="go('asistencia')"><div class="bento-glow" style="background:#10b981"></div>
+      <div class="text-xs text-gray-400 font-medium mb-1">Asistencia Presencial</div>
+      <div class="text-3xl font-extrabold" style="color:#34d399">${attPct}%</div>
+      <div class="text-[11px] text-gray-400 mt-2">Click para ingresar código QR de hoy</div>
+    </div>
+    <div class="bento-card p-5 cursor-pointer" onclick="go('tareas')"><div class="bento-glow" style="background:#e6007e"></div>
+      <div class="text-xs text-gray-400 font-medium mb-1">Promedio Rúbrica DJ</div>
+      <div class="text-3xl font-extrabold" style="color:#f472b6">${avg!=null?avg+'/10':'—'}</div>
+      <div class="text-[11px] text-gray-400 mt-2">${pend.length} entregas pendientes</div>
+    </div>
+    <div class="bento-card p-5 cursor-pointer" onclick="go('certificados')"><div class="bento-glow" style="background:#fbba00"></div>
+      <div class="text-xs text-gray-400 font-medium mb-1">Certificación Oficial</div>
+      <div class="text-lg font-bold text-white mt-1">${myCert?'🏅 Emitido':'⏳ En curso'}</div>
+      <div class="text-[11px] text-gray-400 mt-2">${myCert?'Código: '+esc(myCert.code):'Con validación QR municipal'}</div>
+    </div>
   </div>
   <div class="grid md:grid-cols-2 gap-6">
-    <div><h2 class="font-bold text-white mb-3">📝 Próximas entregas</h2>${pend.length?pend.slice(0,4).map(x=>`<div class="card p-4 mb-3 flex items-center justify-between gap-3 cursor-pointer" onclick="go('tarea',{id:'${x.a.id}'})"><div class="min-w-0"><div class="font-semibold text-white text-sm truncate">${esc(x.a.title)}</div><div class="text-xs text-gray-500">Módulo ${x.a.module_id}</div></div>${dueBadge(x.a.due_date)}</div>`).join(''):'<div class="card p-4 text-sm text-gray-500">¡Estás al día! 🎉</div>'}</div>
-    <div><h2 class="font-bold text-white mb-3">📢 Anuncios</h2>${store.announcements.slice(0,3).map(a=>`<div class="card p-4 mb-3"><div class="font-semibold text-white text-sm">${esc(a.title)}</div><div class="text-xs text-gray-400 mt-1">${esc(a.body)}</div><div class="text-[10px] text-gray-600 mt-2">${esc(a.author)} · ${fmtDate(a.created_at)}</div></div>`).join('')||'<div class="card p-4 text-sm text-gray-500">Sin anuncios.</div>'}</div>
+    <div><h2 class="font-bold text-white mb-3">📝 Próximas entregas y sets</h2>${pend.length?pend.slice(0,4).map(x=>`<div class="card p-4 mb-3 flex items-center justify-between gap-3 cursor-pointer hover:border-teal-500/40" onclick="go('tarea',{id:'${x.a.id}'})"><div class="min-w-0"><div class="font-semibold text-white text-sm truncate">${esc(x.a.title)}</div><div class="text-xs text-gray-500">Módulo ${x.a.module_id} · Cabina Virtual con Waveform</div></div>${dueBadge(x.a.due_date)}</div>`).join(''):'<div class="card p-4 text-sm text-gray-400">¡Estás al día con todas las entregas! 🎉</div>'}</div>
+    <div><h2 class="font-bold text-white mb-3">📢 Anuncios de la Cátedra</h2>${store.announcements.slice(0,3).map(a=>`<div class="card p-4 mb-3"><div class="font-semibold text-white text-sm">${esc(a.title)}</div><div class="text-xs text-gray-400 mt-1">${esc(a.body)}</div><div class="text-[10px] text-gray-600 mt-2">${esc(a.author)} · ${fmtDate(a.created_at)}</div></div>`).join('')||'<div class="card p-4 text-sm text-gray-500">Sin anuncios.</div>'}</div>
   </div>`;
 }
 function dashStaff(){
   const u=store.profile, pending=store.submissions.filter(s=>s.status==="pending");
-  return `<h1 class="text-2xl font-bold text-white mb-1">Panel del ${u.role==="admin"?"administrador":"instructor"}</h1>
-  <p class="text-gray-500 mb-7">Bienvenido/a, ${esc(u.name.split(" ")[0])}.</p>
-  <div class="grid sm:grid-cols-4 gap-4 mb-7">
-    <div class="card p-5"><div class="text-xs text-gray-500 mb-2">Por corregir</div><div class="text-3xl font-bold" style="color:var(--yellow)">${pending.length}</div></div>
-    <div class="card p-5"><div class="text-xs text-gray-500 mb-2">Alumnos</div><div class="text-3xl font-bold text-white">${store.students.length}</div></div>
-    <div class="card p-5"><div class="text-xs text-gray-500 mb-2">Tareas activas</div><div class="text-3xl font-bold text-white">${store.assignments.length}</div></div>
-    <div class="card p-5"><div class="text-xs text-gray-500 mb-2">Anuncios</div><div class="text-3xl font-bold text-white">${store.announcements.length}</div></div>
+  const activeAtt=(store.attendance.sessions||[]).filter(s=>s.active);
+  return `<div class="flex items-center justify-between flex-wrap gap-3 mb-6">
+    <div>
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-semibold mb-2" style="background:rgba(0,169,157,.1);border:1px solid rgba(0,169,157,.25);color:#5eead4"><span class="pulse-dot"></span> Consola Académica LMS · Cloud ${store.storageMode==='cloudflare_r2'?'Cloudflare R2':'Turso Edge Stream'}</div>
+      <h1 class="text-2xl md:text-3xl font-extrabold text-white">Panel del ${u.role==="admin"?"Administrador":"Instructor"}</h1>
+    </div>
+    <div class="flex gap-2 flex-wrap">
+      <button class="btn btn-primary px-4 py-2.5 text-xs" onclick="go('nuevaTarea')">+ Crear Tarea</button>
+      <button class="btn btn-magenta px-4 py-2.5 text-xs" onclick="go('asistencia')">📲 Proyectar QR Asistencia</button>
+      <button class="btn btn-ghost px-4 py-2.5 text-xs" onclick="go('certificados')">🎓 Emitir Diplomas</button>
+      ${u.role==="admin"?'<button class="btn btn-ghost px-4 py-2.5 text-xs" onclick="go(\'usuarios\')">+ Usuario</button>':''}
+    </div>
   </div>
-  <div class="flex gap-3 mb-7 flex-wrap"><button class="btn btn-primary px-5 py-3" onclick="go('nuevaTarea')">+ Crear tarea</button><button class="btn btn-ghost px-5 py-3" onclick="go('anuncios')">+ Publicar anuncio</button>${u.role==="admin"?'<button class="btn btn-ghost px-5 py-3" onclick="go(\'usuarios\')">+ Crear usuario</button>':''}</div>
-  <h2 class="font-bold text-white mb-3">Entregas recientes por corregir</h2>
-  ${pending.length?pending.map(s=>{const a=store.assignments.find(x=>x.id===s.assignment_id);const st=store.students.find(x=>x.id===s.student_id);return `<div class="card p-4 mb-3 flex items-center justify-between gap-3 cursor-pointer" onclick="go('entregas',{id:'${a?a.id:''}'})"><div class="min-w-0"><div class="font-semibold text-white text-sm truncate">${esc(st?st.name:'Alumno')} — ${esc(a?a.title:'')}</div><div class="text-xs text-gray-500">Entregada ${fmtDate(s.submitted_at)}</div></div><span class="badge" style="background:rgba(251,186,0,.15);color:var(--yellow)">Pendiente</span></div>`;}).join(''):'<div class="card p-4 text-sm text-gray-500">No hay entregas pendientes.</div>'}`;
+  <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
+    <div class="bento-card p-5 cursor-pointer" onclick="go('gestion')"><div class="bento-glow" style="background:#fbba00"></div>
+      <div class="text-xs text-gray-400 mb-1">Sets / Entregas por corregir</div>
+      <div class="text-3xl font-extrabold" style="color:var(--yellow)">${pending.length}</div>
+      <div class="text-[11px] text-gray-500 mt-2">Evaluación con rúbrica 4 ejes + waveform</div>
+    </div>
+    <div class="bento-card p-5 cursor-pointer" onclick="go('alumnos')"><div class="bento-glow" style="background:#00a99d"></div>
+      <div class="text-xs text-gray-400 mb-1">Alumnos Activos</div>
+      <div class="text-3xl font-extrabold text-white">${store.students.length}</div>
+      <div class="text-[11px] text-gray-500 mt-2">${(store.certificates||[]).length} certificados emitidos</div>
+    </div>
+    <div class="bento-card p-5 cursor-pointer" onclick="go('asistencia')"><div class="bento-glow" style="background:#10b981"></div>
+      <div class="text-xs text-gray-400 mb-1">Clases & Asistencia QR</div>
+      <div class="text-3xl font-extrabold" style="color:#34d399">${(store.attendance.sessions||[]).length}</div>
+      <div class="text-[11px] text-gray-500 mt-2">${activeAtt.length?`🟢 Código activo: ${activeAtt[0].code}`:'Click para abrir asistencia'}</div>
+    </div>
+    <div class="bento-card p-5 cursor-pointer" onclick="go('herramientas')"><div class="bento-glow" style="background:#e6007e"></div>
+      <div class="text-xs text-gray-400 mb-1">Recursos y Biblioteca</div>
+      <div class="text-3xl font-extrabold text-white">${(store.tools||[]).length}</div>
+      <div class="text-[11px] text-gray-500 mt-2">${(store.toolDownloads||[]).length} descargas registradas</div>
+    </div>
+  </div>
+  <h2 class="font-bold text-white mb-3">🎧 Entregas recientes por evaluar</h2>
+  ${pending.length?pending.map(s=>{const a=store.assignments.find(x=>x.id===s.assignment_id);const st=store.students.find(x=>x.id===s.student_id);return `<div class="card p-4 mb-3 flex items-center justify-between gap-3 cursor-pointer" onclick="go('entregas',{id:'${a?a.id:''}'})"><div class="min-w-0"><div class="font-semibold text-white text-sm truncate">${esc(st?st.name:'Alumno')} — ${esc(a?a.title:'')}</div><div class="text-xs text-gray-500">Entregada ${fmtDate(s.submitted_at)} ${s.file_name?'· 🎵 '+esc(s.file_name):''}</div></div><span class="badge" style="background:rgba(251,186,0,.15);color:var(--yellow)">Evaluar Set</span></div>`;}).join(''):'<div class="card p-4 text-sm text-gray-500">No hay entregas pendientes de corrección.</div>'}`;
 }
 
 /* ---------- MATERIAL ---------- */
@@ -393,63 +532,226 @@ async function toggleLesson(lid){
   const open=[...document.querySelectorAll('.acc.open')].map(e=>e.id); render(); open.forEach(id=>{const e=document.getElementById(id);if(e)e.classList.add('open');});
 }
 
+/* ---------- INTERACTIVE WAVEFORM PLAYER & 4-AXIS DJ RUBRIC ---------- */
+const CAT_COLORS={beatmatching:"#00a99d",eq:"#fbba00",armonia:"#e6007e",estructura:"#f39200",destacado:"#10b981",general:"#60a5fa"};
+const CAT_LABELS={beatmatching:"🥁 Beatmatching",eq:"🎛️ EQ / Mezcla",armonia:"🎹 Armonía / Camelot",estructura:"📈 Estructura",destacado:"🔥 Destacado",general:"💬 Comentario"};
+
+function renderRubricBreakdown(s){
+  const hasRubric=s.rubric_beatmatching!=null||s.rubric_harmony!=null||s.rubric_structure!=null||s.rubric_eq!=null;
+  if(!hasRubric) return "";
+  const axes=[
+    {label:"🥁 Beatmatching & Tempo",val:s.rubric_beatmatching,color:"#00a99d"},
+    {label:"🎹 Armonía (Ruleta Camelot)",val:s.rubric_harmony,color:"#e6007e"},
+    {label:"📈 Estructura & Lectura de Pista",val:s.rubric_structure,color:"#f39200"},
+    {label:"🎛️ Ecualización, Faders & FX",val:s.rubric_eq,color:"#fbba00"}
+  ];
+  return `<div class="grid sm:grid-cols-2 gap-3 my-4 p-4 rounded-xl" style="background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.06)">
+    ${axes.map(x=>{
+      const v=x.val!=null?+x.val:0;
+      return `<div>
+        <div class="flex justify-between text-xs mb-1"><span class="text-gray-300 font-medium">${x.label}</span><span class="mono font-bold" style="color:${x.color}">${x.val!=null?v+'/10':'—'}</span></div>
+        <div class="rubric-bar"><div class="rubric-fill" style="width:${v*10}%;background:${x.color}"></div></div>
+      </div>`;
+    }).join("")}
+  </div>`;
+}
+
+function renderWaveformPlayer(s){
+  if(!s.fileUrl) return "";
+  const isAudio=(s.file_type&&s.file_type.indexOf("audio")===0)||/\.(mp3|wav|ogg|m4a|flac|aac)$/i.test(s.file_name||s.fileUrl||"");
+  if(!isAudio){
+    return `<div class="flex items-center gap-3 mt-3 p-3 rounded-xl" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07)"><span>📎</span><span class="text-sm text-gray-200 truncate">${esc(s.file_name||"Archivo adjunto")}</span><span class="text-xs text-gray-500">(${fmtSize(s.file_size)})</span><a class="btn btn-ghost px-3 py-1.5 text-xs ml-auto" href="${esc(s.fileUrl)}" target="_blank">Abrir / Descargar</a></div>`;
+  }
+  const comms=(store.comments||[]).filter(c=>c.submission_id===s.id).sort((a,b)=>a.timestamp_sec-b.timestamp_sec);
+  const myId=store.user?.id, isStaff=store.profile?.role!=="student";
+  setTimeout(()=>initWaveCanvas(s.id),60);
+  return `<div class="wave-box mt-3">
+    <div class="flex items-center justify-between gap-2 mb-2 flex-wrap">
+      <div class="flex items-center gap-2 min-w-0">
+        <span class="badge" style="background:rgba(0,169,157,.16);color:#5eead4">🎧 Cabina Audio Stream</span>
+        <span class="text-xs text-gray-300 truncate">${esc(s.file_name||"Set de Audio")}</span>
+        <span class="text-[11px] text-gray-500">(${fmtSize(s.file_size)})</span>
+      </div>
+      <a href="${esc(s.fileUrl)}" target="_blank" download="${esc(s.file_name||'set.mp3')}" class="text-[11px] hover:underline" style="color:var(--cyan)">⬇ Descargar original</a>
+    </div>
+    <audio id="aud-${s.id}" src="${esc(s.fileUrl)}" preload="metadata" class="w-full mb-2" style="height:34px" ontimeupdate="drawWave('${s.id}')" onloadedmetadata="drawWave('${s.id}')"></audio>
+    <canvas id="cv-${s.id}" class="wave-canvas" width="760" height="68" onclick="clickWave(event,'${s.id}')" title="Hacé click en cualquier punto de la onda para saltar a ese minuto y dejar feedback"></canvas>
+    <div class="flex items-center justify-between text-[11px] text-gray-500 mt-1.5">
+      <span>💡 Hacé click en la onda sonora para saltar al segundo exacto</span>
+      <span id="wt-${s.id}" class="mono text-teal-400">00:00</span>
+    </div>
+    <div class="mt-3 pt-3 border-t" style="border-color:rgba(255,255,255,.07)">
+      <div class="text-xs font-semibold text-gray-300 mb-2">⏱️ Marcadores en la línea de tiempo (${comms.length})</div>
+      <div class="flex flex-col gap-1.5 mb-3">
+        ${comms.length?comms.map(c=>{
+          const col=CAT_COLORS[c.category]||"#00a99d";
+          const canDel=isStaff||c.author_id===myId;
+          return `<div class="flex items-center gap-2 p-2 rounded-lg text-xs" style="background:rgba(255,255,255,.03);border-left:3px solid ${col}">
+            <button class="mono font-bold px-2 py-0.5 rounded" style="background:${col}22;color:${col}" onclick="seekAudio('${s.id}',${c.timestamp_sec})">▶ ${fmtTime(c.timestamp_sec)}</button>
+            <span class="badge" style="background:${col}18;color:${col};font-size:9px">${esc(CAT_LABELS[c.category]||c.category)}</span>
+            <span class="text-gray-200 flex-1">${esc(c.body)}</span>
+            <span class="text-[10px] text-gray-500">${esc(c.author_name)}</span>
+            ${canDel?`<button class="text-gray-600 hover:text-red-400 ml-1" onclick="delTimeComment('${c.id}')">✕</button>`:''}
+          </div>`;
+        }).join(''):'<div class="text-xs text-gray-500 italic">Todavía no hay marcadores en este set. Reproducí el audio y agregá el primero.</div>'}
+      </div>
+      <div class="flex gap-2 flex-wrap items-center">
+        <input id="tc-sec-${s.id}" type="text" class="fld mono text-xs" style="width:74px;padding:7px 9px" placeholder="01:20" title="Minuto:Segundo (o se toma del reproductor)">
+        <select id="tc-cat-${s.id}" class="fld text-xs" style="width:auto;padding:7px 10px">
+          <option value="beatmatching">🥁 Beatmatching</option>
+          <option value="eq">🎛️ EQ / Mezcla</option>
+          <option value="armonia">🎹 Armonía / Camelot</option>
+          <option value="estructura">📈 Estructura</option>
+          <option value="destacado">🔥 Destacado</option>
+        </select>
+        <input id="tc-body-${s.id}" class="fld text-xs flex-1 min-w-[160px]" style="padding:7px 11px" placeholder="Ej: Acá los graves chocaron en la transición...">
+        <button class="btn btn-primary px-3 py-2 text-xs" onclick="postTimeComment('${s.id}')">+ Marcar</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function initWaveCanvas(sid){ drawWave(sid); }
+function drawWave(sid){
+  const cv=document.getElementById("cv-"+sid); if(!cv) return;
+  const aud=document.getElementById("aud-"+sid);
+  const ctx=cv.getContext("2d");
+  const W=cv.width, H=cv.height;
+  ctx.clearRect(0,0,W,H);
+  const dur=(aud&&aud.duration&&isFinite(aud.duration))?aud.duration:180;
+  const cur=aud?aud.currentTime:0;
+  const pct=Math.min(1,Math.max(0,cur/dur));
+  const wt=document.getElementById("wt-"+sid);
+  if(wt) wt.textContent=fmtTime(cur)+" / "+fmtTime(dur);
+  const tcInput=document.getElementById("tc-sec-"+sid);
+  if(tcInput && document.activeElement!==tcInput && cur>0) tcInput.value=fmtTime(cur);
+
+  let seed=0; for(let i=0;i<sid.length;i++) seed=(seed*31+sid.charCodeAt(i))%9973;
+  const bars=96, bw=W/bars;
+  for(let i=0;i<bars;i++){
+    seed=(seed*1103515245+12345)&0x7fffffff;
+    const amp=0.22+((seed%100)/100)*0.72*Math.sin((i/bars)*Math.PI*0.95+0.15);
+    const bh=Math.max(6,amp*(H-14));
+    const x=i*bw+1.5, y=(H-bh)/2;
+    const played=(i/bars)<=pct;
+    ctx.fillStyle=played?"#00a99d":"rgba(148,163,184,0.22)";
+    ctx.fillRect(x,y,Math.max(2,bw-2.5),bh);
+  }
+  const comms=(store.comments||[]).filter(c=>c.submission_id===sid);
+  comms.forEach(c=>{
+    const mx=Math.min(W-4,Math.max(4,(c.timestamp_sec/dur)*W));
+    ctx.fillStyle=CAT_COLORS[c.category]||"#e6007e";
+    ctx.fillRect(mx-1.5,0,3,H);
+    ctx.beginPath(); ctx.arc(mx,7,4.5,0,Math.PI*2); ctx.fill();
+  });
+}
+function clickWave(ev,sid){
+  const cv=document.getElementById("cv-"+sid), aud=document.getElementById("aud-"+sid);
+  if(!cv||!aud) return;
+  const rect=cv.getBoundingClientRect();
+  const ratio=Math.max(0,Math.min(1,(ev.clientX-rect.left)/rect.width));
+  const dur=(aud.duration&&isFinite(aud.duration))?aud.duration:180;
+  aud.currentTime=ratio*dur;
+  const tcInput=document.getElementById("tc-sec-"+sid);
+  if(tcInput) tcInput.value=fmtTime(aud.currentTime);
+  drawWave(sid);
+}
+function seekAudio(sid,sec){
+  const aud=document.getElementById("aud-"+sid);
+  if(!aud) return;
+  aud.currentTime=+sec||0;
+  aud.play().catch(()=>{});
+  drawWave(sid);
+}
+async function postTimeComment(sid){
+  const secStr=(document.getElementById("tc-sec-"+sid)?.value||"").trim();
+  const cat=document.getElementById("tc-cat-"+sid)?.value||"general";
+  const body=(document.getElementById("tc-body-"+sid)?.value||"").trim();
+  if(!body){ alert("Escribí el comentario para este marcador."); return; }
+  let sec=0;
+  if(secStr.includes(":")){ const p=secStr.split(":"); sec=(+p[0]||0)*60+(+p[1]||0); }
+  else if(secStr){ sec=+secStr||0; }
+  else { const aud=document.getElementById("aud-"+sid); if(aud) sec=Math.floor(aud.currentTime||0); }
+  try{
+    await api("/api/submissions/comments",{method:"POST",body:JSON.stringify({submission_id:sid,timestamp_sec:sec,category:cat,body})});
+    await refresh(); render();
+  }catch(e){ alert("Error: "+e.message); }
+}
+async function delTimeComment(cid){
+  try{
+    await api("/api/submissions/comments?id="+encodeURIComponent(cid),{method:"DELETE"});
+    await refresh(); render();
+  }catch(e){ alert("Error: "+e.message); }
+}
+
 /* ---------- STUDENT TAREAS ---------- */
 function viewTareas(){
   const u=store.profile;
   const rows=store.assignments.map(a=>{
     const s=subFor(a.id,u.id); let status,color;
     if(!s){status="Pendiente";color="rgba(148,163,184,.15);color:#94a3b8";}
-    else if(s.status==="pending"){status="Entregada";color="rgba(0,169,157,.13);color:var(--cyan)";}
-    else{status="Corregida · "+s.grade+"/10";color="rgba(230,0,126,.15);color:#f472b6";}
-    return `<div class="card p-5 mb-3 cursor-pointer" onclick="go('tarea',{id:'${a.id}'})"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><div class="font-semibold text-white">${esc(a.title)}</div><div class="text-xs text-gray-500 mt-1">Módulo ${a.module_id} · Entrega: ${fmtDate(a.due_date)}</div></div><span class="badge" style="background:${color}">${status}</span></div></div>`;
+    else if(s.status==="pending"){status="Entregada · En revisión";color="rgba(0,169,157,.13);color:var(--cyan)";}
+    else{status="Evaluada · "+s.grade+"/10";color="rgba(230,0,126,.15);color:#f472b6";}
+    return `<div class="card p-5 mb-3 cursor-pointer hover:border-teal-500/40" onclick="go('tarea',{id:'${a.id}'})"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><div class="font-semibold text-white">${esc(a.title)}</div><div class="text-xs text-gray-500 mt-1">Módulo ${a.module_id} · Entrega: ${fmtDate(a.due_date)}</div></div><span class="badge" style="background:${color}">${status}</span></div></div>`;
   }).join('');
-  return `<h1 class="text-2xl font-bold text-white mb-1">📝 Mis Tareas</h1><p class="text-gray-500 mb-7">Tus consignas, entregas y devoluciones.</p>${rows||'<div class="card p-4 text-sm text-gray-500">No hay tareas aún.</div>'}`;
+  return `<h1 class="text-2xl font-bold text-white mb-1">📝 Mis Tareas y Sets</h1><p class="text-gray-500 mb-7">Subí tus grabaciones, recibí marcadores en el minuto exacto y mirá tu rúbrica DJ.</p>${rows||'<div class="card p-4 text-sm text-gray-500">No hay tareas aún.</div>'}`;
 }
 function fileLine(s,allowAudio){
   if(!s.file_path) return "";
-  const dl=s.fileUrl?(allowAudio&&s.file_type&&s.file_type.indexOf("audio")===0?`<audio controls src="${s.fileUrl}" class="ml-2" style="height:30px;vertical-align:middle"></audio>`:`<a class="text-xs ml-2" style="color:var(--cyan)" href="${s.fileUrl}" target="_blank">abrir/descargar</a>`):'';
-  return `<div class="flex items-center gap-2 mt-2 text-sm flex-wrap"><span>📎</span><span class="text-gray-300">${esc(s.file_name)}</span><span class="text-gray-600 text-xs">(${fmtSize(s.file_size)})</span>${dl}</div>`;
+  return renderWaveformPlayer(s);
 }
 function viewTarea(){
   const u=store.profile, a=store.assignments.find(x=>x.id===state.route.id); if(!a) return viewTareas();
   const s=subFor(a.id,u.id); let block;
   if(!s){
-    block=`<div class="card p-5 mt-5"><h3 class="font-bold text-white mb-3">Entregar tarea</h3>
-      <label class="text-xs text-gray-400 font-semibold">Comentario / texto</label>
-      <textarea id="subText" class="fld mt-1 mb-4" rows="3" placeholder="Contanos sobre tu entrega, o pegá un link..."></textarea>
-      <label class="text-xs text-gray-400 font-semibold">Archivo (audio, PDF, imagen — opcional)</label>
+    block=`<div class="card p-6 mt-5"><h3 class="font-bold text-white mb-1">🎧 Subir Entrega / Set de DJ</h3>
+      <p class="text-xs text-gray-400 mb-4">Podés subir tu sesión grabada en MP3/WAV (hasta 100 MB directos con streaming cloud), PDF o link.</p>
+      <label class="text-xs text-gray-400 font-semibold">Tracklist / Comentarios / Link externo</label>
+      <textarea id="subText" class="fld mt-1 mb-4" rows="3" placeholder="Contanos qué géneros mezclaste, BPM, o pegá un link si preferís..."></textarea>
+      <label class="text-xs text-gray-400 font-semibold">Archivo de Audio (MP3, WAV, M4A), PDF o Imagen</label>
       <input id="subFile" class="fld mt-1 mb-4" type="file" accept="audio/*,application/pdf,image/*">
-      <button id="subBtn" class="btn btn-primary px-5 py-3" onclick="submitWork('${a.id}')">Enviar entrega</button></div>`;
+      <div id="subProgWrap" class="hidden mb-4">
+        <div class="flex justify-between text-xs text-teal-300 mb-1"><span id="subProgTxt">Subiendo…</span><span id="subProgPct" class="mono">0%</span></div>
+        <div class="h-2 rounded-full bg-gray-800 overflow-hidden"><div id="subProgBar" class="h-2 rounded-full transition-all" style="width:0%;background:linear-gradient(90deg,#00a99d,#e6007e)"></div></div>
+      </div>
+      <button id="subBtn" class="btn btn-primary px-5 py-3" onclick="submitWork('${a.id}')">🚀 Subir y Enviar Entrega</button></div>`;
   } else {
     block=`<div class="card p-5 mt-5"><div class="flex items-center justify-between mb-2"><h3 class="font-bold text-white">Tu entrega</h3><span class="text-xs text-gray-500">${fmtDate(s.submitted_at)}</span></div>${s.body?`<p class="text-sm text-gray-300">${esc(s.body)}</p>`:''}${fileLine(s,true)}</div>`;
     if(s.status==="graded"){
-      block+=`<div class="card p-5 mt-4" style="border-color:rgba(230,0,126,.3)"><div class="flex items-center justify-between mb-2"><h3 class="font-bold text-white">Corrección</h3><div class="text-2xl font-bold" style="color:#f472b6">${s.grade}/10</div></div><div class="rounded-lg p-3" style="background:rgba(230,0,126,.08)"><div class="mono text-[10px] uppercase tracking-widest mb-1" style="color:#f472b6">Feedback del instructor</div><p class="text-sm text-gray-200">${esc(s.feedback)||'Sin comentarios.'}</p></div><div class="text-[10px] text-gray-600 mt-2">Corregida por ${esc(s.graded_by||'')} · ${fmtDate(s.graded_at)}</div></div>`;
-    } else block+=`<div class="card p-4 mt-4 text-sm text-gray-400">⏳ Tu entrega está esperando corrección.</div>`;
+      block+=`<div class="card p-5 mt-4" style="border-color:rgba(230,0,126,.35)"><div class="flex items-center justify-between mb-2"><h3 class="font-bold text-white">📊 Evaluación por Rúbrica DJ</h3><div class="text-2xl font-extrabold" style="color:#f472b6">${s.grade}/10</div></div>
+      ${renderRubricBreakdown(s)}
+      <div class="rounded-lg p-3" style="background:rgba(230,0,126,.08)"><div class="mono text-[10px] uppercase tracking-widest mb-1" style="color:#f472b6">Devolución General del Instructor</div><p class="text-sm text-gray-200">${esc(s.feedback)||'Excelente trabajo.'}</p></div><div class="text-[10px] text-gray-500 mt-2">Evaluado por ${esc(s.graded_by||'')} · ${fmtDate(s.graded_at)}</div></div>`;
+    } else block+=`<div class="card p-4 mt-4 text-sm text-gray-400">⏳ Tu entrega está en revisión. Podés agregar marcadores de tiempo en el reproductor de arriba.</div>`;
   }
   return `<button class="text-sm text-gray-500 hover:text-white mb-4" onclick="go('tareas')">← Mis Tareas</button>
   <div class="card p-6"><div class="mono text-[10px] mb-1" style="color:var(--cyan)">MÓDULO ${a.module_id}</div><h1 class="text-xl font-bold text-white mb-1">${esc(a.title)}</h1><div class="mb-4">${dueBadge(a.due_date)}</div><p class="text-gray-300 leading-relaxed">${esc(a.instructions)}</p></div>${block}`;
 }
 async function submitWork(aid){
-  const u=store.user, body=document.getElementById("subText").value.trim(), fi=document.getElementById("subFile");
-  const btn=document.getElementById("subBtn"); btn.disabled=true; btn.textContent="Enviando…";
+  const body=document.getElementById("subText").value.trim(), fi=document.getElementById("subFile");
+  const btn=document.getElementById("subBtn"); btn.disabled=true; btn.textContent="Procesando…";
   let meta={};
-  if(fi.files&&fi.files[0]){
-    const f=fi.files[0];
-    if(f.size > 5 * 1024 * 1024) {
-      alert("Para archivos de más de 5 MB usá un link de Google Drive como se explica en la guía.");
-      btn.disabled=false; btn.textContent="Enviar entrega"; return;
-    }
-    const reader = new FileReader();
-    const dataUrl = await new Promise(r => { reader.onload=()=>r(reader.result); reader.readAsDataURL(f); });
-    meta={file_path:dataUrl,file_name:f.name,file_size:f.size,file_type:f.type};
-  } else if(!body){ alert("Escribí un comentario o adjuntá un archivo."); btn.disabled=false; btn.textContent="Enviar entrega"; return; }
   try {
+    if(fi.files&&fi.files[0]){
+      const f=fi.files[0];
+      if(f.size > 120 * 1024 * 1024) {
+        alert("El archivo supera los 120 MB máximos permitidos.");
+        btn.disabled=false; btn.textContent="🚀 Subir y Enviar Entrega"; return;
+      }
+      const pw=document.getElementById("subProgWrap"), pt=document.getElementById("subProgTxt"), pp=document.getElementById("subProgPct"), pb=document.getElementById("subProgBar");
+      if(pw) pw.classList.remove("hidden");
+      const up = await uploadMediaFile(f, "submissions", (pct, msg) => {
+        if(pt) pt.textContent = msg;
+        if(pp) pp.textContent = pct + "%";
+        if(pb) pb.style.width = pct + "%";
+      });
+      meta={file_path:up.url,file_name:f.name,file_size:f.size,file_type:f.type};
+    } else if(!body){ alert("Escribí un comentario o adjuntá un archivo."); btn.disabled=false; btn.textContent="🚀 Subir y Enviar Entrega"; return; }
     await api("/api/submissions", { method: "POST", body: JSON.stringify({ assignment_id: aid, body, ...meta }) });
     await refresh();
     await go("tarea",{id:aid});
   } catch(err) {
     alert("Error al entregar: " + err.message);
-    btn.disabled=false; btn.textContent="Enviar entrega";
+    btn.disabled=false; btn.textContent="🚀 Subir y Enviar Entrega";
   }
 }
 
@@ -459,7 +761,7 @@ function viewGestion(){
     const subs=store.submissions.filter(s=>s.assignment_id===a.id), pend=subs.filter(s=>s.status==="pending").length;
     return `<div class="card p-5 mb-3 cursor-pointer" onclick="go('entregas',{id:'${a.id}'})"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><div class="font-semibold text-white">${esc(a.title)}</div><div class="text-xs text-gray-500 mt-1">Módulo ${a.module_id} · Vence ${fmtDate(a.due_date)}</div></div><div class="text-right flex-shrink-0"><div class="text-sm text-white font-semibold">${subs.length} entregas</div>${pend?`<div class="text-xs" style="color:var(--yellow)">${pend} sin corregir</div>`:'<div class="text-xs text-gray-600">al día</div>'}</div></div></div>`;
   }).join('');
-  return `<div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h1 class="text-2xl font-bold text-white">🗂️ Tareas y Entregas</h1><p class="text-gray-500">Creá consignas y corregí entregas.</p></div><button class="btn btn-primary px-5 py-3" onclick="go('nuevaTarea')">+ Crear tarea</button></div>${rows||'<div class="card p-4 text-sm text-gray-500">Todavía no hay tareas.</div>'}`;
+  return `<div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h1 class="text-2xl font-bold text-white">🗂️ Tareas y Rúbricas DJ</h1><p class="text-gray-500">Creá consignas, escuchá los sets con waveform y evaluá con la rúbrica de 4 ejes.</p></div><button class="btn btn-primary px-5 py-3" onclick="go('nuevaTarea')">+ Crear tarea</button></div>${rows||'<div class="card p-4 text-sm text-gray-500">Todavía no hay tareas.</div>'}`;
 }
 function viewNuevaTarea(){
   const opts=COURSE.modules.map(m=>`<option value="${m.id}">Módulo ${m.id} — ${esc(m.title)}</option>`).join('');
@@ -495,33 +797,62 @@ async function createAssignment(){
     btn.disabled=false; btn.textContent="Crear tarea";
   }
 }
+function calcRubricAvg(sid){
+  const vals=["rb-bm-","rb-hm-","rb-st-","rb-eq-"].map(p=>{
+    const el=document.getElementById(p+sid);
+    return (el&&el.value!=="")?parseFloat(el.value):null;
+  }).filter(v=>v!=null&&!isNaN(v));
+  if(vals.length){
+    const avg=Math.round((vals.reduce((a,b)=>a+b,0)/vals.length)*10)/10;
+    const gEl=document.getElementById("g-"+sid);
+    if(gEl) gEl.value=avg;
+  }
+}
 function viewEntregas(){
   const a=store.assignments.find(x=>x.id===state.route.id); if(!a) return viewGestion();
   const rows=store.students.map(st=>{
     const s=subFor(a.id,st.id);
     if(!s) return `<div class="card p-4 mb-3 flex items-center justify-between"><div class="text-sm text-white">${esc(st.name)}</div><span class="badge" style="background:rgba(148,163,184,.12);color:#94a3b8">Sin entregar</span></div>`;
     const graded=s.status==="graded";
-    return `<div class="card p-5 mb-3"><div class="flex items-center justify-between gap-3"><div class="font-semibold text-white">${esc(st.name)}</div><span class="badge" style="background:${graded?'rgba(230,0,126,.15);color:#f472b6':'rgba(251,186,0,.15);color:var(--yellow)'}">${graded?'Corregida · '+s.grade+'/10':'Pendiente'}</span></div>
+    return `<div class="card p-5 mb-4"><div class="flex items-center justify-between gap-3"><div class="font-semibold text-white">${esc(st.name)} <span class="text-xs text-gray-500 font-normal">@${esc(st.username||'')}</span></div><span class="badge" style="background:${graded?'rgba(230,0,126,.15);color:#f472b6':'rgba(251,186,0,.15);color:var(--yellow)'}">${graded?'Evaluada · '+s.grade+'/10':'Pendiente'}</span></div>
       <div class="text-xs text-gray-500 mt-1">Entregada ${fmtDate(s.submitted_at)}</div>${s.body?`<p class="text-sm text-gray-300 mt-2">${esc(s.body)}</p>`:''}${fileLine(s,true)}
-      <div class="border-t mt-4 pt-4" style="border-color:rgba(255,255,255,.07)"><div class="flex gap-3 items-end flex-wrap">
-        <div><label class="text-xs text-gray-400 font-semibold block mb-1">Nota (0-10)</label><input id="g-${s.id}" type="number" min="0" max="10" step="0.5" value="${s.grade!=null?s.grade:''}" class="fld" style="width:90px"></div>
-        <div class="flex-1 min-w-[180px]"><label class="text-xs text-gray-400 font-semibold block mb-1">Feedback</label><input id="f-${s.id}" class="fld" value="${esc(s.feedback)}" placeholder="Devolución para el alumno..."></div>
-        <button class="btn btn-primary px-4 py-2.5" onclick="grade('${s.id}')">${graded?'Actualizar':'Calificar'}</button>
-      </div></div></div>`;
+      <div class="border-t mt-4 pt-4" style="border-color:rgba(255,255,255,.07)">
+        <div class="text-xs font-bold text-teal-400 uppercase tracking-wider mb-3">🎛️ Rúbrica Pedagógica DJ (0 a 10 por criterio)</div>
+        <div class="grid sm:grid-cols-4 gap-3 mb-3">
+          <div><label class="text-[11px] text-gray-400 block mb-1">🥁 Beatmatching</label><input id="rb-bm-${s.id}" type="number" min="0" max="10" step="0.5" value="${s.rubric_beatmatching!=null?s.rubric_beatmatching:''}" oninput="calcRubricAvg('${s.id}')" class="fld text-xs" placeholder="0-10"></div>
+          <div><label class="text-[11px] text-gray-400 block mb-1">🎹 Armonía / Camelot</label><input id="rb-hm-${s.id}" type="number" min="0" max="10" step="0.5" value="${s.rubric_harmony!=null?s.rubric_harmony:''}" oninput="calcRubricAvg('${s.id}')" class="fld text-xs" placeholder="0-10"></div>
+          <div><label class="text-[11px] text-gray-400 block mb-1">📈 Estructura / Pista</label><input id="rb-st-${s.id}" type="number" min="0" max="10" step="0.5" value="${s.rubric_structure!=null?s.rubric_structure:''}" oninput="calcRubricAvg('${s.id}')" class="fld text-xs" placeholder="0-10"></div>
+          <div><label class="text-[11px] text-gray-400 block mb-1">🎛️ EQ, Faders & FX</label><input id="rb-eq-${s.id}" type="number" min="0" max="10" step="0.5" value="${s.rubric_eq!=null?s.rubric_eq:''}" oninput="calcRubricAvg('${s.id}')" class="fld text-xs" placeholder="0-10"></div>
+        </div>
+        <div class="flex gap-3 items-end flex-wrap">
+          <div><label class="text-xs text-gray-400 font-semibold block mb-1">Nota Final</label><input id="g-${s.id}" type="number" min="0" max="10" step="0.1" value="${s.grade!=null?s.grade:''}" class="fld font-bold" style="width:95px;color:#f472b6"></div>
+          <div class="flex-1 min-w-[180px]"><label class="text-xs text-gray-400 font-semibold block mb-1">Devolución General</label><input id="f-${s.id}" class="fld" value="${esc(s.feedback)}" placeholder="Devolución integral para el alumno..."></div>
+          <button class="btn btn-primary px-5 py-2.5" onclick="grade('${s.id}')">${graded?'Actualizar Rúbrica':'Guardar Evaluación'}</button>
+        </div>
+      </div></div>`;
   }).join('');
   return `<button class="text-sm text-gray-500 hover:text-white mb-4" onclick="go('gestion')">← Tareas</button>
   <div class="card p-5 mb-5"><div class="mono text-[10px]" style="color:var(--cyan)">MÓDULO ${a.module_id}</div><h1 class="text-xl font-bold text-white mt-1">${esc(a.title)}</h1><p class="text-sm text-gray-400 mt-2">${esc(a.instructions)}</p></div>
   <h2 class="font-bold text-white mb-3">Entregas (${store.students.length} alumnos)</h2>${rows||'<div class="card p-4 text-sm text-gray-500">No hay alumnos registrados todavía.</div>'}`;
 }
 async function grade(sid){
-  const g=document.getElementById("g-"+sid).value; if(g===""){alert("Poné una nota.");return;}
+  const g=document.getElementById("g-"+sid).value;
+  const bm=document.getElementById("rb-bm-"+sid)?.value;
+  const hm=document.getElementById("rb-hm-"+sid)?.value;
+  const st=document.getElementById("rb-st-"+sid)?.value;
+  const eq=document.getElementById("rb-eq-"+sid)?.value;
+  if(g==="" && !bm && !hm && !st && !eq){alert("Completá la rúbrica o poné una nota.");return;}
   try {
     await api("/api/submissions/grade", {
       method: "PUT",
       body: JSON.stringify({
         id: sid,
-        grade: parseFloat(g),
-        feedback: document.getElementById("f-"+sid).value
+        grade: g!==""?parseFloat(g):null,
+        feedback: document.getElementById("f-"+sid).value,
+        rubric_beatmatching: bm!==""?parseFloat(bm):null,
+        rubric_harmony: hm!==""?parseFloat(hm):null,
+        rubric_structure: st!==""?parseFloat(st):null,
+        rubric_eq: eq!==""?parseFloat(eq):null
       })
     });
     await refresh();
@@ -534,10 +865,17 @@ async function grade(sid){
 /* ---------- ALUMNOS ---------- */
 function viewAlumnos(){
   const rows=store.students.map(st=>{
-    const pct=progressPct(st.id), subs=store.submissions.filter(s=>s.student_id===st.id);
-    return `<div class="card p-5 mb-3"><div class="flex items-center justify-between gap-3 mb-3"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm" style="background:linear-gradient(135deg,#00a99d,#e6007e);color:#fff">${initials(st.name)}</div><div><div class="font-semibold text-white text-sm">${esc(st.name)}</div><div class="text-xs text-gray-500">@${esc(st.username||'')}</div></div></div><div class="text-right"><div class="text-sm font-bold text-white">${pct}%</div><div class="text-[10px] text-gray-500">${subs.length} entregas</div></div></div><div class="h-2 rounded-full" style="background:rgba(255,255,255,.08)"><div class="h-2 rounded-full" style="width:${pct}%;background:linear-gradient(90deg,#00a99d,#e6007e)"></div></div></div>`;
+    const pct=progressPct(st.id), att=studentAttPct(st.id), avg=studentAvgGrade(st.id);
+    const subs=store.submissions.filter(s=>s.student_id===st.id);
+    const cert=(store.certificates||[]).find(c=>c.student_id===st.id);
+    return `<div class="card p-5 mb-3"><div class="flex items-center justify-between gap-3 mb-3 flex-wrap"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm" style="background:linear-gradient(135deg,#00a99d,#e6007e);color:#fff">${initials(st.name)}</div><div><div class="font-semibold text-white text-sm flex items-center gap-2">${esc(st.name)} ${cert?`<a href="/verificar?code=${encodeURIComponent(cert.code)}" target="_blank" class="badge" style="background:rgba(251,186,0,.15);color:var(--yellow)">🏅 Certificado QR</a>`:''}</div><div class="text-xs text-gray-500">@${esc(st.username||'')}</div></div></div>
+    <div class="flex items-center gap-4 text-right">
+      <div><div class="text-xs font-bold text-emerald-400">${att}%</div><div class="text-[10px] text-gray-500">Asistencia</div></div>
+      <div><div class="text-xs font-bold text-pink-400">${avg!=null?avg+'/10':'—'}</div><div class="text-[10px] text-gray-500">Promedio</div></div>
+      <div><div class="text-xs font-bold text-white">${pct}%</div><div class="text-[10px] text-gray-500">${subs.length} entregas</div></div>
+    </div></div><div class="h-2 rounded-full" style="background:rgba(255,255,255,.08)"><div class="h-2 rounded-full" style="width:${pct}%;background:linear-gradient(90deg,#00a99d,#e6007e)"></div></div></div>`;
   }).join('');
-  return `<h1 class="text-2xl font-bold text-white mb-1">👥 Alumnos</h1><p class="text-gray-500 mb-7">Progreso y entregas de cada alumno.</p>${rows||'<div class="card p-4 text-sm text-gray-500">Todavía no hay alumnos. Creales una cuenta desde ⚙️ Usuarios.</div>'}`;
+  return `<h1 class="text-2xl font-bold text-white mb-1">👥 Seguimiento Académico de Alumnos</h1><p class="text-gray-500 mb-7">Progreso de lectura, asistencia presencial, promedio de rúbricas y estado de certificación.</p>${rows||'<div class="card p-4 text-sm text-gray-500">Todavía no hay alumnos. Creales una cuenta desde ⚙️ Usuarios.</div>'}`;
 }
 
 /* ---------- ANUNCIOS ---------- */
@@ -672,20 +1010,23 @@ function viewNuevaHerramienta(){
   return `<button class="text-sm text-gray-500 hover:text-white mb-4" onclick="go('herramientas')">← Herramientas</button>
   <h1 class="text-2xl font-bold text-white mb-6">Agregar recurso</h1>
   <div class="card p-6 max-w-2xl">
-    <div class="rounded-xl p-4 mb-5" style="background:rgba(251,186,0,.1);border:1px solid rgba(251,186,0,.3)"><div class="font-semibold text-sm mb-1" style="color:var(--yellow)">⚠️ Límite de almacenamiento</div><p class="text-xs text-gray-300 leading-relaxed">El almacenamiento gratis tiene <b>1 GB en total</b> y un <b>límite por archivo</b> (aprox. 50 MB). Para programas pesados (Virtual DJ, Rekordbox, Traktor) usá un <b>link de descarga</b>. Subí archivos solo para fotos, música o PDFs livianos.</p></div>
+    <div class="rounded-xl p-4 mb-5" style="background:rgba(0,169,157,.1);border:1px solid rgba(0,169,157,.3)"><div class="font-semibold text-sm mb-1" style="color:#5eead4">☁️ Almacenamiento Cloud Híbrido (${store.storageMode==='cloudflare_r2'?'Cloudflare R2':'Turso Edge Stream'})</div><p class="text-xs text-gray-300 leading-relaxed">Podés subir archivos de audio, packs de samples, PDFs o imágenes directamente (hasta 100 MB por archivo) o pegar un link externo para instaladores pesados.</p></div>
     <label class="text-xs text-gray-400 font-semibold">Categoría</label>
     <select id="htCat" class="fld mt-1 mb-4">${opts}</select>
     <label class="text-xs text-gray-400 font-semibold">Título</label>
-    <input id="htTitle" class="fld mt-1 mb-4" placeholder="Ej: Virtual DJ 2024 (instalador)">
+    <input id="htTitle" class="fld mt-1 mb-4" placeholder="Ej: Pack de Samples & Acapellas o Virtual DJ">
     <label class="text-xs text-gray-400 font-semibold">Descripción (opcional)</label>
     <textarea id="htDesc" class="fld mt-1 mb-4" rows="2" placeholder="Notas, versión, instrucciones..."></textarea>
     <div class="rounded-xl p-4 mb-4" style="background:rgba(0,169,157,.07);border:1px solid rgba(0,169,157,.18)">
-      <label class="text-xs text-gray-400 font-semibold">Opción A — Pegar un link</label>
-      <input id="htUrl" class="fld mt-1" placeholder="https://... (ideal para software pesado, YouTube, páginas)">
+      <label class="text-xs text-gray-400 font-semibold">Opción A — Pegar un link externo</label>
+      <input id="htUrl" class="fld mt-1" placeholder="https://... (ideal para instaladores o videos)">
       <div class="text-center text-xs text-gray-600 my-3">— o —</div>
-      <label class="text-xs text-gray-400 font-semibold">Opción B — Subir un archivo</label>
+      <label class="text-xs text-gray-400 font-semibold">Opción B — Subir archivo al Cloud del Campus</label>
       <input id="htFile" class="fld mt-1" type="file">
-      <p class="text-[11px] text-gray-600 mt-2">Para programas grandes (Virtual DJ, Traktor) usá un <b>link</b>. Subí archivos para fotos, música o PDFs livianos.</p>
+      <div id="htProgWrap" class="hidden mt-3">
+        <div class="flex justify-between text-xs text-teal-300 mb-1"><span id="htProgTxt">Subiendo…</span><span id="htProgPct" class="mono">0%</span></div>
+        <div class="h-2 rounded-full bg-gray-800 overflow-hidden"><div id="htProgBar" class="h-2 rounded-full transition-all" style="width:0%;background:linear-gradient(90deg,#00a99d,#e6007e)"></div></div>
+      </div>
     </div>
     <button id="htBtn" class="btn btn-primary px-5 py-3" onclick="addTool()">Guardar recurso</button>
   </div>`;
@@ -695,17 +1036,22 @@ async function addTool(){
   if(!title){ alert("Poné un título."); return; }
   const btn=document.getElementById("htBtn"); btn.disabled=true; btn.textContent="Guardando…";
   let meta={category:cat,title,description:desc||null,url:url||null};
-  if(fi.files&&fi.files[0]){
-    const f=fi.files[0];
-    if(f.size > 5 * 1024 * 1024){
-      alert("Para archivos de más de 5 MB usá un link de Google Drive como se explica en la guía.");
-      btn.disabled=false; btn.textContent="Guardar recurso"; return;
-    }
-    const reader = new FileReader();
-    const dataUrl = await new Promise(r=>{ reader.onload=()=>r(reader.result); reader.readAsDataURL(f); });
-    meta.url = dataUrl; meta.file_name=f.name; meta.file_size=f.size; meta.file_type=f.type;
-  } else if(!url){ alert("Pegá un link o subí un archivo."); btn.disabled=false; btn.textContent="Guardar recurso"; return; }
   try{
+    if(fi.files&&fi.files[0]){
+      const f=fi.files[0];
+      if(f.size > 120 * 1024 * 1024){
+        alert("El archivo supera los 120 MB máximos permitidos.");
+        btn.disabled=false; btn.textContent="Guardar recurso"; return;
+      }
+      const pw=document.getElementById("htProgWrap"), pt=document.getElementById("htProgTxt"), pp=document.getElementById("htProgPct"), pb=document.getElementById("htProgBar");
+      if(pw) pw.classList.remove("hidden");
+      const up = await uploadMediaFile(f, "tools", (pct, msg) => {
+        if(pt) pt.textContent = msg;
+        if(pp) pp.textContent = pct + "%";
+        if(pb) pb.style.width = pct + "%";
+      });
+      meta.url = up.url; meta.file_path = up.url; meta.file_name=f.name; meta.file_size=f.size; meta.file_type=f.type;
+    } else if(!url){ alert("Pegá un link o subí un archivo."); btn.disabled=false; btn.textContent="Guardar recurso"; return; }
     await api("/api/tools", { method: "POST", body: JSON.stringify(meta) });
     await go("herramientas",{cat});
   } catch(err) { alert("Error: "+err.message); btn.disabled=false; btn.textContent="Guardar recurso"; }
@@ -730,6 +1076,211 @@ function viewDescargas(){
     <h1 class="text-2xl font-bold text-white mb-1">📥 Registro de descargas</h1>
     <p class="text-gray-500 mb-6">Quién descargó o abrió cada recurso (${logs.length}).</p>
     ${rows||'<div class="card p-6 text-sm text-gray-500 text-center">Todavía no hay descargas registradas.</div>'}`;
+}
+
+/* ---------- ASISTENCIA QR (PRESENCIAL EN CASA DE LA JUVENTUD) ---------- */
+function viewAsistencia(){
+  const u=store.profile, isStaff=u.role!=="student";
+  const sessions=store.attendance.sessions||[];
+  const records=store.attendance.records||[];
+  if(!isStaff){
+    const pct=studentAttPct(u.id);
+    const rows=sessions.map(s=>{
+      const r=records.find(x=>x.session_id===s.id&&x.student_id===u.id);
+      const stMap={present:["Presente","#10b981"],late:["Tarde","#fbba00"],excused:["Justificado","#60a5fa"]};
+      const badge=r?(stMap[r.status]||["Presente","#10b981"]):["Ausente / Sin fichar","#94a3b8"];
+      return `<div class="card p-4 mb-2 flex items-center justify-between gap-3">
+        <div><div class="font-semibold text-white text-sm">${esc(s.title)}</div><div class="text-xs text-gray-500">Módulo ${s.module_id} · ${fmtDate(s.class_date)}</div></div>
+        <span class="badge" style="background:${badge[1]}22;color:${badge[1]}">${badge[0]}</span>
+      </div>`;
+    }).join("");
+    return `<h1 class="text-2xl font-bold text-white mb-1">📲 Asistencia Presencial QR</h1>
+      <p class="text-gray-400 mb-6">Escaneá el QR proyectado en el aula de la Casa de la Juventud o ingresá el código de 6 letras.</p>
+      <div class="grid md:grid-cols-2 gap-5 mb-7">
+        <div class="bento-card p-6"><div class="bento-glow" style="background:#00a99d"></div>
+          <h3 class="font-bold text-white mb-2">Fichar Presente Ahora</h3>
+          <p class="text-xs text-gray-400 mb-4">Pedile el código de la clase de hoy a tu instructor:</p>
+          <div class="flex gap-2">
+            <input id="attCodeIn" class="fld mono text-center text-lg font-bold uppercase tracking-widest" placeholder="DJRGL1" maxlength="10">
+            <button id="attBtn" class="btn btn-primary px-5" onclick="studentCheckin()">Dar Presente</button>
+          </div>
+        </div>
+        <div class="bento-card p-6 flex flex-col justify-center"><div class="bento-glow" style="background:#10b981"></div>
+          <div class="text-xs text-gray-400 mb-1">Tu Porcentaje de Asistencia</div>
+          <div class="text-4xl font-extrabold text-emerald-400">${pct}%</div>
+          <div class="text-xs text-gray-500 mt-2">${records.filter(r=>r.student_id===u.id).length} de ${sessions.length} clases registradas</div>
+        </div>
+      </div>
+      <h3 class="font-bold text-white mb-3">Historial de Clases</h3>
+      ${rows||'<div class="card p-4 text-sm text-gray-500">No hay clases registradas aún.</div>'}`;
+  }
+
+  const selId=state.route.sid||(sessions[0]&&sessions[0].id)||null;
+  const cur=sessions.find(s=>s.id===selId)||sessions[0]||null;
+  const opts=COURSE.modules.map(m=>`<option value="${m.id}">Módulo ${m.id} — ${esc(m.title)}</option>`).join('');
+  const qrUrl=cur?`${location.origin}/campus?checkin=${encodeURIComponent(cur.code)}`:"";
+  const qrImg=cur?`https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=${encodeURIComponent(qrUrl)}`:"";
+
+  const roster=cur?store.students.map(st=>{
+    const r=records.find(x=>x.session_id===cur.id&&x.student_id===st.id);
+    const curSt=r?r.status:"absent";
+    const btn=(val,lbl,col)=>`<button class="btn text-[11px] px-2.5 py-1" style="background:${curSt===val?col:'rgba(255,255,255,.04)'};color:${curSt===val?'#06100f':'#94a3b8'};font-weight:${curSt===val?'800':'500'}" onclick="markManualAtt('${cur.id}','${st.id}','${val}')">${lbl}</button>`;
+    return `<div class="card p-3.5 mb-2 flex items-center justify-between gap-3 flex-wrap">
+      <div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs" style="background:linear-gradient(135deg,#00a99d,#e6007e);color:#fff">${initials(st.name)}</div><div><div class="text-sm font-semibold text-white">${esc(st.name)}</div><div class="text-[11px] text-gray-500">Asistencia global: ${studentAttPct(st.id)}%</div></div></div>
+      <div class="flex gap-1.5 flex-wrap">${btn("present","✓ Presente","#10b981")}${btn("late","⏱ Tarde","#fbba00")}${btn("excused","📄 Justif.","#60a5fa")}${btn("absent","✕ Ausente","#f87171")}</div>
+    </div>`;
+  }).join(""):"";
+
+  return `<div class="flex items-center justify-between flex-wrap gap-3 mb-6">
+    <div><h1 class="text-2xl font-bold text-white">📲 Control de Asistencia QR</h1><p class="text-gray-400">Proyectá el QR en el aula o tomá asistencia manual en un click.</p></div>
+  </div>
+  <div class="grid md:grid-cols-3 gap-5 mb-7">
+    <div class="card p-5">
+      <h3 class="font-bold text-white text-sm mb-3">➕ Nueva Clase Presencial</h3>
+      <label class="text-xs text-gray-400">Título de la clase</label>
+      <input id="asTitle" class="fld mt-1 mb-3 text-sm" placeholder="Ej: Clase 2 — Práctica en CDJ">
+      <label class="text-xs text-gray-400">Módulo</label>
+      <select id="asMod" class="fld mt-1 mb-3 text-sm">${opts}</select>
+      <label class="text-xs text-gray-400">Fecha</label>
+      <input id="asDate" type="date" class="fld mt-1 mb-4 text-sm" value="${new Date().toISOString().slice(0,10)}">
+      <button class="btn btn-primary w-full py-2.5 text-sm" onclick="createAttSession()">Generar Clase y QR</button>
+    </div>
+    ${cur?`<div class="bento-card p-5 md:col-span-2 flex flex-col sm:flex-row items-center gap-5"><div class="bento-glow" style="background:#00a99d"></div>
+      <div class="bg-white p-2.5 rounded-2xl flex-shrink-0 shadow-lg"><img src="${qrImg}" alt="QR Asistencia" style="width:165px;height:165px;display:block"></div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="badge" style="background:${cur.active?'rgba(16,185,129,.18);color:#34d399':'rgba(239,68,68,.18);color:#f87171'}">${cur.active?'🟢 QR Abierto':'🔴 QR Cerrado'}</span>
+          <span class="text-xs text-gray-400">${fmtDate(cur.class_date)}</span>
+        </div>
+        <h2 class="text-xl font-extrabold text-white truncate">${esc(cur.title)}</h2>
+        <div class="my-3 p-3 rounded-xl inline-block" style="background:rgba(0,169,157,.12);border:1px solid rgba(0,169,157,.3)">
+          <div class="text-[10px] uppercase tracking-widest text-teal-300">Código de Pizarra</div>
+          <div class="mono text-2xl font-extrabold tracking-widest text-white">${esc(cur.code)}</div>
+        </div>
+        <div class="flex gap-2 flex-wrap mt-1">
+          <button class="btn btn-ghost px-3 py-1.5 text-xs" onclick="toggleAttSession('${cur.id}',${cur.active?0:1},false)">${cur.active?'🔒 Cerrar QR':'🔓 Reabrir QR'}</button>
+          <button class="btn btn-ghost px-3 py-1.5 text-xs" onclick="toggleAttSession('${cur.id}',1,true)">🔄 Rotar Código</button>
+          <button class="btn text-xs px-3 py-1.5" style="background:rgba(239,68,68,.14);color:#f87171" onclick="delAttSession('${cur.id}')">🗑️</button>
+        </div>
+      </div>
+    </div>`:`<div class="card p-6 md:col-span-2 flex items-center justify-center text-sm text-gray-500">Creá la primera clase para proyectar el código QR.</div>`}
+  </div>
+  ${sessions.length>1?`<div class="flex gap-2 flex-wrap mb-4">${sessions.map(s=>`<button class="chip" style="cursor:pointer;${cur&&cur.id===s.id?'background:rgba(0,169,157,.2);color:#fff;border-color:var(--cyan)':''}" onclick="go('asistencia',{sid:'${s.id}'})">${esc(s.title)} (${esc(s.code)})</button>`).join("")}</div>`:""}
+  ${cur?`<h3 class="font-bold text-white mb-3">Planilla de Alumnos — ${esc(cur.title)}</h3>${roster}`:""}`;
+}
+async function studentCheckin(codeArg){
+  const code=(codeArg||(document.getElementById("attCodeIn")?.value||"")).trim().toUpperCase();
+  if(!code){ alert("Ingresá el código de la clase."); return; }
+  try{
+    const res=await api("/api/attendance/checkin",{method:"POST",body:JSON.stringify({code})});
+    alert("✅ ¡Presente registrado en «"+(res.session_title||code)+"»!");
+    await refresh(); await go("asistencia");
+  }catch(e){ alert(e.message||"Código inválido o cerrado."); }
+}
+async function createAttSession(){
+  const title=document.getElementById("asTitle").value.trim(), mod=+document.getElementById("asMod").value, class_date=document.getElementById("asDate").value;
+  if(!title){ alert("Poné el título de la clase."); return; }
+  try{
+    const r=await api("/api/attendance/session",{method:"POST",body:JSON.stringify({title,module_id:mod,class_date})});
+    await refresh(); await go("asistencia",{sid:r.id});
+  }catch(e){ alert("Error: "+e.message); }
+}
+async function toggleAttSession(id,active,rotate){
+  try{
+    await api("/api/attendance/session",{method:"PUT",body:JSON.stringify({id,active:!!active,rotate_code:!!rotate})});
+    await refresh(); render();
+  }catch(e){ alert("Error: "+e.message); }
+}
+async function delAttSession(id){
+  if(!confirm("¿Eliminar esta sesión de asistencia?")) return;
+  try{
+    await api("/api/attendance/session?id="+encodeURIComponent(id),{method:"DELETE"});
+    await refresh(); await go("asistencia");
+  }catch(e){ alert("Error: "+e.message); }
+}
+async function markManualAtt(session_id,student_id,status){
+  try{
+    await api("/api/attendance/manual",{method:"POST",body:JSON.stringify({session_id,student_id,status})});
+    await refresh(); render();
+  }catch(e){ alert("Error: "+e.message); }
+}
+
+/* ---------- CERTIFICADOS DIGITALES CON VALIDACIÓN QR MUNICIPAL ---------- */
+function viewCertificados(){
+  const u=store.profile, isStaff=u.role!=="student";
+  const certs=store.certificates||[];
+  if(!isStaff){
+    const myCert=certs.find(c=>c.student_id===u.id);
+    const pct=progressPct(u.id), att=studentAttPct(u.id), avg=studentAvgGrade(u.id);
+    if(myCert){
+      const vUrl=`${location.origin}/verificar?code=${encodeURIComponent(myCert.code)}`;
+      const qr=`https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=6&data=${encodeURIComponent(vUrl)}`;
+      return `<h1 class="text-2xl font-bold text-white mb-1">🎓 Mi Certificado Oficial QR</h1>
+        <p class="text-gray-400 mb-6">Tu diploma cuenta con firma digital y código QR verificable públicamente.</p>
+        <div class="bento-card p-7 flex flex-col md:flex-row items-center gap-6" style="border-color:rgba(251,186,0,.35)"><div class="bento-glow" style="background:#fbba00"></div>
+          <div class="bg-white p-3 rounded-2xl shadow-lg"><img src="${qr}" alt="QR Diploma" style="width:140px;height:140px;display:block"></div>
+          <div class="flex-1">
+            <span class="badge mb-2" style="background:rgba(16,185,129,.18);color:#34d399">✓ Certificado Oficial Verificado</span>
+            <h2 class="text-2xl font-extrabold text-white">${esc(myCert.student_name)}</h2>
+            <p class="text-sm text-gray-300 mt-1">Taller Municipal de DJ y Producción Sonora (${myCert.hours} hs reloj) · Promedio: <b style="color:#fbba00">${myCert.final_grade}/10</b></p>
+            <p class="mono text-xs text-teal-300 mt-2">Código de validación: ${esc(myCert.code)}</p>
+            <div class="flex gap-3 mt-4 flex-wrap">
+              <a href="/verificar?code=${encodeURIComponent(myCert.code)}" target="_blank" class="btn btn-primary px-5 py-2.5 text-xs inline-block">🖨️ Abrir Diploma A4 e Imprimir PDF</a>
+              <button class="btn btn-ghost px-4 py-2.5 text-xs" onclick="navigator.clipboard.writeText('${vUrl}');alert('Link público de verificación copiado al portapapeles.')">🔗 Copiar Link de Verificación</button>
+            </div>
+          </div>
+        </div>`;
+    }
+    return `<h1 class="text-2xl font-bold text-white mb-1">🎓 Estado de mi Certificación</h1>
+      <p class="text-gray-400 mb-6">Requisitos académicos para la emisión del Diploma Oficial con QR de la Casa de la Juventud.</p>
+      <div class="grid sm:grid-cols-3 gap-4 mb-6">
+        <div class="card p-5"><div class="text-xs text-gray-400">1. Lectura de Módulos</div><div class="text-2xl font-bold text-white mt-1">${pct}%</div><div class="text-[11px] text-gray-500 mt-1">Avance en los 6 módulos</div></div>
+        <div class="card p-5"><div class="text-xs text-gray-400">2. Asistencia Presencial</div><div class="text-2xl font-bold text-emerald-400 mt-1">${att}%</div><div class="text-[11px] text-gray-500 mt-1">Clases en Casa de la Juventud</div></div>
+        <div class="card p-5"><div class="text-xs text-gray-400">3. Promedio de Rúbricas</div><div class="text-2xl font-bold text-pink-400 mt-1">${avg!=null?avg+'/10':'Pendiente'}</div><div class="text-[11px] text-gray-500 mt-1">Evaluación del Proyecto Final</div></div>
+      </div>
+      <div class="card p-5 text-sm text-gray-300">⏳ Una vez aprobada la evaluación final por tu instructor, tu diploma digital con validación QR aparecerá acá automáticamente para descargar en A4.</div>`;
+  }
+
+  const rows=store.students.map(st=>{
+    const c=certs.find(x=>x.student_id===st.id);
+    const pct=progressPct(st.id), att=studentAttPct(st.id), avg=studentAvgGrade(st.id);
+    return `<div class="card p-5 mb-3 flex items-center justify-between gap-4 flex-wrap">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm" style="background:linear-gradient(135deg,#00a99d,#e6007e);color:#fff">${initials(st.name)}</div>
+        <div>
+          <div class="font-semibold text-white text-sm">${esc(st.name)} <span class="text-xs text-gray-500 font-normal">@${esc(st.username||'')}</span></div>
+          <div class="text-xs text-gray-400 mt-0.5">Lectura: <b>${pct}%</b> · Asistencia: <b class="text-emerald-400">${att}%</b> · Promedio: <b class="text-pink-400">${avg!=null?avg+'/10':'S/N'}</b></div>
+          ${c?`<div class="mono text-[11px] text-amber-400 mt-1">🏅 Emitido: ${esc(c.code)} (Nota: ${c.final_grade}/10)</div>`:""}
+        </div>
+      </div>
+      <div class="flex items-center gap-2 flex-wrap">
+        ${c?`<a href="/verificar?code=${encodeURIComponent(c.code)}" target="_blank" class="btn btn-primary px-4 py-2 text-xs">🖨️ Ver Diploma QR</a>
+             <button class="btn text-xs px-3 py-2" style="background:rgba(239,68,68,.14);color:#f87171" onclick="revokeCert('${c.id}')">Revocar</button>`
+           :`<button class="btn btn-primary px-4 py-2 text-xs" onclick="issueStudentCert('${st.id}','${esc(st.name)}',${avg||9})">🏅 Emitir Certificado QR</button>`}
+      </div>
+    </div>`;
+  }).join("");
+
+  return `<div class="flex items-center justify-between flex-wrap gap-3 mb-6">
+    <div><h1 class="text-2xl font-bold text-white">🎓 Emisión de Certificados Oficiales QR</h1><p class="text-gray-400">Emití diplomas verificables en <span class="mono text-teal-400">/verificar</span> con código único y QR imprimible en A4.</p></div>
+  </div>
+  ${rows||'<div class="card p-4 text-sm text-gray-500">No hay alumnos registrados.</div>'}`;
+}
+async function issueStudentCert(student_id,student_name,defGrade){
+  const g=prompt("Nota final para figurar en el diploma de "+student_name+" (1 a 10):", String(defGrade||9));
+  if(g===null) return;
+  try{
+    const res=await api("/api/certificates/issue",{method:"POST",body:JSON.stringify({student_id,final_grade:parseFloat(g)||9,hours:48})});
+    await refresh(); render();
+    window.open("/verificar?code="+encodeURIComponent(res.code),"_blank");
+  }catch(e){ alert("Error al emitir certificado: "+e.message); }
+}
+async function revokeCert(id){
+  if(!confirm("¿Revocar este certificado?")) return;
+  try{
+    await api("/api/certificates?id="+encodeURIComponent(id),{method:"DELETE"});
+    await refresh(); render();
+  }catch(e){ alert("Error: "+e.message); }
 }
 
 /* ---------- NOSOTROS (tarjeta del instructor) ---------- */
@@ -801,6 +1352,8 @@ function render(){
     case "gestion": content=viewGestion(); break;
     case "nuevaTarea": content=viewNuevaTarea(); break;
     case "entregas": content=viewEntregas(); break;
+    case "asistencia": content=viewAsistencia(); break;
+    case "certificados": content=viewCertificados(); break;
     case "alumnos": content=viewAlumnos(); break;
     case "anuncios": content=viewAnuncios(); break;
     case "usuarios": content=viewUsuarios(); break;
@@ -817,13 +1370,27 @@ function render(){
 (async()=>{
   document.getElementById("app").innerHTML=loader("Conectando al Campus…");
   if(SETUP){ render(); return; }
+  const checkinParam = new URLSearchParams(location.search).get("checkin");
+  if(checkinParam) sessionStorage.setItem("pending_checkin", checkinParam);
   const profile = await loadProfile();
-  if(profile){ state.route={name:"dashboard"}; await refresh(); }
+  if(profile){
+    state.route={name:"dashboard"};
+    await refresh();
+    const pendingCode = sessionStorage.getItem("pending_checkin");
+    if(pendingCode && profile.role==="student"){
+      sessionStorage.removeItem("pending_checkin");
+      try {
+        const r = await api("/api/attendance/checkin", { method: "POST", body: JSON.stringify({ code: pendingCode }) });
+        alert("✅ ¡Presente registrado automáticamente en «" + (r.session_title || pendingCode) + "»!");
+        await refresh();
+      } catch(e) { alert("Aviso QR: " + e.message); }
+    }
+  }
   else state.route={name:"login"};
   render();
 })();
 
-Object.assign(window,{go,doLogin,doSetup,logout,toggleLesson,submitWork,createAssignment,grade,postAnn,delAnn,adminCreateUser,adminSetRole,adminDeleteUser,addTool,deleteTool,logDownload,saveMyCard});
+Object.assign(window,{go,doLogin,doSetup,logout,toggleLesson,submitWork,createAssignment,grade,calcRubricAvg,drawWave,clickWave,seekAudio,postTimeComment,delTimeComment,studentCheckin,createAttSession,toggleAttSession,delAttSession,markManualAtt,issueStudentCert,revokeCert,postAnn,delAnn,adminCreateUser,adminSetRole,adminDeleteUser,addTool,deleteTool,logDownload,saveMyCard});
 </script>
 </body>
 </html>

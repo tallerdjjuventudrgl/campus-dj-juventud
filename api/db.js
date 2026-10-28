@@ -1,5 +1,5 @@
 // ============================================================
-//  api/db.js — Conexión Turso Scaler (libSQL)
+//  api/db.js — Conexión Turso Scaler (libSQL) · Campus DJ v3.0
 //  SISTEMAS DesarrollAR · Río Gallegos, Santa Cruz, Argentina 🇦🇷
 // ============================================================
 
@@ -85,7 +85,23 @@ export async function initDatabase() {
       feedback TEXT,
       graded_at DATETIME,
       graded_by TEXT,
+      rubric_beatmatching REAL,
+      rubric_harmony REAL,
+      rubric_structure REAL,
+      rubric_eq REAL,
+      audio_duration REAL,
       UNIQUE (assignment_id, student_id)
+    );`,
+    `CREATE TABLE IF NOT EXISTS submission_comments (
+      id TEXT PRIMARY KEY,
+      submission_id TEXT NOT NULL REFERENCES submissions(id) ON DELETE CASCADE,
+      author_id TEXT NOT NULL,
+      author_name TEXT NOT NULL,
+      author_role TEXT NOT NULL,
+      timestamp_sec REAL NOT NULL DEFAULT 0,
+      body TEXT NOT NULL,
+      category TEXT DEFAULT 'tecnica',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );`,
     `CREATE TABLE IF NOT EXISTS announcements (
       id TEXT PRIMARY KEY,
@@ -139,41 +155,62 @@ export async function initDatabase() {
       user_id TEXT,
       user_name TEXT,
       downloaded_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );`,
+    `CREATE TABLE IF NOT EXISTS attendance_sessions (
+      id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      module_id INTEGER DEFAULT 1,
+      session_date TEXT NOT NULL,
+      code TEXT NOT NULL UNIQUE,
+      active INTEGER NOT NULL DEFAULT 1,
+      expires_at DATETIME,
+      created_by TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );`,
+    `CREATE TABLE IF NOT EXISTS attendance_records (
+      id TEXT PRIMARY KEY,
+      session_id TEXT NOT NULL REFERENCES attendance_sessions(id) ON DELETE CASCADE,
+      student_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      student_name TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'present',
+      method TEXT DEFAULT 'qr',
+      checked_in_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(session_id, student_id)
+    );`,
+    `CREATE TABLE IF NOT EXISTS certificates (
+      id TEXT PRIMARY KEY,
+      code TEXT NOT NULL UNIQUE,
+      student_id TEXT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+      student_name TEXT NOT NULL,
+      student_username TEXT,
+      course_title TEXT NOT NULL DEFAULT 'Taller de DJ · Formación Profesional en Cabina y Mezcla',
+      hours INTEGER NOT NULL DEFAULT 48,
+      final_grade REAL,
+      attendance_pct INTEGER DEFAULT 100,
+      issued_by TEXT NOT NULL DEFAULT 'Gisel Duarte & Franco Esquivel',
+      issued_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      status TEXT NOT NULL DEFAULT 'valid'
+    );`,
+    `CREATE TABLE IF NOT EXISTS media_files (
+      id TEXT PRIMARY KEY,
+      filename TEXT NOT NULL,
+      mime_type TEXT NOT NULL,
+      total_size INTEGER NOT NULL,
+      total_chunks INTEGER NOT NULL DEFAULT 1,
+      storage_provider TEXT NOT NULL DEFAULT 'turso_edge',
+      external_url TEXT,
+      uploaded_by TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );`,
+    `CREATE TABLE IF NOT EXISTS media_chunks (
+      file_id TEXT NOT NULL REFERENCES media_files(id) ON DELETE CASCADE,
+      chunk_index INTEGER NOT NULL,
+      data TEXT NOT NULL,
+      PRIMARY KEY (file_id, chunk_index)
     );`
   ];
 
   for (const stmt of statements) {
     await client.execute(stmt);
-  }
-
-  // Seed initial data if tables are empty
-  const countAssign = await queryOne("SELECT COUNT(*) as count FROM assignments");
-  if (countAssign && Number(countAssign.count) === 0) {
-    await client.execute({
-      sql: `INSERT INTO assignments (id, module_id, title, instructions, due_date, created_by) VALUES
-        ('assign-mod-2', 2, 'Análisis armónico de 3 temas', 'Elegí 3 canciones, identificá su clave con la Ruleta de Camelot y proponé un orden de mezcla justificando por qué combinan.', date('now', '+7 days'), 'Instructor'),
-        ('assign-mod-3', 3, 'Mini set de 5 canciones', 'Grabá un set de 5 temas aplicando beatmatching y al menos 2 transiciones limpias con EQ. Subí el audio (MP3) o el link a SoundCloud.', date('now', '+14 days'), 'Instructor'),
-        ('assign-mod-6', 6, 'Set final grabado', 'Tu proyecto final: un set completo que cuente una historia (opening → pico → cierre). Subí el audio y un breve texto sobre tu identidad sonora.', date('now', '+30 days'), 'Instructor')`,
-      args: []
-    });
-  }
-
-  const countAnn = await queryOne("SELECT COUNT(*) as count FROM announcements");
-  if (countAnn && Number(countAnn.count) === 0) {
-    await client.execute({
-      sql: `INSERT INTO announcements (id, course_id, title, body, author) VALUES
-        ('ann-welcome', 'dj', '¡Bienvenidos al Campus Virtual del Taller de DJ!', 'Te damos la bienvenida al espacio virtual oficial del Taller de DJ de la Casa de la Juventud de Río Gallegos. Acá vas a encontrar todo el material formativo, registrar tu progreso, acceder a las herramientas y entregar tus sets prácticos.', 'Gisel Duarte & Franco Esquivel')`,
-      args: []
-    });
-  }
-
-  const countInst = await queryOne("SELECT COUNT(*) as count FROM instructors");
-  if (countInst && Number(countInst.count) === 0) {
-    await client.execute({
-      sql: `INSERT INTO instructors (id, name, title, bio, instagram, spotify, soundcloud, sort, visible) VALUES
-        ('inst-gisel', 'Gisel Duarte', 'Instructora Principal', 'DJ profesional, productora y formadora artística en la Casa de la Juventud de Río Gallegos. Formando las nuevas generaciones sonoras de Santa Cruz.', 'https://instagram.com/', '', '', 1, 1),
-        ('inst-franco', 'Franco Esquivel', 'Instructor Técnico', 'DJ y técnico de sonido en vivo en eventos y festivales de Río Gallegos. Especialista en beatmatching, hardware y calibración de audio.', 'https://instagram.com/', '', '', 2, 1)`,
-      args: []
-    });
   }
 }

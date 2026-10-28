@@ -3,6 +3,7 @@
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/index.js" },
     { "source": "/campus", "destination": "/campus.html" },
+    { "source": "/verificar", "destination": "/verificar.html" },
     { "source": "/guia", "destination": "/GUIA-INSTRUCTORES-google-drive.html" }
   ],
   "headers": [
