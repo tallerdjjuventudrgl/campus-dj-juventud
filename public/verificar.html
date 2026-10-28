@@ -124,29 +124,24 @@ body{font-family:'Outfit',sans-serif;background:radial-gradient(circle at 50% 0%
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
 function fmtDate(d){if(!d)return new Date().toLocaleDateString("es-AR",{day:"2-digit",month:"long",year:"numeric"});try{return new Date(d).toLocaleDateString("es-AR",{day:"2-digit",month:"long",year:"numeric"});}catch(_){return d;}}
 
-/* Cabecera Institucional Triple (Municipalidad RGL + Casa de la Juventud + SISTEMAS DesarrollAR) */
+/* Cabecera Institucional (Municipalidad RGL + Casa de la Juventud) */
 function renderInstitutionalLogosBanner(){
   return `
     <div class="px-4 py-4 sm:px-6 sm:py-5 border-b" style="background:linear-gradient(180deg,rgba(15,23,42,.95),rgba(9,13,20,.95));border-color:rgba(255,255,255,.09)">
       <div class="text-center mb-3">
         <span class="mono text-[9px] sm:text-[10px] uppercase tracking-[0.22em] text-sky-300 font-bold">República Argentina · Provincia de Santa Cruz</span>
       </div>
-      <div class="grid grid-cols-3 items-center gap-2 sm:gap-4 max-w-lg mx-auto">
+      <div class="grid grid-cols-2 items-stretch gap-3 sm:gap-4 max-w-md mx-auto">
         <!-- Logo 1: Municipalidad de Río Gallegos -->
-        <div class="flex flex-col items-center text-center p-2 rounded-2xl" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07)">
-          <img src="escudo-rgl.png" alt="Municipalidad de Río Gallegos" class="h-11 sm:h-14 w-auto object-contain mb-1 drop-shadow">
-          <span class="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-tight text-white leading-tight">Municipalidad de<br>Río Gallegos</span>
+        <div class="flex flex-col items-center justify-center text-center p-3 rounded-2xl" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)">
+          <img src="escudo-rgl.png" alt="Municipalidad de Río Gallegos" class="h-12 sm:h-14 w-auto object-contain mb-1.5 drop-shadow">
+          <span class="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-tight text-white leading-tight">Municipalidad de<br>Río Gallegos</span>
         </div>
         <!-- Logo 2: Casa de la Juventud -->
-        <div class="flex flex-col items-center justify-center text-center p-2 rounded-2xl" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);min-height:76px">
-          <span class="brandsub text-[7px] sm:text-[8px] text-gray-300 mb-1">CASA DE LA</span>
-          <img src="JUVENTUDRECORTADO.png" alt="Casa de la Juventud" class="h-7 sm:h-9 w-auto object-contain mb-1">
-          <span class="text-[8px] sm:text-[9px] text-teal-300 font-semibold leading-tight">Sec. Niñez, Adolescencia<br>y Familia</span>
-        </div>
-        <!-- Logo 3: SISTEMAS DesarrollAR -->
-        <div class="flex flex-col items-center justify-center text-center p-2 rounded-2xl" style="background:rgba(255,255,255,.03);border:1px solid rgba(245,158,11,.22);min-height:76px">
-          <img src="logo-desarrollar.png" alt="SISTEMAS DesarrollAR" class="h-7 sm:h-9 w-auto object-contain mb-1">
-          <span class="mono text-[8px] sm:text-[9px] font-bold text-amber-400 uppercase tracking-wider leading-tight">SISTEMAS<br>DesarrollAR</span>
+        <div class="flex flex-col items-center justify-center text-center p-3 rounded-2xl" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)">
+          <span class="brandsub text-[8px] text-gray-300 mb-1">CASA DE LA</span>
+          <img src="JUVENTUDRECORTADO.png" alt="Casa de la Juventud" class="h-8 sm:h-10 w-auto object-contain mb-1.5">
+          <span class="text-[9px] sm:text-[10px] text-teal-300 font-semibold leading-tight">Sec. Niñez, Adolescencia<br>y Familia</span>
         </div>
       </div>
     </div>`;
