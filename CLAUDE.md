@@ -6,8 +6,8 @@ Web estática con backend **Supabase** (auth + datos) y Edge Functions para admi
 ## Stack
 
 - **HTML/CSS/JS estático** (`index.html`, `campus.html`, `GUIA-INSTRUCTORES-*.html`).
-- **Supabase** como backend: schema SQL en `supabase/` + **Edge Functions** en TypeScript (`Deno`).
-- Hosting estático con `_headers` (Cloudflare Pages / Netlify-style). Deploy vía `deploy.bat`.
+- **Turso LibSQL** como base de datos en el edge y API serverless en Vercel.
+- Hosting y despliegue continuo en **Vercel** (`cursodj.desarrollar.online`) vinculado a GitHub `tallerdjjuventudrgl/campus-dj-juventud`.
 
 ## Estructura
 
