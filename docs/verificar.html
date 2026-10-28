@@ -53,16 +53,16 @@ body{font-family:'Outfit',sans-serif;background:radial-gradient(circle at 50% 0%
 .diploma-frame.ink-saver .dip-div{background:#cbd5e1 !important;}
 .diploma-frame.ink-saver .dip-qr-box{background:#ffffff !important;border-color:#0d9488 !important;}
 @media print {
-  @page { size: A4 landscape; margin: 0mm; }
-  html, body{margin:0 !important;padding:0 !important;height:auto !important;background:#0b0e12 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  @page { size: A4 landscape; margin: 8mm 10mm; }
+  html, body{margin:0 !important;padding:0 !important;height:auto !important;min-height:0 !important;background:#0b0e12 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   body.print-ink-saver{background:#ffffff !important;color:#0f172a !important;}
   .no-print{display:none !important;}
-  main{padding:9mm 12mm !important;margin:0 !important;max-width:100% !important;width:100% !important;}
-  .diploma-frame{display:block !important;box-shadow:none !important;border:2px solid #00a99d !important;margin:0 !important;width:100% !important;page-break-inside:avoid !important;break-inside:avoid !important;}
-  body.print-ink-saver .diploma-frame{background:#ffffff !important;border:2px solid #0d9488 !important;}
-  .diploma-inner{padding:20px 28px !important;margin:8px !important;}
-  .dip-center-block{padding-top:14px !important;padding-bottom:14px !important;}
-  .dip-footer-block{margin-top:14px !important;padding-top:10px !important;}
+  main{padding:0 !important;margin:0 !important;max-width:100% !important;width:100% !important;}
+  .diploma-frame{display:block !important;box-shadow:none !important;border:2.5px solid #00a99d !important;margin:0 !important;width:100% !important;height:184mm !important;box-sizing:border-box !important;page-break-inside:avoid !important;break-inside:avoid !important;}
+  body.print-ink-saver .diploma-frame{background:#ffffff !important;border:2.5px solid #0d9488 !important;}
+  .diploma-inner{padding:22px 34px !important;margin:8px !important;height:calc(100% - 16px) !important;box-sizing:border-box !important;display:flex !important;flex-direction:column !important;justify-content:space-between !important;}
+  .dip-center-block{padding-top:10px !important;padding-bottom:10px !important;}
+  .dip-footer-block{margin-top:10px !important;padding-top:10px !important;}
 }
 </style>
 </head>

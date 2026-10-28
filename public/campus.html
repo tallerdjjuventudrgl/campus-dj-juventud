@@ -82,18 +82,20 @@ input,textarea,select{font-family:Outfit,sans-serif;}
 .diploma-preview.ink-saver .dp-body{color:#1e293b !important;}
 .diploma-preview.ink-saver .dp-muted{color:#475569 !important;}
 .diploma-preview.ink-saver .dp-line{border-color:#cbd5e1 !important;}
+#printRoot{display:none;}
 @media print {
-  @page { size: A4 landscape; margin: 0mm; }
-  html, body { margin: 0 !important; padding: 0 !important; height: auto !important; }
-  body * { visibility: hidden !important; }
-  #diplomaPreviewBox, #diplomaPreviewBox * { visibility: visible !important; }
-  #diplomaPreviewBox { position: fixed !important; left: 10mm !important; right: 10mm !important; top: 8mm !important; width: auto !important; margin: 0 !important; box-shadow: none !important; page-break-inside: avoid !important; break-inside: avoid !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  @page { size: A4 landscape; margin: 8mm 10mm; }
+  html, body { margin: 0 !important; padding: 0 !important; height: auto !important; min-height: 0 !important; background: #ffffff !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  body.print-dark { background: #0b0e12 !important; }
+  #app, #helpModalRoot { display: none !important; }
+  #printRoot { display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
 }
 </style>
 </head>
 <body>
 <div id="app"></div>
 <div id="helpModalRoot"></div>
+<div id="printRoot"></div>
 
 <script>
 /* ===================== CAMPUS VIRTUAL · TALLER DE DJ =====================
@@ -1442,41 +1444,60 @@ async function markManualAtt(session_id,student_id,status){
 
 /* ---------- CERTIFICADOS DIGITALES CON VISTA PREVIA EN VIVO Y VALIDACIÓN QR ---------- */
 function renderDiplomaPreview(d){
+  window.__currentDiplomaData = d;
   const isLight = state.certTheme === "light";
   const extraParams = d.issued ? "" : `&student=${encodeURIComponent(d.student_name||"Alumno")}&grade=${encodeURIComponent(d.final_grade||9)}&hours=${encodeURIComponent(d.hours||48)}`;
   const vUrl = `${location.origin}/verificar?code=${encodeURIComponent(d.code||"DJ-RGL-2026-MUESTRA")}${extraParams}`;
-  const qr = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=6&color=${isLight?'0f172a':'00a99d'}&bgcolor=ffffff&data=${encodeURIComponent(vUrl)}`;
-  return `<div class="diploma-preview ${isLight?'ink-saver':''} text-center my-4" id="diplomaPreviewBox">
-    <div class="flex items-center justify-center gap-4 mb-2 flex-wrap">
-      <img src="escudo-rgl.png" alt="Municipalidad de Río Gallegos" style="height:44px;width:auto;object-fit:contain">
-      <div class="dp-line h-8 w-px" style="background:rgba(255,255,255,.18)"></div>
-      <img src="JUVENTUD.png" alt="Casa de la Juventud" style="height:38px;width:auto;object-fit:contain">
+  const qr = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=6&color=0f172a&bgcolor=ffffff&data=${encodeURIComponent(vUrl)}`;
+  return `<div class="diploma-preview ${isLight?'ink-saver':''} text-center my-4" id="diplomaPreviewBox" style="padding:32px 34px">
+    <div class="flex items-center justify-between gap-4 pb-4 mb-4 border-b dp-line" style="border-color:rgba(255,255,255,.1)">
+      <div class="flex items-center gap-3.5 flex-wrap">
+        <img src="escudo-rgl.png" alt="Municipalidad de Río Gallegos" style="height:48px;width:auto;object-fit:contain">
+        <div class="dp-line h-9 w-px" style="background:rgba(255,255,255,.18)"></div>
+        <img src="JUVENTUD.png" alt="Casa de la Juventud" style="height:40px;width:auto;object-fit:contain">
+        <div class="dp-line h-9 w-px hidden sm:block" style="background:rgba(255,255,255,.18)"></div>
+        <div class="text-left hidden sm:block">
+          <div class="dp-title text-xs font-extrabold uppercase tracking-wider text-white">Municipalidad de Río Gallegos</div>
+          <div class="dp-muted text-[11px] text-gray-400">Secretaría de Niñez, Adolescencia y Familia · Casa de la Juventud</div>
+        </div>
+      </div>
+      <div class="text-right">
+        <div class="dp-teal mono text-[10px] uppercase tracking-widest text-teal-400 font-bold">Registro Oficial</div>
+        <div id="dpCodeTxt" class="dp-title mono text-xs font-bold text-white mt-0.5">${esc(d.code||"DJ-RGL-2026-PREVIEW")}</div>
+      </div>
     </div>
-    <div class="dp-teal mono text-[10px] uppercase tracking-[0.28em] text-teal-400 font-bold">Municipalidad de Río Gallegos · Casa de la Juventud</div>
-    <h2 class="dp-gold text-xl md:text-2xl font-extrabold uppercase tracking-widest mt-1" style="color:#fbba00">Certificado Oficial de Aprobación</h2>
-    <p class="dp-muted text-xs text-gray-400 mt-2">Por cuanto se certifica que</p>
-    <div id="dpStudentName" class="dp-title text-2xl md:text-3xl font-extrabold text-white my-2 py-1.5 px-6 inline-block border-b-2" style="border-color:rgba(0,169,157,.45)">${esc(d.student_name||"Nombre del Alumno")}</div>
-    <p class="dp-body text-xs md:text-sm text-gray-300 max-w-2xl mx-auto leading-relaxed mt-1">
-      ha completado y aprobado satisfactoriamente los <b>6 módulos teórico-prácticos</b> y la evaluación final en cabina del <b>Taller Municipal de DJ y Producción Sonora</b>, acreditando <b id="dpHours" class="dp-title text-white">${esc(d.hours||48)} horas reloj</b> de formación con una calificación final de <b id="dpGrade" class="dp-gold" style="color:#fbba00">${esc(d.final_grade||9)}/10</b>.
-    </p>
-    <div class="dp-line grid grid-cols-1 sm:grid-cols-3 items-center gap-4 mt-6 pt-4 border-t" style="border-color:rgba(255,255,255,.08)">
+
+    <div class="py-4">
+      <div class="dp-teal mono text-xs uppercase tracking-[0.26em] text-teal-400 font-bold">Certificado Oficial de Aprobación y Competencia Técnica</div>
+      <p class="dp-muted text-sm text-gray-400 mt-2">Por cuanto se acredita que</p>
+      <div id="dpStudentName" class="dp-title text-3xl md:text-5xl font-extrabold text-white my-3 py-1.5 px-8 inline-block border-b-2 uppercase tracking-wide" style="border-color:rgba(0,169,157,.45)">${esc(d.student_name||"Nombre del Alumno")}</div>
+      <p class="dp-body text-sm md:text-base text-gray-300 max-w-3xl mx-auto leading-relaxed mt-2">
+        ha completado y aprobado satisfactoriamente los <b>6 módulos teórico-prácticos</b> y la evaluación final en cabina del <b>Taller Municipal de DJ y Producción Sonora</b>, acreditando <b id="dpHours" class="dp-title text-white">${esc(d.hours||48)} horas reloj</b> de formación con una calificación final de <b id="dpGrade" class="dp-gold" style="color:#fbba00">${esc(d.final_grade||9)}/10</b>.
+      </p>
+    </div>
+
+    <div class="dp-line grid grid-cols-1 sm:grid-cols-3 items-end gap-4 mt-5 pt-5 border-t" style="border-color:rgba(255,255,255,.1)">
       <div class="text-center">
-        <div class="dp-line dp-title w-40 mx-auto border-t pt-1.5 text-xs font-bold text-white" style="border-color:rgba(255,255,255,.25)">Gisel Duarte</div>
-        <div class="dp-muted text-[10px] text-gray-400">Instructora · Dirección Académica</div>
+        <div class="dp-line dp-title w-48 mx-auto border-t pt-2 text-sm font-bold text-white" style="border-color:rgba(255,255,255,.28)">Gisel Duarte</div>
+        <div class="dp-teal text-[11px] text-teal-400 font-semibold uppercase tracking-wider">Instructora Principal DJ</div>
+        <div class="dp-muted text-[10px] text-gray-400">Casa de la Juventud RGL</div>
       </div>
       <div class="flex flex-col items-center">
-        <div class="bg-white p-2 rounded-xl shadow-md border border-slate-200"><img id="dpQrImg" src="${qr}" alt="QR Validación" style="width:76px;height:76px;display:block"></div>
-        <div id="dpCodeTxt" class="dp-teal mono text-[10px] text-teal-300 mt-1.5 font-bold">${esc(d.code||"DJ-RGL-2026-PREVIEW")}</div>
-        <div class="dp-muted text-[9px] text-gray-500">${d.issued?'✓ Registrado Oficialmente':'Escaneá el QR para ver el Cartel Institucional Móvil'}</div>
+        <div class="bg-white p-2 rounded-xl shadow-md border border-slate-300"><img id="dpQrImg" src="${qr}" alt="QR Validación" style="width:84px;height:84px;display:block"></div>
+        <div class="dp-muted text-[10px] text-gray-400 mt-1.5 font-medium">${d.issued?'✓ Escaneá para validar autenticidad':'Escaneá el QR para ver el Cartel Institucional Móvil'}</div>
       </div>
       <div class="text-center">
-        <div class="dp-line dp-title w-40 mx-auto border-t pt-1.5 text-xs font-bold text-white" style="border-color:rgba(255,255,255,.25)">Casa de la Juventud</div>
+        <div class="dp-line dp-title w-48 mx-auto border-t pt-2 text-sm font-bold text-white" style="border-color:rgba(255,255,255,.28)">Franco Esquivel</div>
+        <div class="dp-gold text-[11px] font-semibold uppercase tracking-wider" style="color:#e6007e">Instructor Técnico DJ</div>
         <div class="dp-muted text-[10px] text-gray-400">Municipalidad de Río Gallegos</div>
       </div>
     </div>
-    <div class="dp-line mt-4 pt-2 border-t flex items-center justify-center gap-2 flex-wrap" style="border-color:rgba(255,255,255,.05)">
-      <img src="logo-desarrollar.png" alt="SISTEMAS DesarrollAR" style="height:18px;width:auto;object-fit:contain;opacity:.9">
-      <span class="dp-muted text-[10px] text-gray-300 font-medium" style="font-family:'Outfit',sans-serif">Hecho con orgullo en Río Gallegos, Santa Cruz, Argentina 🇦🇷</span>
+    <div class="dp-line mt-5 pt-3 border-t flex items-center justify-between gap-2 flex-wrap text-xs" style="border-color:rgba(255,255,255,.07)">
+      <div class="flex items-center gap-2">
+        <img src="logo-desarrollar.png" alt="SISTEMAS DesarrollAR" style="height:22px;width:auto;object-fit:contain">
+        <span class="dp-muted text-[11px] text-gray-300">Certificación Digital verificada por <b class="dp-title">SISTEMAS DesarrollAR</b></span>
+      </div>
+      <span class="dp-muted text-[11px] text-gray-300 font-medium" style="font-family:'Outfit',sans-serif">Hecho con orgullo en Río Gallegos, Santa Cruz, Argentina 🇦🇷</span>
     </div>
   </div>`;
 }
@@ -1487,8 +1508,98 @@ function setCampusCertTheme(mode){
 }
 function printCampusDiplomaPreview(mode){
   state.certTheme = mode;
+  const d = Object.assign({}, window.__currentDiplomaData || {});
+  const gVal = document.getElementById("cpGrade")?.value;
+  const hVal = document.getElementById("cpHours")?.value;
+  if(gVal) d.final_grade = gVal;
+  if(hVal) d.hours = hVal;
+  const isLight = mode === "light";
+  document.body.classList.toggle("print-dark", !isLight);
+  const extraParams = d.issued ? "" : `&student=${encodeURIComponent(d.student_name||"Alumno")}&grade=${encodeURIComponent(d.final_grade||9)}&hours=${encodeURIComponent(d.hours||48)}`;
+  const vUrl = `${location.origin}/verificar?code=${encodeURIComponent(d.code||"DJ-RGL-2026-MUESTRA")}${extraParams}`;
+  const qr = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=6&color=0f172a&bgcolor=ffffff&data=${encodeURIComponent(vUrl)}`;
+
+  const bg = isLight ? "#ffffff" : "#0b0e12";
+  const fg = isLight ? "#0f172a" : "#ffffff";
+  const bodyCol = isLight ? "#1e293b" : "#e2e8f0";
+  const muted = isLight ? "#475569" : "#94a3b8";
+  const teal = isLight ? "#0f766e" : "#00a99d";
+  const gold = isLight ? "#b45309" : "#fbba00";
+  const pink = isLight ? "#be185d" : "#f472b6";
+  const line = isLight ? "#cbd5e1" : "rgba(255,255,255,0.14)";
+  const outerBorder = isLight ? "#0d9488" : "#00a99d";
+  const innerBorder = isLight ? "#d97706" : "rgba(251,186,0,0.45)";
+
+  const pr = document.getElementById("printRoot");
+  if(pr){
+    pr.innerHTML = `
+      <div style="width:100%;height:186mm;background:${bg};color:${fg};border:2.5px solid ${outerBorder};border-radius:20px;padding:10px;box-sizing:border-box;page-break-inside:avoid;break-inside:avoid;font-family:'Outfit',sans-serif;">
+        <div style="width:100%;height:100%;border:1.5px solid ${innerBorder};border-radius:14px;padding:24px 36px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:14px;border-bottom:1px solid ${line};">
+            <div style="display:flex;align-items:center;gap:16px;">
+              <img src="escudo-rgl.png" style="height:54px;width:auto;object-fit:contain;">
+              <div style="width:1px;height:40px;background:${line};"></div>
+              <div>
+                <img src="JUVENTUD.png" style="height:42px;width:auto;object-fit:contain;display:block;">
+                <div style="font-size:8px;font-weight:700;letter-spacing:0.24em;color:${muted};margin-top:2px;">LA CASA DE LA JUVENTUD</div>
+              </div>
+              <div style="width:1px;height:40px;background:${line};"></div>
+              <div>
+                <div style="font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:${fg};">Municipalidad de Río Gallegos</div>
+                <div style="font-size:11.5px;color:${muted};">Secretaría de Niñez, Adolescencia y Familia</div>
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.18em;color:${teal};">Registro Oficial</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:800;color:${fg};margin-top:2px;">${esc(d.code||"DJ-RGL-2026-PREVIEW")}</div>
+            </div>
+          </div>
+
+          <div style="text-align:center;padding:10px 0;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.26em;color:${teal};margin-bottom:8px;">Certificado de Aprobación y Competencia Técnica</div>
+            <div style="font-size:14px;color:${muted};margin-bottom:6px;">Por cuanto se acredita que</div>
+            <div style="font-size:44px;font-weight:800;text-transform:uppercase;letter-spacing:0.04em;color:${fg};margin:8px 0 12px;padding:0 28px 6px;display:inline-block;border-bottom:2.5px solid ${outerBorder};">${esc(d.student_name||"Nombre del Alumno")}</div>
+            <p style="font-size:15.5px;line-height:1.6;color:${bodyCol};max-width:780px;margin:0 auto;">
+              ha completado y aprobado satisfactoriamente los <b>6 módulos teórico-prácticos</b> y la evaluación final en cabina del
+              <b style="color:${fg};">Taller Municipal de DJ y Producción Sonora</b>, acreditando
+              <b style="color:${fg};">${esc(d.hours||48)} horas reloj</b> de formación presencial con una calificación final de
+              <b style="color:${gold};">${esc(d.final_grade||9)}/10</b>.
+            </p>
+          </div>
+
+          <div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;align-items:end;gap:20px;padding-top:16px;border-top:1px solid ${line};">
+              <div style="text-align:center;">
+                <div style="width:190px;margin:0 auto;border-top:1.5px solid ${line};padding-top:6px;font-size:14px;font-weight:800;color:${fg};">Gisel Duarte</div>
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:${teal};margin-top:2px;">Instructora Principal DJ</div>
+                <div style="font-size:10.5px;color:${muted};">Casa de la Juventud RGL</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                <div style="background:#ffffff;padding:6px;border-radius:12px;border:1.5px solid #cbd5e1;display:inline-block;">
+                  <img src="${qr}" style="width:92px;height:92px;display:block;">
+                </div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:${muted};margin-top:4px;">Escaneá para validar autenticidad</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="width:190px;margin:0 auto;border-top:1.5px solid ${line};padding-top:6px;font-size:14px;font-weight:800;color:${fg};">Franco Esquivel</div>
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:${pink};margin-top:2px;">Instructor Técnico DJ</div>
+                <div style="font-size:10.5px;color:${muted};">Municipalidad de Río Gallegos</div>
+              </div>
+            </div>
+
+            <div style="margin-top:14px;padding-top:10px;border-top:1px solid ${line};display:flex;align-items:center;justify-content:space-between;font-size:11.5px;color:${muted};">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <img src="logo-desarrollar.png" style="height:22px;width:auto;object-fit:contain;">
+                <span>Certificación Digital verificada por <b style="color:${fg};">SISTEMAS DesarrollAR</b></span>
+              </div>
+              <div style="font-weight:600;color:${bodyCol};">Hecho con orgullo en Río Gallegos, Santa Cruz, Argentina 🇦🇷</div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }
   render();
-  setTimeout(()=>window.print(), 220);
+  setTimeout(()=>window.print(), 280);
 }
 
 function viewCertificados(){
