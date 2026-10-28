@@ -373,7 +373,8 @@ nav{background:rgba(6,6,15,.88);backdrop-filter:blur(24px);border-bottom:1px sol
     <div><p class="mono text-[10px] uppercase tracking-widest mb-3 text-gray-600">Instructores</p><p class="font-bold text-white">Gisel Duarte &amp; Franco Esquivel</p><p class="text-gray-500 text-xs mt-1">Taller de Oficio Digital</p></div>
   </div>
   <div class="mt-10 pt-6 border-t text-center" style="border-color:rgba(255,255,255,.06)">
-    <p class="mono text-[10px] uppercase tracking-widest text-gray-600">Sistemas &middot; <span style="color:var(--cyan)">Desarroll</span><span style="color:var(--purple)">AR</span> &middot; de Jorge Adrian Duarte</p>
+    <p class="mono text-[11px] uppercase tracking-widest text-gray-400 mb-1">Sistemas &middot; <span style="color:var(--cyan)">Desarroll</span><span style="color:var(--purple)">AR</span> &middot; de Jorge Adrian Duarte</p>
+    <p class="mono text-xs text-gray-400 font-semibold mt-1">Hecho con orgullo en Río Gallegos, Santa Cruz, Argentina 🇦🇷</p>
   </div>
 </div>
 </footer>
@@ -505,17 +506,15 @@ initCharts();
 renderContenido(1);
 </script>
 <script>
-/* ---------- NOSOTROS: carga las tarjetas de instructores desde Supabase ---------- */
+/* ---------- NOSOTROS: carga las tarjetas de instructores desde API Turso Scaler ---------- */
 (function(){
-  const SB_URL="https://tmdlgcrgyxcvkonouzsx.supabase.co";
-  const SB_ANON="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtZGxnY3JneXhjdmtvbm91enN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzNDY4MzgsImV4cCI6MjA5NzkyMjgzOH0.73gtKGs4-fytH6aN-a4NNiS5ELpf-0lhIpdu_PsVLMw";
-  const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+  const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"": "&quot;"}[c]));
   const ic=(url,emoji,label)=>url?`<a href="${esc(url)}" target="_blank" rel="noopener" title="${label}" style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:16px;text-decoration:none">${emoji}</a>`:"";
   async function loadTeam(){
     const grid=document.getElementById("team-grid");
     if(!grid) return;
     try{
-      const res=await fetch(SB_URL+"/rest/v1/instructors?select=*&order=updated_at.desc",{headers:{apikey:SB_ANON}});
+      const res=await fetch("/api/instructors");
       const data=await res.json();
       if(!Array.isArray(data)||!data.length){ grid.innerHTML='<p class="text-gray-600 text-center" style="grid-column:1/-1">Pronto vas a conocer a nuestro equipo.</p>'; return; }
       grid.innerHTML=data.map(function(p){

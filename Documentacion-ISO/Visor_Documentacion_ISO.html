@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Documentación ISO — Campus Virtual Taller de DJ</title>
+<style>
+  :root{
+    --bg:#0c0f12; --bg2:#13171b; --bg3:#1a1f24; --panel:#0f1418;
+    --text:#e2e8f0; --muted:#8b969d; --border:#232a30;
+    --magenta:#e6007e; --teal:#00a99d; --amber:#fbba00;
+    --magenta-soft:#e6007e22; --teal-soft:#00a99d22;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:"Segoe UI",Arial,sans-serif; background:var(--bg); color:var(--text);
+    display:flex; min-height:100vh;
+  }
+  a{color:var(--teal);}
+  /* Sidebar */
+  #sidebar{
+    width:340px; min-width:340px; background:var(--panel); border-right:1px solid var(--border);
+    display:flex; flex-direction:column; height:100vh; position:sticky; top:0;
+  }
+  #brand{
+    display:flex; align-items:center; gap:12px; padding:16px 18px;
+    border-bottom:1px solid var(--border); background:linear-gradient(135deg, var(--magenta-soft), var(--teal-soft));
+  }
+  #brand svg{width:44px; height:44px; flex-shrink:0;}
+  #brand h1{font-size:14px; margin:0; line-height:1.3;}
+  #brand span{display:block; font-size:11px; color:var(--muted); font-weight:normal;}
+  #search{
+    margin:12px 14px 8px 14px; padding:9px 12px; border-radius:8px; border:1px solid var(--border);
+    background:var(--bg2); color:var(--text); font-size:13px; outline:none;
+  }
+  #search:focus{border-color:var(--teal);}
+  #filters{display:flex; flex-wrap:wrap; gap:6px; padding:0 14px 12px 14px;}
+  .filter-btn{
+    font-size:11px; padding:5px 10px; border-radius:999px; border:1px solid var(--border);
+    background:var(--bg2); color:var(--muted); cursor:pointer; transition:.15s;
+  }
+  .filter-btn:hover{border-color:var(--teal); color:var(--text);}
+  .filter-btn.active{background:var(--teal); color:#04211d; border-color:var(--teal); font-weight:600;}
+  #doclist{flex:1; overflow-y:auto; padding:6px 10px 16px 10px;}
+  .cat-group{margin-bottom:6px;}
+  .cat-label{
+    font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);
+    padding:10px 8px 4px 8px;
+  }
+  .doc-item{
+    display:flex; align-items:baseline; gap:8px; padding:9px 10px; border-radius:8px;
+    cursor:pointer; font-size:13px; color:var(--text); border:1px solid transparent;
+  }
+  .doc-item:hover{background:var(--bg2);}
+  .doc-item.active{background:var(--magenta-soft); border-color:var(--magenta);}
+  .doc-code{font-size:10px; color:var(--amber); font-weight:700; min-width:22px;}
+  .doc-item.kind-sql .doc-code{color:var(--teal);}
+  #count{padding:8px 18px; font-size:11px; color:var(--muted); border-top:1px solid var(--border);}
+  /* Main */
+  #main{flex:1; display:flex; flex-direction:column; min-width:0;}
+  #topbar{
+    padding:14px 32px; border-bottom:1px solid var(--border); background:var(--bg2);
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+  }
+  #topbar h2{margin:0; font-size:16px;}
+  #topbar .meta{font-size:12px; color:var(--muted);}
+  #content-wrap{flex:1; overflow-y:auto; padding:36px 48px; max-width:900px;}
+  #empty{color:var(--muted); padding:60px 48px; font-size:14px;}
+  .doc-body h1{font-size:22px; color:#fff; border-bottom:2px solid var(--magenta); padding-bottom:8px; margin-top:0;}
+  .doc-body h2{font-size:17px; color:var(--teal); margin-top:32px;}
+  .doc-body h3{font-size:14px; color:var(--amber); margin-top:22px;}
+  .doc-body p{line-height:1.65; font-size:14px; color:var(--text);}
+  .doc-body ul{padding-left:22px; line-height:1.7; font-size:14px;}
+  .doc-body li{margin-bottom:4px;}
+  .doc-body code{background:var(--bg3); padding:2px 6px; border-radius:4px; font-size:12.5px; color:var(--amber);}
+  .doc-body pre{background:var(--bg3); padding:14px 16px; border-radius:8px; overflow-x:auto; border:1px solid var(--border);}
+  .doc-body pre code{background:none; padding:0; color:#c7d3da;}
+  .doc-body table{border-collapse:collapse; width:100%; margin:16px 0; font-size:13px;}
+  .doc-body th, .doc-body td{border:1px solid var(--border); padding:7px 10px; text-align:left;}
+  .doc-body th{background:var(--bg3); color:var(--teal);}
+  .doc-body tr:nth-child(even) td{background:#ffffff05;}
+  .doc-body hr{border:none; border-top:1px solid var(--border); margin:22px 0;}
+  .doc-body strong{color:#fff;}
+  .doc-body a{text-decoration:underline;}
+  .callout{
+    border-left:4px solid var(--teal); background:var(--teal-soft); padding:10px 14px;
+    border-radius:0 8px 8px 0; margin:14px 0; font-size:13.5px;
+  }
+  .callout.warning{border-color:var(--amber); background:#fbba0018;}
+  .callout.danger{border-color:#f87171; background:#f8717118;}
+  .callout-title{font-weight:700; display:block; margin-bottom:4px;}
+  .checkbox{color:var(--muted); margin-right:4px;}
+  #no-results{padding:20px 8px; color:var(--muted); font-size:13px; text-align:center;}
+  ::-webkit-scrollbar{width:9px;}
+  ::-webkit-scrollbar-thumb{background:var(--bg3); border-radius:4px;}
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+  <div id="brand">
+    <?xml version="1.0" encoding="UTF-8"?>
+<svg id="logo-svg" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1920 1080">
+  <!-- Generator: Adobe Illustrator 30.2.1, SVG Export Plug-In . SVG Version: 2.1.1 Build 1)  -->
+  <defs>
+    <style>
+      .st0 {
+        fill: #11998c;
+      }
+
+      .st1 {
+        fill: #fbc013;
+      }
+
+      .st2 {
+        fill: #c90262;
+      }
+
+      .st3 {
+        fill: #fcbf0b;
+      }
+
+      .st4 {
+        fill: #f85b0b;
+      }
+
+      .st5 {
+        fill: #fc5905;
+      }
+    </style>
+  </defs>
+  <g>
+    <path class="st1" d="M556.65,510.95c-9.31,15.14-8.98,14.82-7.67,37.66l.89,15.43c2.8,48.67-4.97,91.26-52.7,113.76-10.46,4.93-24.1,6.73-35.49,5.93-32.94-2.3-61.86-22.99-74.01-53.82-4.27-10.83-5.56-22.08-6.01-33.67l-.99-25.63-.33-82.96c-.03-7.34,7-13.61,13.91-13.04,5.33.44,11.19,5.38,11.24,10.91l.89,100.18c.12,13.93,1.26,27.73,7.13,40.1,14.28,30.1,54.62,43.32,81.53,24.59,6.88-4.79,13.49-9.78,17.88-16.8,16.4-26.19,12.66-62.78,10.19-92.94-1.34-16.33,3.06-32.48,13.27-44.63,3.12-3.71,7.18-6.56,11.85-6.27,5.17.32,8.77,4,10.36,7.69,2.06,4.77.83,9.02-1.94,13.51Z"/>
+    <path class="st1" d="M461.76,546.02c-2.75-1.38-8.07-5.19-8.08-8.72l-.38-133.29c-.02-7.44,2.71-12.47,10.86-14.89,4.97-1.47,14.78,3.81,14.78,10.89l.13,134.05c0,4.47-2.75,8.42-5.22,10.03-3.52,2.3-7.92,4.02-12.09,1.92Z"/>
+    <path class="st1" d="M442.46,545.07c-.02,7.01-6.74,11.28-12.03,11.47s-12.57-4.37-12.58-10.84l-.13-122.41c0-7.49,6.38-12.57,12.96-12.44,7.15.15,12.07,5.85,12.05,13.54l-.28,120.68Z"/>
+    <path class="st1" d="M514.9,524.71c0,6.93-6.74,10.25-11.87,10.77-4.07.41-12.46-3.76-12.48-9.55l-.23-112.83c-.01-5.58,7.42-9.94,12.26-10.17s12.21,4.59,12.21,10.2l.11,111.58Z"/>
+  </g>
+  <g>
+    <g>
+      <path class="st3" d="M993.29,533.49c-2.48-4.34-9.35-6.42-13.84-4.31-2.96,1.39-7.5,5.68-7.5,9.59l-.22,136.33c0,2.54-1.61,4.17-4.08,4.17h-55.04c-2.19,0-4.27-1.63-4.26-4.17l.71-137.95c.14-27.05,15.84-50.73,39.25-62.69,13.07-6.68,32.78-9.23,47.08-7.83,19.02,1.86,38.01,9.55,48.9,25.58,9.81,14.45,14.81,30.2,14.87,47.71l.43,136.18c-.62,2.64-2.75,3.24-5.23,3.23l-57.99-.21-.24-137.39c0-2.67-1.36-5.68-2.82-8.23Z"/>
+      <path class="st5" d="M821.97,618.64l50.74.56.06,57.93c0,1.46-3.02,2.14-4,2.14h-32.69c-3.82-.01-7.3-1.29-11.26-1.06-18.16,1.04-36.67-2.3-51.06-14.17-11.7-9.66-19.25-24.44-19.77-40.22-1.08-32.6-.97-64.57-.03-97.15.48-16.52,7.95-31.68,20.32-41.74,12.24-9.95,28.04-11.71,43.37-12.69l7.05-.45c13.35-.85,26.48,1.02,40.19-.34,2-.2,6.97-.39,7.78,1.67l.21,58.34c-13.29.53-33.21-1.12-44.05.56-5.72.89-10.08,2.84-10.94,8.23s2.02,11.17,8.26,11.23l42.6.38.02,46.83-46.42.45c-4.81.05-8.85,4.05-8.5,8.72-1.57,5.17,2.13,10.72,8.14,10.79Z"/>
+      <polygon class="st2" points="1192.25 678.08 1129.83 678.26 1129.78 531.64 1082.96 531.42 1082.97 472.09 1238.95 472.08 1238.94 531.53 1192.12 531.49 1192.25 678.08"/>
+    </g>
+    <g>
+      <g>
+        <path class="st4" d="M1246.18,496.7c2.65-4.66,6.79-6.65,10.76-6.94s8.13,2.56,10.52,5.99c14.34,20.54,14.85,30.77,12.61,56.99l-.97,11.35c-1.36,15.95-.15,41.09,5.46,56.44,7.19,19.65,24.19,34.97,45.43,37.9,29.03,3.99,56.72-14.64,64.43-42.81,3.93-14.37,2.95-28.73,4.02-43.3.31-4.2.92-8.06.73-12.37l-.56-12.29-.35-7.17c-.91-18.35-.75-36.41.29-54.48.4-6.98,7.81-11.61,12.98-11.17,7.27.62,11.86,6.7,11.84,14.28l-.19,90.59-1.02,18.61c-.88,16-4.26,31.7-12.53,45.37-13.5,22.32-38.62,37.45-64.5,39.66-5.11.43-10.33,0-15.37-.07-11.32-.16-21.16-4.73-30.89-9.71-8.25-4.22-14.57-10.12-20.95-17.08-14.32-15.62-21.53-35.86-23.17-57.26-.83-10.84-.9-44.4.8-54.53,2.23-13.33-.57-25.5-9.48-35.88-2.1-2.45-1.37-9.46.13-12.1Z"/>
+        <path class="st4" d="M1350.81,452.01c1.05,7.15-.43,17.77.03,30.54.61,17.01.49,33.64.04,50.57-.2,7.61-6.27,14.3-14.1,13.38-3.6-.43-10.99-4.47-10.99-9.16v-137.22c0-4.43,4.5-7.82,7.1-9.32,3.66-2.1,9.54-1.65,12.69,1.11,5.58,4.88,5.07,11.37,4.84,18.01-.27,7.75-.51,35.94.39,42.1Z"/>
+        <path class="st4" d="M1385.66,547.04c0,6.51-8.1,9.43-12.51,9.08-4.66-.38-11.42-4.61-11.45-11.08l-.46-120.64c-.02-4.97,1.86-7.82,4.73-10.52s7.55-4.22,11.51-2.32c2.67,1.28,8.2,5.11,8.27,8.82l-.1,126.67Z"/>
+        <path class="st4" d="M1314.28,523.51c0,7.12-6.24,11.41-11.74,12.01-4.29.47-13.15-3.59-13.16-9.86l-.25-111.21c-.02-6.94,6.91-11.6,12.58-11.61s12.55,4.86,12.55,11.57l.02,109.1Z"/>
+      </g>
+      <path class="st0" d="M1502.05,679.38v-61.55c7.98.73,14.91-.42,22.47-.65,17.31-.53,32.92-10.49,38.3-26.94,3.6-11.04,3.52-21.89-.23-32.8-4.36-12.72-15.59-20.59-28.67-23.03-3.41-.64-6.79-1.91-10.38-1.93l-29.53-.19-.62,50.81-.45,95.37-62.22.04-.06-206.67,98.71.82c19.52.16,37.64,6.78,54.04,15.92,10.21,6.69,18.14,14.08,25.97,23.26l6.14,7.2c10.89,12.77,15.48,47.23,13.73,66.19s-7.46,37.68-19.37,52.88c-8.5,10.84-21.12,22.51-33.38,28.86-19.02,9.84-39.76,13.63-61.06,13.26-4.3-.07-7.78-1.39-13.39-.84Z"/>
+    </g>
+  </g>
+  <g>
+    <path class="st0" d="M670.92,471.24l67.45-.02c.36,4.33-1.49,7.37-3.16,11.41l-86.13,208.51c-6.33-10.33-8.84-19.92-13.48-29.98l-76.93-187.83c.25-1.65,1.56-2.15,3.1-2.15l68.92.15,18.69,61.91,8.78-25.9c.31-3.91,2.19-7.14,3.32-10.77l5.55-17.83c.8-2.58,1.44-4.94,3.89-7.49Z"/>
+    <path class="st2" d="M366.77,644.11c-12.75,30.59-43.93,47.69-76.32,35.78l-.05-59.17c6.22,1.49,12.15,2.8,16.53-1.54,2.8-2.77,2.61-6.75,3.87-10.69l.02-136.37,62.24.08-.03,145.4c-1.79,9.54-2.68,17.92-6.25,26.5Z"/>
+  </g>
+</svg>
+    <h1>Documentación ISO<span>Campus Virtual · Taller de DJ · Casa de la Juventud</span></h1>
+  </div>
+  <input id="search" type="text" placeholder="Buscar en título o contenido…">
+  <div id="filters"></div>
+  <div id="doclist"></div>
+  <div id="count"></div>
+</div>
+
+<div id="main">
+  <div id="topbar">
+    <h2 id="doc-title">Documentación ISO — Campus Virtual Taller de DJ</h2>
+    <span class="meta">Municipalidad de Río Gallegos</span>
+  </div>
+  <div id="content-wrap">
+    <div id="empty">
+      Elegí un documento de la izquierda para verlo. Usá el buscador o los filtros de
+      categoría para encontrarlo rápido.
+    </div>
+    <div id="doc-render" class="doc-body" style="display:none;"></div>
+  </div>
+</div>
+
+<script>
+const DOCS = [{"id": "00_INDEX_Documentacion.md", "title": "Índice de Documentación", "cat": "indice", "code": "00", "kind": "md", "content": "# Índice de Documentación ISO — Campus Virtual Taller de DJ\n\n**Proyecto:** Campus Virtual — Taller de DJ (Gisel Duarte y Franco Esquivel)\n**Cliente:** Casa de la Juventud — organismo de la Municipalidad de Río Gallegos\n**Versión:** 1.0\n**Fecha:** 2026-07-08\n**Desarrollador:** SISTEMAS DesarrollAR — Jorge Adrián Duarte\n**URL en producción:** https://tallerdjjuventudrgl.github.io/campus-dj-juventud/\n\n---\n\n## Set de documentos (proporcional al tamaño del proyecto)\n\n> Set reducido respecto del máximo de 27 documentos de la plantilla: un LMS de un solo\n> cliente, sin facturación ni infraestructura propia (Supabase administrado + GitHub\n> Pages), no justifica documentos como Plan de Negocios o Executive Dossier. Se armó el\n> subconjunto que sí aplica; si el proyecto crece (Fase 3: certificados, notificaciones,\n> foro), ampliar este índice.\n\n| # | Código | Nombre | Estado |\n|---|---|---|---|\n| 00 | IDX | Índice de Documentación | ✅ |\n| 01 | SRS | Especificación de Requisitos de Software | ✅ |\n| 02 | SAD | Documento de Arquitectura de Software | ✅ |\n| 03 | STP | Plan de Pruebas de Software | ✅ |\n| 06 | TM | Análisis de Amenazas y Seguridad | ✅ |\n| 07 | SHG | Guía de Fortalecimiento de Seguridad | ✅ |\n| 08 | SOP | Procedimiento Operativo Estándar | ✅ |\n| 10 | DG | Guía de Despliegue | ✅ |\n| 11 | MM | Manual de Mantenimiento | ✅ |\n| 12 | AM | Manual de Administrador/Instructor | ✅ |\n| 15 | EULA | Licencia de Uso | ✅ |\n| 17 | AL | Alcances y Limitaciones | ✅ |\n| 20 | PP | Política de Privacidad | ✅ |\n| 20b | — | Anexo — Autorización de Menores (+ formulario .docx imprimible) | ✅ (2026-07-09) |\n| 21 | PRD | Política de Retención de Datos (+ script SQL de purga) | ✅ (v2.0, 2026-07-09) |\n| 22 | DIT | Declaración de Integridad Técnica | ✅ |\n\n## Contexto del proyecto\n\n### Descripción\nLMS (campus virtual) para el Taller de DJ de la Casa de la Juventud de Río Gallegos.\nReemplaza una landing estática por un sistema con login por roles (alumno/instructor/\nadmin), material por módulos, entrega de tareas (incluye archivos de audio) y\ncorrección con nota + feedback. En producción desde el 25/06/2026.\n\n### Stack tecnológico\nHTML + CSS + JS vanilla (frontend estático, sin build) · Supabase (Auth + Postgres +\nStorage + Edge Functions en Deno) · GitHub Pages (hosting, organización\n`tallerdjjuventudrgl`).\n\n### Normas aplicables\n- ISO/IEC 25010:2023 — Calidad del producto de software\n- ISO/IEC 27001:2022 — Seguridad de la información\n- ISO/IEC 27701:2019 — Gestión de privacidad\n- ISO 31000:2018 — Gestión de riesgos\n- Ley 25.326 (Argentina) — Protección de Datos Personales\n\n## Fuentes usadas para generar este set\n- `_docs/CAMPUS-PRD.md` — PRD original del producto (Fase 1 y 2).\n- `_docs/INFORME-SEGURIDAD.md` — auditoría de seguridad del 25/06/2026 (aprobada).\n- `supabase/*.sql` — esquema real (5 tablas: `profiles`, `assignments`, `submissions`,\n  `announcements`, `progress`) y políticas RLS.\n- `supabase/edge-functions/*.ts` — Edge Functions de administración de usuarios.\n- `CLAUDE.md` de la carpeta del proyecto.\n\n## Historial de versiones del set\n| Versión | Fecha | Autor | Cambios |\n|---|---|---|---|\n| 1.0 | 2026-07-08 | Jorge Adrián Duarte | Versión inicial, generada a pedido tras confirmar que el proyecto está en producción |\n"}, {"id": "01_SRS_Software_Requirements.md", "title": "Especificación de Requisitos (SRS)", "cat": "tecnico", "code": "01", "kind": "md", "content": "# SRS — Especificación de Requisitos de Software\n## Campus Virtual — Taller de DJ\n\n**Documento:** SRS-CAMPUSDJ-v2.0\n**Cliente:** Casa de la Juventud — Municipalidad de Río Gallegos\n**Clasificación:** Confidencial — SISTEMAS DesarrollAR\n\n---\n\n## 1. Visión\n\nTransformar la landing page del Taller de DJ en un Campus Virtual (LMS) estilo educación\na distancia: alumnos e instructores ingresan con credenciales, acceden al material\norganizado por módulos, y gestionan el ciclo completo tarea → entrega → corrección →\ncalificación → feedback.\n\n## 2. Alcance actual (Fase 2 — en producción)\n\nA diferencia del PRD original (Fase 1, prototipo en `localStorage`), la versión vigente\nusa **Supabase** como backend real: datos compartidos entre usuarios, contraseñas\ngestionadas por Supabase Auth (no en texto plano), archivos en Supabase Storage.\n\n## 3. Roles y permisos\n\n| Acción | Alumno (`student`) | Instructor (`instructor`) | Admin (`admin`) |\n|---|:---:|:---:|:---:|\n| Ver material y marcar lección completada | ✅ | ✅ | ✅ |\n| Ver/entregar tareas propias | ✅ | — | — |\n| Ver nota y feedback propios | ✅ | — | — |\n| Crear/editar tareas | — | ✅ | ✅ |\n| Ver entregas de todos y calificar | — | ✅ | ✅ |\n| Publicar anuncios | — | ✅ | ✅ |\n| Ver progreso de alumnos (roster) | — | ✅ | ✅ |\n| Crear/eliminar cuentas de usuario | — | — | ✅ (vía Edge Functions) |\n\nEl rol vive en `profiles.role` (`check` constraint: `student`/`instructor`/`admin`) y se\nresuelve del lado del servidor con la función `auth_role()` — no es falseable desde el\nnavegador (ver 06_Threat_Model, sección 7).\n\n## 4. Requerimientos funcionales\n\n- **FR1 Auth:** login con Supabase Auth (email + contraseña); sesión persistente; logout.\n- **FR2 Roles:** render y permisos condicionados por `profiles.role`.\n- **FR3 Material:** curso → módulos → lecciones, contenido estático embebido en `campus.html`.\n- **FR4 Progreso:** tabla `progress` — lecciones completadas por alumno.\n- **FR5 Tareas:** CRUD de `assignments` (instructor/admin): título, instrucciones, fecha límite.\n- **FR6 Entregas:** alumno crea fila en `submissions` con `body` (texto) y `file_path`\n  (referencia a Supabase Storage — audio/PDF/imagen).\n- **FR7 Corrección:** instructor/admin actualiza `submissions` con nota + feedback.\n- **FR8 Anuncios:** tabla `announcements`, visibles a todo el curso.\n- **FR9 Roster:** instructor/admin consulta `profiles` + `progress` de todos los alumnos.\n- **FR10 Alta/baja de usuarios:** Edge Functions `admin-create-user` / `admin-delete-user`\n  (`service_role`, nunca expuesta al navegador).\n\n## 5. Requerimientos no funcionales\n\n- **NFR1 Idioma:** todo en español rioplatense (UI, mensajes, documentación).\n- **NFR2 Responsive:** desktop y móvil.\n- **NFR3 Sin servidor propio:** hosting estático (GitHub Pages) + backend administrado\n  (Supabase) — sin infraestructura para mantener del lado de SISTEMAS DesarrollAR.\n- **NFR4 Seguridad:** RLS activo en las 5 tablas, verificación de rol server-side\n  (ver 06_Threat_Model y 07_Security_Hardening_Guide).\n\n## 6. Modelo de datos (real, Supabase)\n\n```\nprofiles      { id (=auth.users.id), email, name, role, created_at }\nassignments   { id, course_id, module_id, title, instructions, due_date, created_by, created_at }\nsubmissions   { id, assignment_id, student_id, body, file_path, ... nota/feedback }\nannouncements { id, course_id, title, body, author, created_at }\nprogress      { ... lecciones completadas por alumno }\n```\n\n## 7. Fuera de alcance (vigente)\n\n- Pagos / inscripción con cobro.\n- Videollamadas en vivo.\n- Mensajería privada 1 a 1 (solo anuncios al curso).\n- Certificado PDF automático, notificaciones por email, foro, app móvil — planeados\n  para Fase 3, sin fecha comprometida.\n\n## 8. Historial de fases\n\n| Fase | Qué | Estado |\n|---|---|---|\n| 1 — Prototipo local | Todo en `localStorage`, contraseñas en texto plano | Cerrada, migrada |\n| 2 — Sistema real online | Supabase (Auth + Postgres + Storage), en producción | **Vigente desde 2026-06-25** |\n| 3 — Extras | Certificados, notificaciones, foro, app móvil | Sin iniciar |\n"}, {"id": "02_SAD_Architecture_Document.md", "title": "Arquitectura de Software (SAD)", "cat": "tecnico", "code": "02", "kind": "md", "content": "# SAD — Documento de Arquitectura de Software\n## Campus Virtual — Taller de DJ\n\n## 1. Vista general\n\nArquitectura **JAMstack** simple: frontend estático sin build (HTML/CSS/JS vanilla) +\nbackend administrado (Supabase) + hosting estático (GitHub Pages). Sin servidor propio\nque mantener, sin proceso de build/CI.\n\n```\nNavegador (campus.html)\n   │  fetch/SDK Supabase-js\n   ▼\nSupabase (proyecto \"CURSO DJ CASA DE LA JUVENTUD\", ref tmdlgcrgyxcvkonouzsx)\n   ├── Auth          — login, sesión, emisión de JWT\n   ├── Postgres      — profiles / assignments / submissions / announcements / progress (RLS)\n   ├── Storage       — archivos de entrega (audio/PDF/imagen)\n   └── Edge Functions (Deno) — admin-create-user, admin-delete-user (service_role)\n```\n\n## 2. Componentes\n\n| Componente | Archivo(s) | Rol |\n|---|---|---|\n| Landing pública | `publish/index.html` | Presentación del taller, sin login |\n| Campus (app) | `publish/campus.html` | SPA con router por rol, todo el flujo LMS |\n| Guía instructores | `publish/GUIA-INSTRUCTORES-google-drive.html` | Cómo cargar material vía Google Drive |\n| Esquema BD | `supabase/supabase-schema*.sql` | Tablas + RLS + funciones (`handle_new_user`, `auth_role`) |\n| Edge Functions | `supabase/edge-functions/*.ts` | Operaciones privilegiadas (alta/baja de usuarios) |\n\n## 3. Dos copias del sitio — `docs/` vs `publish/`\n\n`docs/` y `publish/` contienen el mismo set de archivos publicables. **`publish/` es la\nfuente editable; `docs/` es la salida que genera `deploy.bat`** para GitHub Pages (ver\n10_Deployment_Guide). **Nunca editar directo en `docs/`** — se pisa en el próximo deploy.\nEsta es también la razón por la que la documentación ISO vive en su propia carpeta\n(`Documentacion-ISO/`) y no dentro de `docs/`: esa carpeta es el artefacto de build del\nsitio público, no un lugar para documentación interna.\n\n## 4. Autenticación y autorización\n\n- **Autenticación:** Supabase Auth (email + contraseña), JWT de sesión.\n- **Autorización:** por rol (`profiles.role`), aplicada en dos capas:\n  1. **Cliente:** la UI oculta/muestra vistas según el rol (UX, no seguridad real).\n  2. **Servidor (real):** políticas RLS de Postgres + función `auth_role()` — el\n     rol se lee de la tabla `profiles` según `auth.uid()`, no se puede falsear desde\n     el navegador (ver 06_Threat_Model).\n\n## 5. Manejo de archivos\n\nLas entregas de los alumnos (sets de audio, PDFs, imágenes) se guardan en Supabase\nStorage; `submissions.file_path` referencia la ubicación. El acceso a los archivos\nhereda las mismas reglas de rol que la fila de `submissions` correspondiente.\n\n## 6. Despliegue\n\nVer 10_Deployment_Guide — resumen: `deploy.bat` copia `publish/` → `docs/` y hace push a\nGitHub, que sirve `docs/` como GitHub Pages bajo la organización `tallerdjjuventudrgl`.\n\n## 7. Decisiones de arquitectura relevantes\n\n- **Sin backend propio:** decisión deliberada para minimizar mantenimiento — Supabase\n  administra Auth/DB/Storage/Functions, SISTEMAS DesarrollAR no opera infraestructura.\n- **Frontend sin build:** HTML/CSS/JS directos, sin bundler ni framework — reduce\n  superficie de fallos de build y permite editar y previsualizar con doble clic.\n- **Edge Functions solo para lo privilegiado:** todo lo que requiere `service_role`\n  (crear/eliminar usuarios) vive en Edge Functions, nunca en el cliente.\n"}, {"id": "03_STP_Software_Test_Plan.md", "title": "Plan de Pruebas (STP)", "cat": "tecnico", "code": "03", "kind": "md", "content": "# STP — Plan de Pruebas de Software\n## Campus Virtual — Taller de DJ\n\n## 1. Alcance\n\nProyecto sin suite de tests automatizados (frontend estático sin build ni framework de\ntesting). La verificación es **manual, funcional, por rol**, más una auditoría de\nseguridad puntual ya realizada (25/06/2026, ver 06_Threat_Model).\n\n## 2. Criterios de aceptación funcionales (verificados en el deploy a producción)\n\n- [x] Login funciona para alumno, instructor y admin con cuentas reales de Supabase Auth.\n- [x] El alumno ve el material, marca lecciones y su progreso se refleja en `progress`.\n- [x] El instructor crea una tarea (`assignments`) y aparece para los alumnos del curso.\n- [x] El alumno entrega (con archivo a Storage) y el instructor ve la entrega en `submissions`.\n- [x] El instructor califica (nota + feedback) y el alumno lo ve.\n- [x] El instructor publica un anuncio y los alumnos lo ven.\n- [x] Un visitante sin sesión (solo con la clave `anon`) no puede leer ni escribir nada\n      (verificado como parte de la auditoría de RLS).\n- [x] Las Edge Functions de administración devuelven `401` sin autenticación (verificado en vivo).\n\n## 3. Pruebas de seguridad (realizadas, ver 06/07)\n\n- Revisión de claves/secretos expuestos en el código publicado — aprobada.\n- Revisión de políticas RLS en las 5 tablas — aprobada, sin hallazgos.\n- Verificación de las dos Edge Functions (rechazo sin auth, bloqueo de auto-eliminación\n  y de eliminación de otros admins) — aprobada.\n\n## 4. Pendiente / no cubierto\n\n- No hay tests automatizados de regresión — cualquier cambio en `campus.html` o en las\n  políticas SQL debe re-verificarse manualmente contra esta checklist antes de\n  redeployar.\n- No hay pruebas de carga/concurrencia (proyecto de bajo volumen, un solo curso).\n\n## 5. Responsable\n\nJorge Adrián Duarte — verificación manual antes de cada deploy con `deploy.bat`.\n"}, {"id": "06_Threat_Model_Security_Analysis.md", "title": "Análisis de Amenazas (Threat Model)", "cat": "seguridad", "code": "06", "kind": "md", "content": "# Threat Model — Análisis de Amenazas y Seguridad\n## Campus Virtual — Taller de DJ\n\n**Documento:** TM-CAMPUSDJ-v1.0\n**Clasificación:** Confidencial — SISTEMAS DesarrollAR\n\n---\n\n## 1. Resumen de seguridad\n\n**Nivel de riesgo general:** Bajo (tras auditoría del 25/06/2026, aprobada sin\nvulnerabilidades).\n**Superficie de ataque:** frontend estático público + API de Supabase (Auth/DB/Storage)\n+ 2 Edge Functions.\n**Activos críticos:** credenciales de alumnos/instructores, entregas de tareas\n(archivos de audio con posible contenido personal), clave `service_role` de Supabase.\n\n## 2. Activos del sistema\n\n| Activo | Tipo | Criticidad | Propietario |\n|---|---|---|---|\n| Credenciales de usuarios (Supabase Auth) | Dato | Alta | Supabase (gestionado) |\n| Tabla `profiles` (nombre, email, rol) | Dato | Media-Alta | Proyecto Supabase |\n| Entregas de alumnos (`submissions` + Storage) | Dato | Media | Proyecto Supabase |\n| Clave `service_role` | Credencial | Crítica | Solo en env vars de Edge Functions |\n| Clave `anon` | Credencial | Baja (pública por diseño) | Embebida en `campus.html` |\n\n## 3. Actores y confianza\n\n| Actor | Tipo | Nivel de confianza | Acceso |\n|---|---|---|---|\n| Visitante anónimo | Externo | Ninguno | Solo clave `anon`; RLS bloquea toda lectura/escritura sin sesión |\n| Alumno autenticado | Interno | Bajo/Medio | Solo sus propios datos (`_read_self`, `_own_or_staff`) |\n| Instructor autenticado | Interno | Medio | Anuncios/tareas del curso, entregas de todos, roster |\n| Admin | Interno | Alto | Todo lo anterior + alta/baja de usuarios vía Edge Functions |\n\n## 4. Análisis STRIDE\n\n| Amenaza | Categoría | Impacto | Probabilidad | Control |\n|---|---|---|---|---|\n| Falsear el rol propio para acceder a datos de otros | Elevation of Privilege | Alto | Baja | `auth_role()` server-side, no falseable desde el navegador |\n| Leer datos sin autenticarse | Information Disclosure | Alto | Baja | RLS activo en las 5 tablas, todas las políticas exigen `authenticated` |\n| Ejecutar alta/baja de usuarios sin ser admin | Elevation of Privilege | Alto | Baja | Edge Functions verifican rol admin + JWT antes de ejecutar |\n| Filtración de `service_role` en el cliente | Information Disclosure | Crítico | Baja | Vive solo en env vars de Edge Functions, nunca en el navegador (verificado) |\n| Filtración de `CLAVE PROYECTO EN SUPABASE .txt` por git | Information Disclosure | Alto | Baja | `.gitignore` con patrones `CLAVE*.txt`/`*SUPABASE*.txt`; verificado que nunca estuvo en el historial |\n| Eliminación accidental/maliciosa de una cuenta admin | Tampering | Medio | Baja | `admin-delete-user` bloquea eliminar admins y auto-eliminación |\n\n## 5. Registro de riesgos (ISO 31000:2018)\n\n| ID | Categoría | Riesgo | Prob | Impacto | Nivel | Tratamiento |\n|---|---|---|---|---|---|---|\n| R-001 | Datos | Exposición de entregas de alumnos por política RLS mal configurada | 1 | 3 | 3 | Mitigado — RLS auditado y aprobado |\n| R-002 | Credenciales | Filtración de `service_role` | 1 | 3 | 3 | Mitigado — solo en env vars de servidor |\n| R-003 | Disponibilidad | Caída del proyecto Supabase (plan gratuito/administrado) | 2 | 2 | 4 | Aceptado — sin SLA propio, dependencia de terceros |\n| R-004 | Operación | Editar `docs/` en vez de `publish/` y perder cambios en el próximo deploy | 2 | 1 | 2 | Mitigado — documentado en 02_SAD y 10_Deployment_Guide |\n\n## 6. Vectores de ataque principales\n\n### 6.1 Bypass de rol desde el cliente\n- **Descripción:** un usuario intenta modificar su rol o inyectar un rol distinto en las\n  peticiones a la API para acceder a funciones de instructor/admin.\n- **Impacto potencial:** acceso no autorizado a calificaciones, anuncios y roster.\n- **Control implementado:** el rol se resuelve siempre server-side vía `auth_role()`\n  (lee `profiles.role` según `auth.uid()`), no depende de nada enviado por el cliente.\n\n### 6.2 Acceso anónimo a datos\n- **Descripción:** un visitante sin cuenta intenta leer datos usando solo la clave `anon`.\n- **Impacto potencial:** exposición de datos de alumnos/tareas sin autenticación.\n- **Control implementado:** las 5 tablas tienen RLS activo con políticas que exigen rol\n  `authenticated` — verificado que un visitante sin sesión no puede leer ni escribir nada.\n\n## 7. Controles de seguridad implementados\n\n| Control | Tipo | Descripción | Efectividad |\n|---|---|---|---|\n| RLS en 5 tablas | Preventivo | Postgres Row Level Security con políticas por rol | Alta |\n| `auth_role()` server-side | Preventivo | Resolución de rol no falsificable desde el cliente | Alta |\n| Edge Functions con verificación de JWT interna | Preventivo | Rechazan sin autenticación (401 verificado) | Alta |\n| `.gitignore` reforzado | Preventivo | Excluye credenciales, backups y config local | Alta |\n| Bloqueo de auto-eliminación/eliminación de admins | Preventivo | En `admin-delete-user` | Media-Alta |\n\n## 8. Riesgos residuales aceptados\n\n| Riesgo | Justificación de aceptación | Responsable |\n|---|---|---|\n| Disponibilidad depende del plan gratuito de Supabase y de GitHub Pages | Proyecto de bajo volumen (un curso, una organización), sin presupuesto para infraestructura propia | Jorge Adrián Duarte |\n| Sin tests automatizados de regresión | Frontend estático simple; verificación manual documentada en 03_STP | Jorge Adrián Duarte |\n\n## 9. Plan de revisión\n\n- **Próxima revisión:** ante cualquier tabla nueva en Supabase, activar RLS y definir\n  políticas **antes** de exponerla (recomendación ya registrada en el informe de\n  seguridad original).\n- **Disparadores de revisión anticipada:** nueva funcionalidad (Fase 3), incidente de\n  seguridad, cambio de infraestructura (ej. migrar de GitHub Pages).\n"}, {"id": "07_Security_Hardening_Guide.md", "title": "Guía de Fortalecimiento de Seguridad", "cat": "seguridad", "code": "07", "kind": "md", "content": "# Guía de Fortalecimiento de Seguridad\n## Campus Virtual — Taller de DJ\n\n## 1. Estado actual (auditado 2026-06-25 — aprobado sin hallazgos)\n\n| Control | Estado |\n|---|---|\n| RLS activo en las 5 tablas (`profiles`, `assignments`, `submissions`, `announcements`, `progress`) | ✅ |\n| Verificación de rol server-side (`auth_role()`, sin recursión de RLS) | ✅ |\n| `service_role` solo en env vars de Edge Functions, nunca en el navegador | ✅ |\n| `CLAVE PROYECTO EN SUPABASE .txt` fuera del repo (`.gitignore`) y nunca en el historial de git | ✅ |\n| Edge Functions devuelven 401 sin autenticación | ✅ |\n| `admin-delete-user` bloquea auto-eliminación y eliminación de otros admins | ✅ |\n\n## 2. `.gitignore` de referencia (reforzado en la auditoría)\n\n```\nCLAVE*.txt\n*SUPABASE*.txt\n.claude/\ncampus-local-backup.html\n*.docx\n```\n\n## 3. Reglas para mantener el hardening al editar\n\n- **Toda tabla nueva** en Supabase: activar RLS y escribir sus políticas **antes** de\n  usarla desde el cliente (Supabase ofrece auto-enable RLS para tablas nuevas — usarlo).\n- **Nunca** leer `profiles.role` del lado del cliente para decidir permisos reales —\n  usar siempre `auth_role()` u otra función `security definer` equivalente.\n- **Nunca** exponer `SUPABASE_SERVICE_ROLE_KEY` fuera de las Edge Functions (ni en\n  `campus.html`, ni en variables de build del frontend).\n- Antes de commitear, verificar que ningún archivo con `SUPABASE` o `CLAVE` en el\n  nombre quedó fuera del `.gitignore`.\n\n## 4. Verificación periódica recomendada\n\n- Revisar políticas RLS cada vez que se agregue una tabla o un campo sensible nuevo.\n- Rotar la clave `anon` **solo** si se sospecha abuso — no es necesario por estar\n  pública por diseño de Supabase.\n- Revisar el historial de git ante cualquier sospecha de filtración de credenciales\n  (`git log -p -- '*SUPABASE*' '*CLAVE*'`).\n\n## 5. Próxima auditoría\n\nSin fecha fija — disparadores: agregar tabla/campo nuevo, incorporar Fase 3\n(certificados/notificaciones/foro), o reporte de incidente.\n"}, {"id": "08_Operational_SOP.md", "title": "Procedimiento Operativo (SOP)", "cat": "operacion", "code": "08", "kind": "md", "content": "# SOP — Procedimiento Operativo Estándar\n## Campus Virtual — Taller de DJ\n\n## 1. Operación diaria (instructores)\n\n1. Publicar anuncios desde el panel de instructor.\n2. Crear tareas con consigna y fecha límite (módulo del curso).\n3. Revisar entregas nuevas en `submissions` y calificar (nota 0–10 + feedback).\n4. Consultar el roster para ver progreso de alumnos.\n\n## 2. Alta de usuarios (admin)\n\nAlta y baja de cuentas se hace **exclusivamente** vía las Edge Functions\n(`admin-create-user` / `admin-delete-user`), nunca manipulando `auth.users` directo\ndesde el SQL Editor de Supabase — así se mantienen las verificaciones de rol y los\nbloqueos de seguridad (no eliminar admins, no auto-eliminarse).\n\n## 3. Publicar cambios de contenido (`deploy.bat`)\n\nVer 10_Deployment_Guide para el detalle técnico. Resumen operativo:\n1. Editar **solo** en `publish/`, nunca en `docs/`.\n2. Correr `deploy.bat` (copia `publish/` → `docs/` y pushea a GitHub).\n3. Verificar el cambio en la URL pública: https://tallerdjjuventudrgl.github.io/campus-dj-juventud/\n\n## 4. Carga de material del curso\n\nLos módulos/lecciones son contenido estático embebido en `campus.html` (no hay un\neditor de contenido separado). Cambios de contenido del curso implican editar\n`publish/campus.html` directamente y redeployar.\n\n## 5. Soporte a instructores\n\nGisel Duarte y Franco Esquivel son los contactos principales del lado del cliente;\n`GUIA-INSTRUCTORES-google-drive.html` documenta cómo cargar material de apoyo vía\nGoogle Drive.\n\n## 6. Escalamiento\n\nCualquier reporte de error, dato incorrecto o sospecha de problema de acceso →\ncontactar a Jorge Adrián Duarte (SISTEMAS DesarrollAR) antes de intentar arreglos\nmanuales en Supabase.\n"}, {"id": "10_Deployment_Guide.md", "title": "Guía de Despliegue", "cat": "operacion", "code": "10", "kind": "md", "content": "# Guía de Despliegue\n## Campus Virtual — Taller de DJ\n\n## 1. Arquitectura de despliegue\n\n- **Hosting:** GitHub Pages, organización `tallerdjjuventudrgl`, repo `campus-dj-juventud`.\n- **Fuente servida por GitHub Pages:** carpeta `docs/` de la rama principal.\n- **Backend:** Supabase administrado — sin despliegue propio, sin servidor que mantener.\n\n## 2. ⚠️ Regla crítica — `publish/` vs `docs/`\n\n`docs/` y `publish/` contienen el mismo set de archivos (`index.html`, `campus.html`,\nguía de instructores, assets). **`publish/` es la fuente editable. `docs/` es la salida\ngenerada por `deploy.bat`** y es lo que GitHub Pages sirve públicamente.\n\n- ✅ Editar siempre en `publish/`.\n- ❌ Nunca editar directo en `docs/` — se pierde en el próximo `deploy.bat`.\n- ❌ Nunca poner documentación interna, credenciales o notas de trabajo en `docs/` —\n  es contenido público servido por GitHub Pages. Por eso esta documentación ISO vive en\n  `Documentacion-ISO/`, fuera de `docs/` y de `publish/`.\n\n## 3. Proceso de deploy\n\n```\nEditar archivos en publish/\n        ↓\nEjecutar deploy.bat\n        ↓\ndeploy.bat copia publish/ → docs/\n        ↓\ndeploy.bat hace commit + push a GitHub\n        ↓\nGitHub Pages sirve docs/ automáticamente\n```\n\n## 4. Verificación post-deploy\n\n1. Abrir https://tallerdjjuventudrgl.github.io/campus-dj-juventud/ y confirmar que el\n   cambio se ve reflejado (puede haber demora de cache de GitHub Pages, reintentar en\n   unos minutos si no se ve).\n2. Probar el flujo afectado con una cuenta real (o demo) del rol correspondiente.\n\n## 5. Configuración de Supabase (no requiere deploy)\n\nLos cambios de esquema SQL (`supabase/*.sql`) se aplican manualmente desde el SQL\nEditor de Supabase, en orden, y **no** están automatizados por `deploy.bat`. Revisar\n`supabase-schema-3-security.sql` (políticas RLS) con especial cuidado antes de aplicar\ncambios de esquema.\n\n## 6. Rollback\n\nAl ser GitHub Pages sobre git, un rollback es un `git revert`/`git reset` del commit de\n`docs/` seguido de push — no hay mecanismo de rollback específico de la app.\n"}, {"id": "11_Maintenance_Manual.md", "title": "Manual de Mantenimiento", "cat": "operacion", "code": "11", "kind": "md", "content": "# Manual de Mantenimiento\n## Campus Virtual — Taller de DJ\n\n## 1. Rutinas recomendadas\n\n| Frecuencia | Tarea |\n|---|---|\n| Ante cada tabla/campo nuevo en Supabase | Activar RLS + escribir políticas antes de usarla |\n| Mensual (mientras el curso esté activo) | Revisar que `CLAVE PROYECTO EN SUPABASE .txt` sigue fuera del repo y del historial de git |\n| Ante cualquier cambio de contenido | Editar solo en `publish/`, correr `deploy.bat`, verificar en producción |\n| Ante reporte de un instructor/alumno | Verificar primero en Supabase (tabla afectada) antes de tocar código |\n\n## 2. Puntos de fragilidad conocidos\n\n- **Contenido del curso embebido en `campus.html`:** no hay editor de contenido; cambiar\n  un módulo/lección implica editar HTML directamente. Riesgo de error humano al editar\n  a mano — revisar visualmente en `publish/` antes de deployar.\n- **Dos copias del sitio (`docs/`/`publish/`):** ver 02_SAD y 10_Deployment_Guide — la\n  fragilidad real es editar la copia equivocada.\n- **Dependencia de Supabase (plan administrado):** sin control sobre disponibilidad o\n  cambios de política del proveedor — riesgo aceptado (ver 06_Threat_Model, R-003).\n\n## 3. Actualización de dependencias\n\nSin dependencias de build (no hay `package.json` ni bundler) — el único \"SDK\" externo es\nel cliente de Supabase-js cargado por CDN en `campus.html`. Si se actualiza esa versión,\nreverificar el flujo completo de auth antes de deployar.\n\n## 4. Contacto de mantenimiento\n\nJorge Adrián Duarte — SISTEMAS DesarrollAR — duartejorgeadrian@gmail.com\n"}, {"id": "12_Administrator_Manual.md", "title": "Manual de Administrador/Instructor", "cat": "operacion", "code": "12", "kind": "md", "content": "# Manual de Administrador / Instructor\n## Campus Virtual — Taller de DJ\n\n## 1. Roles disponibles\n\n- **Alumno (`student`):** rol por defecto al registrarse.\n- **Instructor (`instructor`):** gestiona tareas, corrige entregas, publica anuncios,\n  ve el roster.\n- **Admin (`admin`):** todo lo del instructor + alta y baja de cuentas de usuario.\n\n## 2. Cómo crear una cuenta nueva (solo admin)\n\nUsar la función de alta de usuarios del panel admin (llama a la Edge Function\n`admin-create-user`). **No** crear usuarios manualmente desde el panel de Supabase —\nse pierde la asignación automática de perfil (`handle_new_user()` corre solo en el\nflujo normal de Supabase Auth, pero el rol inicial y las validaciones de la Edge\nFunction garantizan consistencia).\n\n## 3. Cómo eliminar una cuenta (solo admin)\n\nUsar la función de baja del panel admin (`admin-delete-user`). Esta función **bloquea\npor diseño**:\n- Eliminar la propia cuenta del admin que ejecuta la acción.\n- Eliminar la cuenta de otro admin.\n\nSi hace falta remover un admin, contactar a Jorge Adrián Duarte.\n\n## 4. Gestión de tareas (instructor/admin)\n\n1. Crear tarea: título, instrucciones, módulo asociado, fecha límite.\n2. Los alumnos del curso la ven automáticamente en su vista.\n3. Al llegar entregas, revisar en el panel de corrección: nota (0–10) + feedback escrito.\n4. El alumno ve su nota y feedback apenas se guarda la corrección.\n\n## 5. Anuncios\n\nCualquier instructor/admin puede publicar un anuncio; se muestra a todos los alumnos\ndel curso, sin segmentación por módulo.\n\n## 6. Roster (seguimiento de alumnos)\n\nVista de instructor/admin con el listado de alumnos y su progreso (% de lecciones\ncompletadas, tomado de la tabla `progress`).\n\n## 7. Qué NO se puede hacer todavía (Fase 3, fuera de alcance actual)\n\n- Emitir certificados en PDF automáticamente.\n- Enviar notificaciones por email.\n- Habilitar un foro de discusión.\n- Ver el campus desde una app móvil nativa (funciona en navegador móvil, no hay app).\n"}, {"id": "15_EULA_Licencia.md", "title": "Licencia de Uso (EULA)", "cat": "legal", "code": "15", "kind": "md", "content": "# Licencia de Uso de Software\n## Campus Virtual — Taller de DJ\n\n## 1. Partes\n\n- **Titular del software:** Jorge Adrián Duarte — SISTEMAS DesarrollAR (Ley 11.723 de\n  Propiedad Intelectual, Argentina).\n- **Licenciatario:** Casa de la Juventud — organismo de la Municipalidad de Río\n  Gallegos.\n\n## 2. Objeto de la licencia\n\nUso del Campus Virtual del Taller de DJ (código fuente en el repositorio\n`campus-dj-juventud`, organización `tallerdjjuventudrgl`) para la gestión del taller\ndictado por Gisel Duarte y Franco Esquivel.\n\n## 3. Alcance de la licencia\n\n- Licencia de **uso**, no de titularidad: el software es propiedad de Jorge Adrián\n  Duarte.\n- Uso previsto: gestión del Taller de DJ de la Casa de la Juventud, sin fines de\n  reventa ni cesión a terceros organismos sin acuerdo previo.\n\n## 4. Modalidad\n\nLicencia de uso **gratuita** *as is*, en línea con el resto de los proyectos que\nSISTEMAS DesarrollAR desarrolla para organismos de la Municipalidad de Río Gallegos\n(ver plantilla reutilizable [[Templates/Template - Contrato de Licencia Gratuita]]).\n\n## 5. Garantías y responsabilidad\n\nSoftware entregado \"tal cual\" (*as is*), sin garantía de disponibilidad más allá de lo\nque ofrezcan los proveedores externos usados (Supabase, GitHub Pages), fuera del\ncontrol de SISTEMAS DesarrollAR.\n\n## 6. Vigencia\n\nVigente mientras el taller esté activo en la Casa de la Juventud. Sin fecha de\nvencimiento fijada.\n\n## 7. Pendiente\n\nFormalizar la firma de un contrato de licencia por escrito (mismo patrón que otros\nproyectos municipales) — al 2026-07-08 el uso está autorizado de palabra/por el\nencargo original, sin documento firmado todavía.\n"}, {"id": "17_Alcances_Limitaciones.md", "title": "Alcances y Limitaciones", "cat": "legal", "code": "17", "kind": "md", "content": "# Alcances y Limitaciones\n## Campus Virtual — Taller de DJ\n\n## 1. Alcance actual (Fase 2, en producción)\n\n- Login por rol (alumno/instructor/admin) con Supabase Auth.\n- Material del curso por módulos y lecciones (contenido estático).\n- Progreso de lecciones completadas por alumno.\n- Tareas: creación, entrega (con archivo), corrección con nota + feedback.\n- Anuncios del instructor a todo el curso.\n- Alta y baja de usuarios (solo admin, vía Edge Functions).\n\n## 2. Fuera de alcance (explícito)\n\n- **Pagos o inscripción con cobro** — no es una plataforma de e-commerce.\n- **Videollamadas en vivo** — no reemplaza clases presenciales/virtuales sincrónicas.\n- **Mensajería privada 1 a 1** — solo anuncios grupales al curso.\n- **Certificados PDF automáticos, notificaciones por email, foro, app móvil nativa** —\n  planeados para una eventual Fase 3, sin compromiso de fecha.\n- **Editor de contenido del curso** — los módulos/lecciones son HTML estático; no hay\n  un CMS para que el instructor edite el contenido sin tocar código.\n\n## 3. Limitaciones técnicas conocidas\n\n- Sin tests automatizados (ver 03_STP) — la verificación de cambios es manual.\n- Sin infraestructura propia: la disponibilidad depende de Supabase (plan\n  administrado) y GitHub Pages — sin SLA propio de SISTEMAS DesarrollAR.\n- Un solo curso soportado en la práctica actual (`course_id` con valor fijo `'dj'` en\n  el esquema) — extender a múltiples cursos requeriría trabajo adicional de modelo\n  de datos y UI.\n\n## 4. Limitaciones operativas\n\n- El alta/baja de usuarios requiere intervención de un admin — no hay auto-registro\n  abierto de alumnos.\n- El contenido del curso solo lo puede modificar quien edita código (`publish/campus.html`)\n  y ejecuta `deploy.bat` — no es autoservicio para los instructores.\n"}, {"id": "20_Politica_Privacidad.md", "title": "Política de Privacidad", "cat": "privacidad", "code": "20", "kind": "md", "content": "# Política de Privacidad y Protección de Datos\n## Campus Virtual — Taller de DJ\n\n## 1. Datos personales procesados\n\n| Dato | Fuente | Finalidad | Retención |\n|---|---|---|---|\n| Nombre y email | Registro (Supabase Auth) | Identificación, login | Mientras la cuenta esté activa |\n| Rol (alumno/instructor/admin) | Alta de cuenta | Control de acceso | Mientras la cuenta esté activa |\n| Progreso de lecciones | Uso del campus | Seguimiento pedagógico | Mientras la cuenta esté activa |\n| Contenido de entregas (texto + archivo de audio/PDF/imagen) | Alumno, al entregar tareas | Evaluación del instructor | Ver 21_Politica_Retencion_Datos |\n| Notas y feedback | Instructor, al corregir | Evaluación del alumno | Mientras la cuenta esté activa |\n\n## 2. Roles de privacidad\n\n| Rol | Organización | Responsabilidad |\n|---|---|---|\n| Responsable del tratamiento | Casa de la Juventud (Municipalidad de Río Gallegos) | Define la finalidad del tratamiento (dictado del taller) |\n| Encargado del tratamiento | SISTEMAS DesarrollAR | Desarrolla y mantiene el sistema técnico |\n| Sub-encargado (infraestructura) | Supabase, GitHub | Almacenamiento de datos y hosting, bajo sus propias políticas de privacidad |\n| Operadores | Gisel Duarte, Franco Esquivel (instructores) | Operan el sistema con acceso a datos de alumnos |\n\n## 3. Consideración sobre menores de edad\n\nLa Casa de la Juventud puede tener participantes **menores de edad** en el taller. Se\ngeneró la herramienta para cubrir esto: ver **20b_Anexo_Autorizacion_Menores.md** y el\nformulario imprimible `Autorizacion_Participacion_y_Tratamiento_de_Datos_Menores.docx`\n(esta misma carpeta), que cubre en un solo documento la autorización de asistencia y el\nconsentimiento para el tratamiento de datos en la plataforma (Ley 25.326, art. 5).\n\n**Esto es una herramienta, no una confirmación de que ya se recolectó el consentimiento\nde cada familia** — sigue pendiente que Casa de la Juventud confirme si hay menores en\nel taller y distribuya/archive los formularios firmados.\n\n## 4. Derechos de los titulares (Ley 25.326)\n\n| Derecho | Cómo ejercerlo | Plazo de respuesta |\n|---|---|---|\n| Acceso a sus datos | Solicitud a Casa de la Juventud o a SISTEMAS DesarrollAR | 30 días hábiles |\n| Rectificación | Solicitud con documentación | 5 días hábiles |\n| Supresión | Solicitud — aplica límites legales/pedagógicos (ej. registro de calificaciones) | 30 días hábiles |\n| Oposición | Solicitud fundada | 30 días hábiles |\n\n## 5. Privacidad por diseño — implementación real\n\n| Principio | Implementación en este proyecto |\n|---|---|\n| Privacidad como configuración por defecto | RLS activo desde el diseño inicial de las tablas, no agregado después |\n| Privacidad integrada en el diseño | Rol resuelto server-side (`auth_role()`), sin depender de que el cliente \"se comporte bien\" |\n| Seguridad de extremo a extremo | Auth + RLS + Edge Functions con verificación de JWT |\n| Visibilidad y transparencia | Este documento + 06_Threat_Model + 07_Security_Hardening_Guide, disponibles para el cliente |\n| Respeto por la privacidad del usuario | Sin visitante anónimo con acceso a datos; cada alumno ve solo lo propio |\n\n## 6. Evaluación de impacto (PIA)\n\n**Resultado:** Riesgo bajo-medio.\n\n**Justificación:** volumen de datos bajo (un curso, cantidad acotada de alumnos),\nsensibilidad media (nombre, email, progreso, entregas de audio — no hay datos de salud\nni financieros), sin transferencias a terceros más allá de los proveedores de\ninfraestructura (Supabase, GitHub), y la eventual participación de menores eleva la\nsensibilidad respecto de un curso solo para adultos (ver sección 3).\n\n## 7. Transferencias a terceros\n\n| Destinatario | País | Datos transferidos | Garantías |\n|---|---|---|---|\n| Supabase (hosting de BD/Auth/Storage) | Según región del proyecto Supabase | Todos los datos del sistema | Políticas de privacidad y seguridad propias de Supabase |\n| GitHub Pages | EE.UU. (infraestructura GitHub) | Solo contenido estático público (landing, campus sin datos de usuarios embebidos) | Políticas de privacidad de GitHub |\n\n## 8. Incidentes de privacidad\n\n1. Notificar internamente en máximo 72 horas.\n2. Evaluar impacto sobre los titulares (alumnos/instructores).\n3. Notificar a la Dirección Nacional de Protección de Datos Personales si el riesgo es alto.\n4. Notificar a los titulares afectados (y a sus tutores, si son menores) si aplica.\n\n**Contacto de privacidad:** Jorge Adrián Duarte — duartejorgeadrian@gmail.com\n"}, {"id": "20b_Anexo_Autorizacion_Menores.md", "title": "Anexo — Autorización de Menores", "cat": "privacidad", "code": "20b", "kind": "md", "content": "# Anexo — Autorización de Participación y Tratamiento de Datos (Menores)\n## Campus Virtual — Taller de DJ\n\n## 1. Qué resuelve este anexo\n\nComplementa 20_Politica_Privacidad.md (sección 3, alerta sobre posible participación de\nmenores). Se generó un **formulario de autorización** para que Casa de la Juventud lo\nhaga firmar a padres/madres/tutores de participantes menores de edad, cubriendo dos\ncosas en un solo documento:\n\n1. Autorización de **asistencia y participación presencial** en el Taller de DJ.\n2. Autorización para el **tratamiento de sus datos en la plataforma** (Campus Virtual):\n   qué datos se recolectan, con qué fin, y los derechos del tutor sobre esos datos.\n\n## 2. Dónde está el formulario imprimible\n\n`Autorizacion_Participacion_y_Tratamiento_de_Datos_Menores.docx` (esta misma carpeta) —\nlisto para completar e imprimir, con espacio de firma del padre/madre/tutor.\n\n## 3. Estado real (importante — no confundir con \"ya resuelto\")\n\nEsto es una **herramienta**, no una confirmación de que ya se recolectó el\nconsentimiento de cada familia. Falta, del lado de Casa de la Juventud:\n\n- [ ] Confirmar si efectivamente hay participantes menores de edad en el taller (no se\n      asumió, sigue sin confirmar).\n- [ ] Distribuir el formulario a las familias correspondientes.\n- [ ] Archivar los formularios firmados (en papel o escaneados) como respaldo del\n      consentimiento — SISTEMAS DesarrollAR no los almacena ni los ve.\n\n## 4. Relación con la Política de Retención\n\nEl formulario no define por sí solo cuánto tiempo se retienen los datos del menor —\neso lo cubre 21_Politica_Retencion_Datos.md (12 meses sin actividad como criterio por\ndefecto, purgable vía el procedimiento documentado ahí).\n"}, {"id": "21_Politica_Retencion_Datos.md", "title": "Política de Retención de Datos", "cat": "privacidad", "code": "21", "kind": "md", "content": "# Política de Retención de Datos\n## Campus Virtual — Taller de DJ\n\n> [!info] Política adoptada por defecto (2026-07-09)\n> Casa de la Juventud no había definido un criterio propio de retención. Ante eso,\n> SISTEMAS DesarrollAR adoptó la política de esta sección como **default razonable**\n> (principio de minimización de datos, Ley 25.326), **no como un acuerdo ya cerrado\n> con el cliente**. Si Casa de la Juventud define un criterio distinto, se actualiza\n> este documento y se ajusta el script de la sección 4.\n\n## 1. Períodos de retención (política vigente)\n\n| Dato | Mientras la cuenta está activa | Tras 12 meses sin actividad (alumno) |\n|---|---|---|\n| Perfil (nombre, email, rol) | Retenido | Candidato a purga (ver sección 3) |\n| Progreso de lecciones | Retenido | Se purga junto con el perfil (cascada en BD) |\n| Entregas (texto) y calificaciones | Retenido — valor pedagógico | Se purga junto con el perfil (cascada en BD) |\n| Archivos de entrega (audio/PDF/imagen en Storage) | Retenido | **No se purgan automáticamente** — requieren borrado manual aparte (ver script) |\n| Anuncios | Indefinida | No aplica — no son datos personales de un individuo |\n| Cuentas de instructor/admin | Indefinida mientras estén activos | Excluidas de la purga automática por defecto — de baja manual únicamente |\n\n**Criterio de \"sin actividad\":** 12 meses sin entregas nuevas (`submissions.submitted_at`)\nni progreso nuevo (`progress.completed_at`), contados desde la fecha más reciente entre\nesas dos y la creación de la cuenta. Se eligió 12 meses por ser un plazo razonable para\nun taller de dictado anual, sin que la ausencia temporal de un alumno dispare un borrado\nprematuro.\n\n## 2. Excepción — casos que NO se purgan aunque cumplan el criterio\n\n- Reclamos de nota o disputa de evaluación en curso.\n- Instrucción expresa de Casa de la Juventud de conservar un registro puntual.\n\n## 3. Cómo se identifican los candidatos (implementado)\n\n`supabase_retencion_purga.sql` (en esta misma carpeta) trae la consulta real contra el\nesquema de Supabase que lista alumnos sin actividad hace más de 12 meses. **No borra\nnada solo**: es para que un admin humano revise antes de dar de baja.\n\n## 4. Cómo se ejecuta la purga (procedimiento, no automático)\n\n1. Correr la consulta de la sección 1 de `supabase_retencion_purga.sql` en el SQL\n   Editor de Supabase.\n2. Confirmar con Casa de la Juventud que cada candidato efectivamente dejó el taller.\n3. Dar de baja **por la Edge Function `admin-delete-user`** desde el panel de admin\n   (nunca borrando filas de `profiles` directo por SQL — así se conservan los\n   bloqueos de seguridad ya existentes: no admins, no auto-baja).\n4. La baja cascadea de `auth.users` → `profiles` → `submissions`/`progress`\n   (`on delete cascade` en el esquema real).\n5. **Los archivos en Supabase Storage no se borran solos con ese cascade** — hay que\n   borrarlos aparte (consulta y procedimiento en la sección 2 del script SQL).\n\n## 5. Por qué no está 100% automatizado\n\nEl esquema actual no tiene un campo de \"curso finalizado\"/\"fecha de baja\" — la\ndetección de inactividad es una aproximación por última actividad, no un dato\nexplícito. Automatizar la purga sin revisión humana sería riesgoso (podría borrar una\ncuenta inactiva por una simple pausa, no por baja real). Se optó por semi-automatizar:\ndetección automática + ejecución manual revisada.\n\n## 6. Responsable de ejecutar la retención/purga\n\nJorge Adrián Duarte, con confirmación previa de Casa de la Juventud caso por caso —\nno delegado a los instructores.\n"}, {"id": "22_Declaracion_Integridad_Tecnica.md", "title": "Declaración de Integridad Técnica", "cat": "legal", "code": "22", "kind": "md", "content": "# Declaración de Integridad Técnica\n## Campus Virtual — Taller de DJ\n\n## 1. Declaración\n\nJorge Adrián Duarte (SISTEMAS DesarrollAR) declara que, a la fecha de este documento\n(2026-07-08):\n\n- El sistema descripto en esta documentación (01_SRS a 21_Politica_Retencion_Datos)\n  refleja el estado real del código y la configuración de Supabase vigentes en\n  producción, verificado contra el esquema SQL real (`supabase/*.sql`) y el informe\n  de seguridad del 25/06/2026.\n- La auditoría de seguridad de la sección 06/07 fue realizada sobre el código\n  efectivamente publicado (GitHub Pages) y la configuración real de Supabase, no\n  sobre una versión hipotética o planeada.\n- No se identificaron vulnerabilidades ni claves expuestas al momento de la auditoría\n  (25/06/2026).\n\n## 2. Limitaciones de esta declaración\n\n- No cubre vulnerabilidades que puedan introducirse en cambios posteriores a esta\n  fecha sin una nueva revisión.\n- No cubre la seguridad de la infraestructura de terceros (Supabase, GitHub) más allá\n  de su configuración por parte de este proyecto.\n\n## 3. Firma\n\nJorge Adrián Duarte — SISTEMAS DesarrollAR — duartejorgeadrian@gmail.com — 2026-07-08\n"}, {"id": "supabase_retencion_purga.sql", "title": "Script SQL — Retención y Purga", "cat": "privacidad", "code": "SQL", "kind": "sql", "content": "-- ============================================================\n--  RETENCIÓN Y PURGA DE DATOS — Campus Virtual Taller de DJ\n--  Ver 21_Politica_Retencion_Datos.md para la política completa.\n--\n--  Este script NO borra nada automáticamente. Da dos herramientas:\n--  1) Una consulta para IDENTIFICAR cuentas candidatas a purga\n--     (sin actividad hace más de N meses).\n--  2) Un procedimiento manual documentado para ejecutar la baja\n--     real (vía la Edge Function admin-delete-user, no SQL directo,\n--     para no saltarse los bloqueos de seguridad ya existentes).\n-- ============================================================\n\n-- ---------- 1) Candidatos a purga: sin actividad hace más de 12 meses ----------\n-- Ajustar el intervalo si Casa de la Juventud define un plazo distinto.\nselect\n  p.id,\n  p.email,\n  p.name,\n  p.role,\n  p.created_at,\n  greatest(\n    coalesce(max(s.submitted_at), 'epoch'::timestamptz),\n    coalesce(max(pr.completed_at), 'epoch'::timestamptz),\n    p.created_at\n  ) as ultima_actividad\nfrom profiles p\nleft join submissions s on s.student_id = p.id\nleft join progress pr   on pr.user_id = p.id\nwhere p.role = 'student'  -- no purgar instructores/admins por este criterio\ngroup by p.id, p.email, p.name, p.role, p.created_at\nhaving greatest(\n    coalesce(max(s.submitted_at), 'epoch'::timestamptz),\n    coalesce(max(pr.completed_at), 'epoch'::timestamptz),\n    p.created_at\n  ) < now() - interval '12 months'\norder by ultima_actividad asc;\n\n-- ============================================================\n--  2) Procedimiento de purga (MANUAL, no automatizado)\n-- ============================================================\n--  a) Revisar la lista de candidatos de arriba con un admin humano\n--     (Jorge Adrián Duarte o quien designe Casa de la Juventud).\n--  b) Confirmar con Casa de la Juventud que el alumno/a efectivamente\n--     dejó el taller y no hay razón administrativa para conservar el\n--     registro (ej. proceso de reclamo de nota en curso).\n--  c) Ejecutar la baja por el canal existente: la Edge Function\n--     `admin-delete-user` desde el panel de admin del campus (NO\n--     borrar filas de `profiles` a mano por SQL — esa función ya\n--     tiene los bloqueos de seguridad: no admins, no auto-borrado).\n--  d) La baja de `auth.users` cascadea a `profiles`, y de ahí a\n--     `submissions` y `progress` (ambas con \"on delete cascade\").\n--  e) Los ARCHIVOS en Storage (bucket \"submissions\") NO se borran\n--     por el cascade de la base — hay que borrarlos aparte:\n--\n--     select name from storage.objects\n--     where bucket_id = 'submissions'\n--       and (storage.foldername(name))[1] = '<uuid-del-alumno-dado-de-baja>';\n--\n--     -- revisar la lista y, si corresponde, borrar con el cliente\n--     -- de Storage de Supabase (no hay UI de borrado masivo acá).\n-- ============================================================\n"}, {"id": "Autorizacion_Participacion_y_Tratamiento_de_Datos_Menores.docx", "title": "Formulario imprimible — Autorización de Menores", "cat": "privacidad", "code": "DOCX", "kind": "docx", "content": "Autorizacion_Participacion_y_Tratamiento_de_Datos_Menores.docx"}];
+const CAT_LABELS = {"indice": "Índice", "tecnico": "Especificación técnica", "seguridad": "Seguridad", "operacion": "Operación", "legal": "Legal / Licencia", "privacidad": "Privacidad y Datos"};
+
+/* ---------- Mini renderer Markdown → HTML (vanilla, sin dependencias) ---------- */
+function escapeHtml(s){
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+function inline(s){
+  s = escapeHtml(s);
+  s = s.replace(/`([^`]+)`/g, "<code>$1</code>");
+  s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  s = s.replace(/(^|[^*])\*([^*]+)\*([^*]|$)/g, "$1<em>$2</em>$3");
+  s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  s = s.replace(/\[x\]/gi, '<span class="checkbox">☑</span>');
+  s = s.replace(/\[ \]/g, '<span class="checkbox">☐</span>');
+  return s;
+}
+function mdToHtml(md){
+  const lines = md.replace(/\r\n/g,"\n").split("\n");
+  let out = [];
+  let i = 0;
+  let inCode = false, codeBuf = [];
+  let inTable = false, tableRows = [];
+  let inList = false;
+  let calloutBuf = null;
+
+  function flushTable(){
+    if(!tableRows.length) return;
+    let rows = tableRows.filter(r => !/^\s*\|?[\s:|-]+\|?\s*$/.test(r) || rows_is_header_sep(r));
+    function rows_is_header_sep(r){ return false; }
+    let dataRows = tableRows.filter(r => r.trim().length);
+    let parsed = dataRows.map(r => r.trim().replace(/^\|/,"").replace(/\|$/,"").split("|").map(c=>c.trim()));
+    // segunda fila = separador (---|---)
+    let sepIdx = parsed.findIndex((r,idx)=> idx>0 && r.every(c=>/^:?-+:?$/.test(c)));
+    let header = parsed[0];
+    let body = sepIdx===1 ? parsed.slice(2) : parsed.slice(1);
+    let html = "<table><thead><tr>" + header.map(c=>"<th>"+inline(c)+"</th>").join("") + "</tr></thead><tbody>";
+    body.forEach(r=>{
+      html += "<tr>" + r.map(c=>"<td>"+inline(c)+"</td>").join("") + "</tr>";
+    });
+    html += "</tbody></table>";
+    out.push(html);
+    tableRows = [];
+    inTable = false;
+  }
+  function flushCallout(){
+    if(!calloutBuf) return;
+    out.push('<div class="callout '+calloutBuf.type+'"><span class="callout-title">'+calloutBuf.title+'</span>'+calloutBuf.lines.map(l=>"<p style=\"margin:4px 0\">"+inline(l)+"</p>").join("")+"</div>");
+    calloutBuf = null;
+  }
+  function closeList(){ if(inList){ out.push("</ul>"); inList=false; } }
+
+  while(i < lines.length){
+    let line = lines[i];
+
+    if(/^\s*```/.test(line)){
+      if(inCode){
+        out.push("<pre><code>"+escapeHtml(codeBuf.join("\n"))+"</code></pre>");
+        codeBuf = []; inCode = false;
+      } else {
+        closeList(); flushCallout();
+        inCode = true;
+      }
+      i++; continue;
+    }
+    if(inCode){ codeBuf.push(line); i++; continue; }
+
+    if(/^\s*\|.*\|\s*$/.test(line)){
+      closeList(); flushCallout();
+      inTable = true; tableRows.push(line); i++; continue;
+    } else if(inTable){
+      flushTable();
+    }
+
+    let calloutMatch = line.match(/^>\s*\[!(\w+)\]\s*(.*)$/);
+    if(calloutMatch){
+      flushCallout(); closeList();
+      let type = calloutMatch[1].toLowerCase();
+      let cls = (type==="warning"||type==="danger") ? type : "";
+      calloutBuf = { type: cls, title: escapeHtml(calloutMatch[2]||calloutMatch[1]), lines: [] };
+      i++; continue;
+    }
+    if(calloutBuf && /^>/.test(line)){
+      calloutBuf.lines.push(line.replace(/^>\s?/,""));
+      i++; continue;
+    } else if(calloutBuf){
+      flushCallout();
+    }
+
+    if(/^\s*---+\s*$/.test(line) && line.trim() !== ""){
+      closeList();
+      out.push("<hr>"); i++; continue;
+    }
+
+    let h = line.match(/^(#{1,4})\s+(.*)$/);
+    if(h){
+      closeList();
+      let level = h[1].length;
+      out.push("<h"+level+">"+inline(h[2])+"</h"+level+">");
+      i++; continue;
+    }
+
+    if(/^\s*[-*]\s+/.test(line)){
+      if(!inList){ out.push("<ul>"); inList = true; }
+      out.push("<li>"+inline(line.replace(/^\s*[-*]\s+/,""))+"</li>");
+      i++; continue;
+    } else {
+      closeList();
+    }
+
+    if(line.trim() === ""){ i++; continue; }
+
+    out.push("<p>"+inline(line)+"</p>");
+    i++;
+  }
+  closeList(); flushCallout(); if(inTable) flushTable();
+  return out.join("\n");
+}
+
+/* ---------- UI ---------- */
+let activeCats = new Set(Object.keys(CAT_LABELS));
+let activeDoc = null;
+
+function buildFilters(){
+  const el = document.getElementById("filters");
+  Object.entries(CAT_LABELS).forEach(([key, label])=>{
+    const btn = document.createElement("button");
+    btn.className = "filter-btn active";
+    btn.textContent = label;
+    btn.dataset.cat = key;
+    btn.onclick = ()=>{
+      if(activeCats.has(key)){ activeCats.delete(key); btn.classList.remove("active"); }
+      else { activeCats.add(key); btn.classList.add("active"); }
+      renderList();
+    };
+    el.appendChild(btn);
+  });
+}
+
+function renderList(){
+  const listEl = document.getElementById("doclist");
+  const q = document.getElementById("search").value.trim().toLowerCase();
+  listEl.innerHTML = "";
+  let shown = 0;
+
+  const grouped = {};
+  DOCS.forEach(d=>{
+    if(!activeCats.has(d.cat)) return;
+    const matches = !q || d.title.toLowerCase().includes(q) || d.content.toLowerCase().includes(q);
+    if(!matches) return;
+    grouped[d.cat] = grouped[d.cat] || [];
+    grouped[d.cat].push(d);
+    shown++;
+  });
+
+  Object.keys(CAT_LABELS).forEach(cat=>{
+    if(!grouped[cat]) return;
+    const group = document.createElement("div");
+    group.className = "cat-group";
+    const label = document.createElement("div");
+    label.className = "cat-label";
+    label.textContent = CAT_LABELS[cat];
+    group.appendChild(label);
+    grouped[cat].forEach(d=>{
+      const item = document.createElement("div");
+      item.className = "doc-item kind-"+d.kind + (activeDoc===d.id ? " active" : "");
+      item.innerHTML = '<span class="doc-code">'+d.code+'</span><span>'+d.title+'</span>';
+      item.onclick = ()=> openDoc(d.id);
+      group.appendChild(item);
+    });
+    listEl.appendChild(group);
+  });
+
+  if(shown===0){
+    listEl.innerHTML = '<div id="no-results">Sin resultados para ese filtro/búsqueda.</div>';
+  }
+  document.getElementById("count").textContent = shown + " de " + DOCS.length + " documentos";
+}
+
+function openDoc(id){
+  const d = DOCS.find(x=>x.id===id);
+  if(!d) return;
+  activeDoc = id;
+  document.getElementById("empty").style.display = "none";
+  const render = document.getElementById("doc-render");
+  render.style.display = "block";
+  document.getElementById("doc-title").textContent = d.code + " — " + d.title;
+  if(d.kind === "sql"){
+    render.innerHTML = "<pre><code>"+escapeHtml(d.content)+"</code></pre>";
+  } else if(d.kind === "docx"){
+    render.innerHTML = '<div class="callout">'
+      + '<span class="callout-title">Documento Word (no se puede previsualizar acá)</span>'
+      + '<p style="margin:4px 0">Es un formulario imprimible para completar a mano/firmar. Abrilo con Word o el visor de documentos de Windows.</p>'
+      + '<p style="margin:10px 0 0 0"><a href="'+encodeURIComponent(d.content)+'" download>⬇ Abrir / descargar '+d.content+'</a></p>'
+      + '</div>';
+  } else {
+    render.innerHTML = mdToHtml(d.content);
+  }
+  renderList();
+  document.getElementById("content-wrap").scrollTop = 0;
+}
+
+document.getElementById("search").addEventListener("input", renderList);
+
+buildFilters();
+renderList();
+</script>
+</body>
+</html>

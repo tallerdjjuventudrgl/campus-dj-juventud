@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campus Virtual · Taller de DJ</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Outfit:wght@300;400;500;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0c0d;--surface:#13171b;--surface2:#1a1f24;--cyan:#00a99d;--magenta:#e6007e;--yellow:#fbba00;--orange:#f39200;--dteal:#0f8a7e;}
+*{box-sizing:border-box;}
+body{font-family:Outfit,sans-serif;background:var(--bg);color:#e2e8f0;margin:0;overflow-x:hidden;}
+.mono{font-family:"JetBrains Mono",monospace;}
+.brandlogo{font-family:"Fredoka",sans-serif;font-weight:700;line-height:.9;letter-spacing:.5px;}
+.brandsub{font-family:"Fredoka",sans-serif;font-weight:600;font-size:8px;letter-spacing:.34em;color:#8b969d;margin-top:3px;}
+input,textarea,select{font-family:Outfit,sans-serif;}
+.fld{width:100%;background:#0c0f12;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:11px 14px;color:#fff;font-size:14px;outline:none;transition:border-color .2s;}
+.fld:focus{border-color:var(--cyan);}
+.btn{cursor:pointer;border:none;border-radius:10px;font-weight:600;transition:all .15s;}
+.btn:active{transform:scale(.97);}
+.btn:disabled{opacity:.55;cursor:not-allowed;}
+.btn-primary{background:var(--cyan);color:#06100f;}
+.btn-primary:hover{box-shadow:0 0 22px rgba(0,169,157,.4);}
+.btn-ghost{background:transparent;border:1px solid rgba(255,255,255,.14);color:#cbd5e1;}
+.btn-ghost:hover{border-color:var(--cyan);color:#fff;}
+.card{background:var(--surface);border:1px solid rgba(255,255,255,.07);border-radius:16px;}
+.sidelink{display:flex;align-items:center;gap:11px;padding:11px 14px;border-radius:10px;cursor:pointer;color:#94a3b8;font-weight:500;font-size:14px;transition:all .15s;}
+.sidelink:hover{background:rgba(255,255,255,.04);color:#fff;}
+.sidelink.on{background:rgba(0,169,157,.12);color:#fff;}
+.sidelink.on .ic{color:var(--cyan);}
+.ic{width:18px;text-align:center;}
+.badge{font-size:10px;font-weight:700;padding:2px 9px;border-radius:99px;text-transform:uppercase;letter-spacing:.05em;}
+.chip{font-size:11px;padding:3px 10px;border-radius:99px;background:rgba(255,255,255,.05);color:#94a3b8;border:1px solid rgba(255,255,255,.08);}
+::-webkit-scrollbar{width:7px;height:7px;}
+::-webkit-scrollbar-thumb{background:rgba(0,169,157,.3);border-radius:4px;}
+.fade{animation:f .35s ease;}
+@keyframes f{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.acc-body{max-height:0;overflow:hidden;transition:max-height .35s ease;}
+.acc.open .acc-body{max-height:2600px;}
+.acc.open .acc-chev{transform:rotate(90deg);}
+.acc-chev{transition:transform .3s;}
+.spin{width:34px;height:34px;border:3px solid rgba(255,255,255,.12);border-top-color:var(--cyan);border-radius:50%;animation:sp .8s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ===================== CAMPUS VIRTUAL · TALLER DE DJ =====================
+   Versión 2.0 — Vercel Pro + Turso Scaler (libSQL Serverless Edge)
+   SISTEMAS DesarrollAR · Río Gallegos, Santa Cruz, Argentina 🇦🇷
+========================================================================= */
+
+const SETUP = new URLSearchParams(location.search).get("setup") === "1";
+let authToken = localStorage.getItem("cursodj_token") || null;
+
+async function api(path, options = {}) {
+  const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
+  if (authToken) headers["Authorization"] = "Bearer " + authToken;
+  const res = await fetch(path, { credentials: "include", ...options, headers });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data.error || ("Error " + res.status));
+  }
+  return data;
+}
+
+/* ---------- COURSE CONTENT (estático) ---------- */
+const COURSE = {id:"dj", title:"Taller de DJ", modules:[
+ {id:1,title:"Introducción y Digging",color:"#00a99d",icon:"🎵",lessons:[
+   {id:"1a",title:"La Evolución del Rol del DJ",body:"El DJ dejó de ser quien «pone canciones». Hoy sos un arquitecto de la energía: elegís, intervenís y reconstruís la música en vivo para que una sala respire al ritmo que vos marcás.",tip:"Tu valor no está en tener los hits de moda, sino en el orden y el momento en que los soltás.",terms:["Selector","Remezclador","Open Format"]},
+   {id:"1b",title:"Curaduría Extrema (Digging)",body:"«Digging» (excavar) es el arte de buscar esas gemas que el resto no tiene. Escuchar mucho, guardar con criterio y construir una biblioteca con identidad. El criterio se entrena hasta detectar qué tema va a funcionar antes de probarlo.",tip:"Por cada 10 temas que escuchás, quizá 1 entra a tu colección. Calidad sobre cantidad.",terms:["Digging","Gema musical","Criterio"]},
+   {id:"1c",title:"Software: VDJ, Serato y Rekordbox",body:"Cada software es una herramienta para un trabajo. Virtual DJ y Serato brillan en Open Format por su agilidad; Rekordbox es el estándar para preparar tu biblioteca y tocar en cabinas profesionales con CDJs.",tip:"Dominá UNO a fondo antes de saltar a tres a medias.",terms:["Open Format","CDJ","Biblioteca"]},
+   {id:"1d",title:"Tecnología Stems",body:"Los Stems separan una canción en sus capas —voz, batería, bajo, instrumentos— en tiempo real. Podés sacar la voz de un tema y montarla sobre la base de otro, creando mashups y versiones únicas en vivo.",tip:"Usá los Stems con intención. Sacar el bajo de la pista saliente evita que choque con la entrante.",terms:["Stem","Mashup","Acapella"]},
+   {id:"1e",title:"Record Pools y Descarga",body:"Los «Record Pools» son bibliotecas por suscripción para DJs, con versiones extended e intros limpias. Beatport, SoundCloud, Soulseek. Tan importante como descargar es ordenar: carpetas por género, energía o evento.",tip:"Etiquetá tus archivos desde el día uno. A las 3 AM con la pista llena no es momento de tener caos.",terms:["Record Pool","Extended","Metadatos"]}
+ ]},
+ {id:2,title:"Ritmos y Mezcla",color:"#e6007e",icon:"🥁",lessons:[
+   {id:"2a",title:"La Regla del 4/4",body:"Casi toda la música de baile está en 4/4: cuatro pulsos marcados por el bombo. Los pulsos se agrupan en compases, y los compases en «frases» de 8, 16 o 32 tiempos. Entender esto es como aprender a leer.",tip:"Contá 1-2-3-4 siguiendo el bombo. Si anticipás dónde arranca una frase nueva, ya pensás como DJ.",terms:["Pulso","Compás","Frase de 32"]},
+   {id:"2b",title:"BPM y Beatmatching",body:"El BPM mide la velocidad de un tema. Para mezclar sin que «tropiecen», sus ritmos deben coincidir: eso es beatmatching. Lo aprendés con sync automático y, sobre todo, de forma instintiva con el oído y el Pitch-Bend.",tip:"El Sync es muleta; el oído es músculo. Practicá igualar a mano: si falla la tecnología, vos no fallás.",terms:["BPM","Beatmatching","Pitch-Bend"]},
+   {id:"2c",title:"Ruleta de Camelot (Mezcla Armónica)",body:"Dos temas pueden estar perfectos de ritmo y sonar mal: el problema es la tonalidad. La mezcla armónica combina canciones en tonos compatibles, y la Ruleta de Camelot traduce la teoría a números y letras simples.",tip:"Mezclá hacia tonos vecinos (mismo número o ±1). Subir de tono da energía; mantenerlo, fluidez.",terms:["Tonalidad","Camelot","Armonía"]},
+   {id:"2d",title:"Versiones Extended vs. Radio",body:"La versión de radio va al grano. La Extended agrega intro y outro de percusión pensados para el DJ: te dan tiempo para mezclar sin apuro. Preferir las extended te facilita la vida en la cabina.",tip:"Buscá siempre la versión extended o «club mix». Esos 16 compases de intro son tu zona de aterrizaje.",terms:["Radio Edit","Extended","Intro/Outro"]}
+ ]},
+ {id:3,title:"Transiciones y Creatividad",color:"#f39200",icon:"🎛️",lessons:[
+   {id:"3a",title:"Estructura de la Canción",body:"Toda pista tiene partes: intro, desarrollo, drop, break (bajada) y outro. Reconocerlas te dice dónde entrar y salir. La mezcla perfecta hace que el inicio de una frase caiga en la bajada de la pista que se va.",tip:"El break de una canción es la puerta de entrada de la próxima. Entrená el oído para anticipar bajadas.",terms:["Intro","Drop","Break","Outro"]},
+   {id:"3b",title:"Loops y Sampler",body:"Un loop es un bucle: tomás 4 tiempos de percusión y los repetís. Clave para cumbia, reggaetón o ritmos latinos que casi no tienen intro. El sampler dispara efectos y frases sobre la marcha.",tip:"Un loop de batería bien usado te «compra» tiempo: extendés una salida o armás una intro donde no la había.",terms:["Loop","Bucle","Sampler"]},
+   {id:"3c",title:"El Mixer: EQ, Crossfader y Fader",body:"El mixer es tu mesa de control. La EQ separa graves, medios y agudos; el fader controla volumen; el crossfader cruza pistas. Regla de oro: nunca dos graves (sub-256 Hz) al mismo tiempo.",tip:"Al entrar un tema, bajá su grave a cero y subílo recién cuando saques el de la pista saliente.",terms:["EQ","Crossfader","Rango dinámico"]},
+   {id:"3d",title:"Creatividad: Efectos y Filtros",body:"Los efectos son sal y pimienta: con criterio elevan; en exceso arruinan. El down filter con ruido blanco conecta un clímax con una intro tranquila. En este tema grabás tu primer mini set de 5 canciones.",tip:"Un efecto bien puesto se nota poco y se siente mucho. Si el público mira la cabina confundido, te pasaste.",terms:["Filtro","Down Filter","Ruido blanco"]}
+ ]},
+ {id:4,title:"Hardware y Audio",color:"#fbba00",icon:"🔊",lessons:[
+   {id:"4a",title:"Conexiones y Señal de Audio",body:"Antes de sonar bien, conectar bien. Cables (RCA, XLR, jack), salidas y calibrado de niveles para cuidar la relación señal/ruido. Saturar la señal es el error más común y el que peor suena.",tip:"Niveles en verde, picos en amarillo, nunca clavados en rojo. El rojo es distorsión, no «más fuerte».",terms:["Señal/ruido","Gain","Saturación"]},
+   {id:"4b",title:"Consolas vs. Controladores",body:"Un controlador depende de tu compu; una consola profesional (Pioneer CDJ + mixer) es autónoma y es lo que hay en clubes. Conocer ambos te vuelve versátil y no te paraliza frente a una cabina pro.",tip:"Los CDJ son el idioma universal de las cabinas del mundo. Familiarizarte abre puertas en cualquier lado.",terms:["Controlador","CDJ","Mixer"]},
+   {id:"4c",title:"Psicología de la Pista",body:"Tocar es leer personas. Una pista vacía, un cumple de 15 o un after no se musicalizan igual. Observás cómo se mueven, qué piden, cuándo van a la barra, y respondés con tu selección.",tip:"Si la pista baila, no la «arregles». Si se vacía, cambiá de energía antes de que sea tarde.",terms:["Lectura de pista","Energía","Contexto"]},
+   {id:"4d",title:"Franjas Horarias del Evento",body:"Una noche tiene actos: Opening, Warm-Up, Main y Closing. Cada franja pide una energía distinta. Reventar los hits a las 23 hs deja la noche sin recorrido; dosificar separa al pro del principiante.",tip:"Si abrís, tu trabajo NO es llenar la pista: es preparar el terreno. Tocar «menos» también es un arte.",terms:["Opening","Warm-Up","Main","Closing"]}
+ ]},
+ {id:5,title:"Práctica y Experiencia",color:"#0f8a7e",icon:"🎤",lessons:[
+   {id:"5a",title:"Pasantía en Eventos Municipales",body:"La teoría se consolida tocando ante gente real: como DJ o asistente técnico en eventos de la Municipalidad de Río Gallegos. Es la diferencia entre saber andar en bici y andar de verdad.",tip:"En tu primer evento: llegá temprano, mirá cómo arma el técnico y preguntá todo. La humildad acelera.",terms:["Pasantía","Asistente técnico","En vivo"]},
+   {id:"5b",title:"Ciclos de la Casa de la Juventud",body:"La Casa de la Juventud es tu primer escenario y tu red. Musicalizás encuentros juveniles, talleres y ciclos culturales, ante públicos y géneros variados.",tip:"Aprovechá para arriesgar: es el lugar ideal para probar esa mezcla rara antes de un evento grande.",terms:["Ciclo cultural","Encuentro juvenil"]},
+   {id:"5c",title:"Encuentros Comunitarios",body:"Milongas, ferias y eventos barriales enseñan a adaptarte: públicos de todas las edades, géneros que no son tu fuerte, condiciones imperfectas. Salir de tu zona de confort te hace un DJ completo.",tip:"El que se adapta a una feria el sábado y a un after el domingo, no para nunca.",terms:["Versatilidad","Público diverso"]},
+   {id:"5d",title:"Acompañamiento Docente",body:"Nunca estás solo. En cada presentación hay un instructor que guía, corrige y da devoluciones. Equivocarte con red es la mejor forma de crecer.",tip:"Pedí feedback específico: no «cómo estuve» sino «¿cómo manejé la transición del minuto 20?».",terms:["Feedback","Devolución","Mentoría"]}
+ ]},
+ {id:6,title:"Proyecto Final",color:"#b30062",icon:"⭐",lessons:[
+   {id:"6a",title:"Grabación de tu Set",body:"Tu proyecto final es un set grabado de principio a fin: tu carta de presentación. Juntás todo lo aprendido en una pieza coherente que cuenta una historia.",tip:"Pensá tu set como un viaje, con comienzo, pico y cierre. No son 30 hits seguidos: es un recorrido.",terms:["Set","Tracklist","Grabación"]},
+   {id:"6b",title:"Identidad Sonora",body:"¿Qué te hace VOS y no cualquier DJ? Tu identidad sonora es tu sello: géneros, transiciones típicas, energía. No se copia ni se compra: se construye tocando y descubriendo qué te emociona.",tip:"Escuchá a tus DJs favoritos para aprender, no para clonar. Tu firma aparece cuando dejás de imitar.",terms:["Sello","Estilo","Firma"]},
+   {id:"6c",title:"Manejo de Marca Personal",body:"Un DJ también gestiona su presencia: redes, nombre artístico, cómo te mostrás. Lo básico para conseguir fechas y construir reputación. El talento abre la puerta; la actitud profesional te mantiene.",tip:"Tu reputación se construye con cosas simples: llegar a horario, cuidar el equipo ajeno y cumplir.",terms:["Nombre artístico","Reputación","Networking"]},
+   {id:"6d",title:"Evaluación Final",body:"El cierre es una presentación ante instructores y compañeros. No se evalúa solo la técnica, sino tu evolución: creatividad, prolijidad, manejo del rango sonoro y responsabilidad.",tip:"No busques el set «perfecto»: mostrá todo lo que aprendiste. Se premia el progreso, no la ausencia de errores.",terms:["Evaluación","Progreso","Cierre"]}
+ ]}
+]};
+
+/* ---------- STORE ---------- */
+const store={ user:null, profile:null, assignments:[], submissions:[], announcements:[], progress:{}, students:[], allProgress:[], allUsers:[] };
+let state={ route:{name:"login"} };
+
+/* ---------- HELPERS ---------- */
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmtDate=d=>{ if(!d)return"-"; const x=new Date(d); return x.toLocaleDateString("es-AR",{day:"2-digit",month:"short",year:"numeric"}); };
+const fmtSize=b=>!b?"":(b>1048576?(b/1048576).toFixed(1)+" MB":(b/1024).toFixed(0)+" KB");
+const lessonsAll=()=>COURSE.modules.flatMap(m=>m.lessons);
+const subFor=(aid,sid)=>store.submissions.find(s=>s.assignment_id===aid && s.student_id===sid);
+const doneCountFor=id=>{ if(store.profile&&store.profile.role!=="student") return store.allProgress.filter(p=>p.user_id===id).length; return Object.keys(store.progress).length; };
+const progressPct=id=>Math.round(doneCountFor(id)/lessonsAll().length*100);
+const dueBadge=due=>{ const days=Math.ceil((new Date(due)-Date.now())/86400000); if(days<0) return '<span class="badge" style="background:rgba(239,68,68,.15);color:#f87171">Vencida</span>'; if(days<=3) return '<span class="badge" style="background:rgba(251,186,0,.15);color:var(--yellow)">Vence en '+days+'d</span>'; return '<span class="badge" style="background:rgba(0,169,157,.13);color:var(--cyan)">'+fmtDate(due)+'</span>'; };
+const initials=n=>(n||"?").split(" ").map(s=>s[0]).slice(0,2).join("").toUpperCase();
+
+/* ---------- LOGO ---------- */
+const HAND='M13 2c-.6 0-1 .4-1 1v6h-1V4c0-.6-.4-1-1-1s-1 .4-1 1v5H7V6c0-.6-.4-1-1-1s-1 .4-1 1v8c0 3.3 2.7 6 6 6s6-2.7 6-6V8c0-.6-.4-1-1-1s-1 .4-1 1v1h-1V3c0-.6-.4-1-1-1z';
+function hand(c,w,h){return '<svg width="'+w+'" height="'+h+'" viewBox="0 0 24 24" fill="'+c+'"><path d="'+HAND+'"/></svg>';}
+function logo(size){return '<img src="JUVENTUD.png" alt="JUVENTUD" style="height:'+size+'px;width:auto">';}
+function loader(msg){return '<div class="min-h-screen flex flex-col items-center justify-center gap-4"><div class="spin"></div><div class="text-sm text-gray-500">'+(msg||"Cargando…")+'</div></div>';}
+
+/* ---------- DATA LOADERS (Turso Scaler) ---------- */
+async function loadProfile(){
+  if (!authToken) { store.user = null; store.profile = null; return null; }
+  try {
+    const data = await api("/api/auth/me");
+    store.user = data.user;
+    store.profile = data.profile;
+    return data.profile;
+  } catch (e) {
+    store.user = null;
+    store.profile = null;
+    authToken = null;
+    localStorage.removeItem("cursodj_token");
+    return null;
+  }
+}
+async function refresh(){
+  if(!store.profile) return;
+  const role=store.profile.role, uid=store.user.id;
+  try {
+    const [as, an, tl, subs] = await Promise.all([
+      api("/api/assignments"),
+      api("/api/announcements"),
+      api("/api/tools"),
+      api("/api/submissions")
+    ]);
+    store.assignments = as || [];
+    store.announcements = an || [];
+    store.tools = tl || [];
+    store.submissions = subs || [];
+    for(const s of store.submissions){ s.fileUrl = s.file_path || null; }
+
+    if(role==="student"){
+      const pr = await api("/api/progress");
+      store.progress = {};
+      (pr || []).forEach(p => store.progress[p.lesson_id] = true);
+    }
+    if(role==="instructor"||role==="admin"){
+      const [progData, dl, instList] = await Promise.all([
+        api("/api/progress"),
+        api("/api/tools/downloads"),
+        api("/api/instructors")
+      ]);
+      store.students = progData?.students || [];
+      store.allProgress = progData?.progress || [];
+      store.toolDownloads = dl || [];
+      store.myCard = (instList || []).find(c => c.user_id === uid) || null;
+    }
+    if(role==="admin"){
+      const au = await api("/api/admin/users");
+      store.allUsers = au || [];
+    }
+  } catch(err) {
+    console.error("Error refreshing data:", err);
+  }
+}
+}
+
+/* ---------- NAV ---------- */
+async function go(name,params={}){ state.route={name,...params}; document.getElementById("app").innerHTML=loader(); await refresh(); render(); window.scrollTo(0,0); }
+
+/* ===================== AUTH VIEWS ===================== */
+function viewLogin(){
+  if(SETUP) return viewSetup();
+  return `<div class="min-h-screen flex items-center justify-center p-6" style="background:radial-gradient(circle at 50% 0%,rgba(0,169,157,.08),transparent 60%)">
+    <div class="w-full max-w-sm fade">
+      <div class="flex flex-col items-center mb-8">
+        <div class="flex items-end gap-[3px] mb-1">${hand("#e6007e",13,16)}${hand("#00a99d",13,18)}${hand("#fbba00",13,16)}${hand("#f39200",13,18)}</div>
+        ${logo(30)}<div class="brandsub">CAMPUS&nbsp;&nbsp;VIRTUAL</div>
+      </div>
+      <div class="card p-7">
+        <h1 class="text-xl font-bold text-white mb-1">Ingresar al campus</h1>
+        <p class="text-sm text-gray-500 mb-6">Taller de DJ · Casa de la Juventud</p>
+        <div id="authMsg" class="hidden text-sm mb-4 p-3 rounded-lg"></div>
+        <label class="text-xs text-gray-400 font-semibold">Usuario</label>
+        <input id="aUser" class="fld mt-1 mb-4" placeholder="tu usuario" autocapitalize="none" autocomplete="username">
+        <label class="text-xs text-gray-400 font-semibold">Contraseña</label>
+        <input id="aPw" class="fld mt-1 mb-5" type="password" placeholder="tu contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+        <button id="authBtn" class="btn btn-primary w-full py-3" onclick="doLogin()">Entrar</button>
+      </div>
+      <p class="text-center text-xs text-gray-600 mt-5">¿No tenés usuario? Pedíselo a tu instructor.</p>
+      <p class="text-center text-[11px] text-gray-700 mt-2"><a href="index.html" class="hover:text-gray-400">← Volver al sitio público</a></p>
+    </div>
+  </div>`;
+}
+function viewSetup(){
+  return `<div class="min-h-screen flex items-center justify-center p-6">
+    <div class="w-full max-w-sm fade">
+      <div class="flex flex-col items-center mb-8">${logo(28)}<div class="brandsub">CONFIGURACIÓN&nbsp;&nbsp;INICIAL</div></div>
+      <div class="card p-7">
+        <h1 class="text-xl font-bold text-white mb-1">Crear administrador</h1>
+        <p class="text-sm text-gray-500 mb-6">Registro único del primer usuario. Después lo convertís en admin con un comando SQL que te indico.</p>
+        <div id="authMsg" class="hidden text-sm mb-4 p-3 rounded-lg"></div>
+        <label class="text-xs text-gray-400 font-semibold">Usuario</label>
+        <input id="sUser" class="fld mt-1 mb-4" placeholder="ej: gisel" autocapitalize="none">
+        <label class="text-xs text-gray-400 font-semibold">Nombre completo</label>
+        <input id="sName" class="fld mt-1 mb-4" placeholder="Gisel Duarte">
+        <label class="text-xs text-gray-400 font-semibold">Contraseña (mín. 6)</label>
+        <input id="sPw" class="fld mt-1 mb-5" type="password" placeholder="••••••">
+        <button id="authBtn" class="btn btn-primary w-full py-3" onclick="doSetup()">Crear mi cuenta</button>
+      </div>
+    </div>
+  </div>`;
+}
+function authMsg(text,ok){ const el=document.getElementById("authMsg"); if(!el)return; el.textContent=text; el.className="text-sm mb-4 p-3 rounded-lg"; el.style.background=ok?"rgba(0,169,157,.12)":"rgba(239,68,68,.12)"; el.style.color=ok?"#5eead4":"#f87171"; el.classList.remove("hidden"); }
+async function doLogin(){
+  const user=document.getElementById("lUser").value.trim().toLowerCase().replace(/\s+/g,""), pw=document.getElementById("lPw").value;
+  if(!user||!pw){authMsg("Completá usuario y contraseña.");return;}
+  const btn=document.getElementById("authBtn"); btn.disabled=true; btn.textContent="Entrando…";
+  try {
+    const data = await api("/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ username: user, password: pw })
+    });
+    authToken = data.token;
+    localStorage.setItem("cursodj_token", data.token);
+    store.user = data.user;
+    store.profile = data.profile;
+    state.route = { name: "dashboard" };
+    document.getElementById("app").innerHTML = loader();
+    await refresh();
+    render();
+  } catch(err) {
+    authMsg(err.message || "Usuario o contraseña incorrectos.");
+    btn.disabled = false;
+    btn.textContent = "Entrar";
+  }
+}
+async function doSetup(){
+  const user=document.getElementById("sUser").value.trim().toLowerCase().replace(/\s+/g,""), name=document.getElementById("sName").value.trim(), pw=document.getElementById("sPw").value;
+  if(!user||!name){authMsg("Completá usuario y nombre.");return;}
+  if(pw.length<6){authMsg("La contraseña debe tener al menos 6 caracteres.");return;}
+  const btn=document.getElementById("authBtn"); btn.disabled=true; btn.textContent="Creando…";
+  try {
+    const data = await api("/api/auth/setup-admin", {
+      method: "POST",
+      body: JSON.stringify({ username: user, name, password: pw })
+    });
+    authToken = data.token;
+    localStorage.setItem("cursodj_token", data.token);
+    store.user = data.user;
+    store.profile = data.user;
+    state.route = { name: "dashboard" };
+    document.getElementById("app").innerHTML = loader();
+    await refresh();
+    render();
+  } catch(err) {
+    authMsg(err.message || "Error al crear cuenta inicial.");
+    btn.disabled = false;
+    btn.textContent = "Crear mi cuenta";
+  }
+}
+async function logout(){
+  try { await api("/api/auth/logout", { method: "POST" }); } catch(_) {}
+  authToken = null;
+  localStorage.removeItem("cursodj_token");
+  store.profile = null;
+  store.user = null;
+  state.route = { name: "login" };
+  render();
+}
+
+/* ---------- SHELL ---------- */
+function shell(content){
+  const u=store.profile;
+  const roleLabel={student:"Alumno",instructor:"Instructor",admin:"Administrador"}[u.role];
+  const links=[["dashboard","🏠","Inicio"],["material","📚","Material"],["herramientas","🛠️","Herramientas"]];
+  if(u.role==="student") links.push(["tareas","📝","Mis Tareas"]);
+  if(u.role==="instructor"||u.role==="admin"){ links.push(["gestion","🗂️","Tareas y Entregas"]); links.push(["alumnos","👥","Alumnos"]); links.push(["nosotros","👤","Mi Tarjeta"]); }
+  links.push(["anuncios","📢","Anuncios"]);
+  if(u.role==="admin") links.push(["usuarios","⚙️","Usuarios"]);
+  const side=links.map(l=>`<div class="sidelink ${state.route.name===l[0]?'on':''}" onclick="go('${l[0]}')"><span class="ic">${l[1]}</span> ${l[2]}</div>`).join('');
+  return `<div class="flex min-h-screen">
+    <aside class="hidden md:flex flex-col w-64 flex-shrink-0 p-4 border-r" style="border-color:rgba(255,255,255,.06);background:var(--surface)">
+      <div class="flex items-center gap-2 px-2 py-3 mb-4"><div class="flex items-end gap-[2px]">${hand("#e6007e",10,12)}${hand("#00a99d",10,14)}${hand("#fbba00",10,12)}</div>${logo(17)}</div>
+      <nav class="flex flex-col gap-1 flex-1">${side}</nav>
+      <div class="border-t pt-3 mt-3" style="border-color:rgba(255,255,255,.06)">
+        <div class="flex items-center gap-3 px-2">
+          <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm" style="background:linear-gradient(135deg,#00a99d,#e6007e);color:#fff">${initials(u.name)}</div>
+          <div class="min-w-0"><div class="text-sm font-semibold text-white truncate">${esc(u.name)}</div><div class="text-[10px] text-gray-500">${roleLabel}${u.username?' · @'+esc(u.username):''}</div></div>
+        </div>
+        <button class="btn btn-ghost w-full py-2 text-xs mt-3" onclick="logout()">Cerrar sesión</button>
+        <p class="mono text-[9px] uppercase tracking-widest text-gray-400 text-center mt-4">Sistemas · <span style="color:var(--cyan)">Desarroll</span><span style="color:var(--magenta)">AR</span> · de Jorge Adrian Duarte</p>
+        <p class="mono text-[9px] text-gray-500 font-semibold text-center mt-1">Hecho con orgullo en Río Gallegos, Santa Cruz, Argentina 🇦🇷</p>
+      </div>
+    </aside>
+    <div class="flex-1 min-w-0">
+      <header class="md:hidden flex items-center justify-between p-4 border-b sticky top-0 z-20" style="border-color:rgba(255,255,255,.06);background:rgba(10,12,13,.9);backdrop-filter:blur(10px)">
+        ${logo(18)}
+        <select class="fld" style="width:auto;padding:6px 10px" onchange="if(this.value==='__logout'){logout()}else{go(this.value)}">${links.map(l=>`<option value="${l[0]}" ${state.route.name===l[0]?'selected':''}>${l[2]}</option>`).join('')}<option value="__logout">Salir</option></select>
+      </header>
+      <main class="p-5 md:p-8 max-w-5xl mx-auto fade">${content}</main>
+    </div>
+  </div>`;
+}
+
+/* ---------- DASHBOARD ---------- */
+function viewDashboard(){ return store.profile.role==="student"?dashStudent():dashStaff(); }
+function dashStudent(){
+  const u=store.profile, pct=progressPct(u.id);
+  const pend=store.assignments.map(a=>({a,s:subFor(a.id,u.id)})).filter(x=>!x.s||x.s.status==="pending");
+  return `<h1 class="text-2xl font-bold text-white mb-1">Hola, ${esc(u.name.split(" ")[0])} 👋</h1>
+  <p class="text-gray-500 mb-7">Este es tu panel del Taller de DJ.</p>
+  <div class="grid sm:grid-cols-3 gap-4 mb-7">
+    <div class="card p-5"><div class="text-xs text-gray-500 mb-2">Progreso del curso</div><div class="text-3xl font-bold text-white mb-2">${pct}%</div><div class="h-2 rounded-full" style="background:rgba(255,255,255,.08)"><div class="h-2 rounded-full" style="width:${pct}%;background:linear-gradient(90deg,#00a99d,#e6007e)"></div></div></div>
+    <div class="card p-5"><div class="text-xs text-gray-500 mb-2">Tareas pendientes</div><div class="text-3xl font-bold text-white">${pend.length}</div><div class="text-xs text-gray-500 mt-2">de ${store.assignments.length} en total</div></div>
+    <div class="card p-5"><div class="text-xs text-gray-500 mb-2">Módulos</div><div class="text-3xl font-bold text-white">${COURSE.modules.length}</div><div class="text-xs text-gray-500 mt-2">${lessonsAll().length} lecciones</div></div>
+  </div>
+  <div class="grid md:grid-cols-2 gap-6">
+    <div><h2 class="font-bold text-white mb-3">📝 Próximas entregas</h2>${pend.length?pend.slice(0,4).map(x=>`<div class="card p-4 mb-3 flex items-center justify-between gap-3 cursor-pointer" onclick="go('tarea',{id:'${x.a.id}'})"><div class="min-w-0"><div class="font-semibold text-white text-sm truncate">${esc(x.a.title)}</div><div class="text-xs text-gray-500">Módulo ${x.a.module_id}</div></div>${dueBadge(x.a.due_date)}</div>`).join(''):'<div class="card p-4 text-sm text-gray-500">¡Estás al día! 🎉</div>'}</div>
+    <div><h2 class="font-bold text-white mb-3">📢 Anuncios</h2>${store.announcements.slice(0,3).map(a=>`<div class="card p-4 mb-3"><div class="font-semibold text-white text-sm">${esc(a.title)}</div><div class="text-xs text-gray-400 mt-1">${esc(a.body)}</div><div class="text-[10px] text-gray-600 mt-2">${esc(a.author)} · ${fmtDate(a.created_at)}</div></div>`).join('')||'<div class="card p-4 text-sm text-gray-500">Sin anuncios.</div>'}</div>
+  </div>`;
+}
+function dashStaff(){
+  const u=store.profile, pending=store.submissions.filter(s=>s.status==="pending");
+  return `<h1 class="text-2xl font-bold text-white mb-1">Panel del ${u.role==="admin"?"administrador":"instructor"}</h1>
+  <p class="text-gray-500 mb-7">Bienvenido/a, ${esc(u.name.split(" ")[0])}.</p>
+  <div class="grid sm:grid-cols-4 gap-4 mb-7">
+    <div class="card p-5"><div class="text-xs text-gray-500 mb-2">Por corregir</div><div class="text-3xl font-bold" style="color:var(--yellow)">${pending.length}</div></div>
+    <div class="card p-5"><div class="text-xs text-gray-500 mb-2">Alumnos</div><div class="text-3xl font-bold text-white">${store.students.length}</div></div>
+    <div class="card p-5"><div class="text-xs text-gray-500 mb-2">Tareas activas</div><div class="text-3xl font-bold text-white">${store.assignments.length}</div></div>
+    <div class="card p-5"><div class="text-xs text-gray-500 mb-2">Anuncios</div><div class="text-3xl font-bold text-white">${store.announcements.length}</div></div>
+  </div>
+  <div class="flex gap-3 mb-7 flex-wrap"><button class="btn btn-primary px-5 py-3" onclick="go('nuevaTarea')">+ Crear tarea</button><button class="btn btn-ghost px-5 py-3" onclick="go('anuncios')">+ Publicar anuncio</button>${u.role==="admin"?'<button class="btn btn-ghost px-5 py-3" onclick="go(\'usuarios\')">+ Crear usuario</button>':''}</div>
+  <h2 class="font-bold text-white mb-3">Entregas recientes por corregir</h2>
+  ${pending.length?pending.map(s=>{const a=store.assignments.find(x=>x.id===s.assignment_id);const st=store.students.find(x=>x.id===s.student_id);return `<div class="card p-4 mb-3 flex items-center justify-between gap-3 cursor-pointer" onclick="go('entregas',{id:'${a?a.id:''}'})"><div class="min-w-0"><div class="font-semibold text-white text-sm truncate">${esc(st?st.name:'Alumno')} — ${esc(a?a.title:'')}</div><div class="text-xs text-gray-500">Entregada ${fmtDate(s.submitted_at)}</div></div><span class="badge" style="background:rgba(251,186,0,.15);color:var(--yellow)">Pendiente</span></div>`;}).join(''):'<div class="card p-4 text-sm text-gray-500">No hay entregas pendientes.</div>'}`;
+}
+
+/* ---------- MATERIAL ---------- */
+function viewMaterial(){
+  const u=store.profile, canMark=u.role==="student";
+  const mods=COURSE.modules.map(m=>{
+    const lessons=m.lessons.map(l=>{
+      const done=store.progress[l.id];
+      return `<div class="p-4 rounded-xl mb-2" style="background:var(--surface2);border:1px solid rgba(255,255,255,.05)">
+        <div class="flex items-start justify-between gap-3"><div class="font-semibold text-white text-sm mb-1">${esc(l.title)}</div>
+        ${canMark?`<button class="btn ${done?'':'btn-ghost'} text-[11px] px-3 py-1.5 flex-shrink-0" style="${done?'background:rgba(0,169,157,.15);color:var(--cyan)':''}" onclick="toggleLesson('${l.id}')">${done?'✓ Vista':'Marcar'}</button>`:''}</div>
+        <p class="text-sm text-gray-400 leading-relaxed mt-2">${esc(l.body)}</p>
+        <div class="rounded-lg p-3 mt-3" style="background:${m.color}14;border:1px solid ${m.color}33"><div class="mono text-[10px] font-bold uppercase tracking-widest mb-1" style="color:${m.color}">▸ En la práctica</div><div class="text-xs text-gray-300">${esc(l.tip)}</div></div>
+        <div class="flex flex-wrap gap-2 mt-3">${l.terms.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div></div>`;
+    }).join('');
+    const dc=canMark?m.lessons.filter(l=>store.progress[l.id]).length:0;
+    return `<div class="acc card mb-4" id="acc-${m.id}">
+      <div class="p-4 flex items-center gap-3 cursor-pointer" onclick="document.getElementById('acc-${m.id}').classList.toggle('open')">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style="background:${m.color}1f">${m.icon}</div>
+        <div class="flex-1 min-w-0"><div class="mono text-[10px]" style="color:${m.color}">MÓDULO ${m.id}</div><div class="font-bold text-white">${esc(m.title)}</div></div>
+        ${canMark?`<span class="text-xs text-gray-500">${dc}/${m.lessons.length}</span>`:''}<span class="acc-chev text-gray-500">›</span>
+      </div><div class="acc-body"><div class="px-4 pb-4">${lessons}</div></div></div>`;
+  }).join('');
+  return `<h1 class="text-2xl font-bold text-white mb-1">📚 Material del curso</h1><p class="text-gray-500 mb-7">${COURSE.modules.length} módulos · ${lessonsAll().length} lecciones.</p>${mods}`;
+}
+async function toggleLesson(lid){
+  try {
+    const res = await api("/api/progress/toggle", { method: "POST", body: JSON.stringify({ lesson_id: lid }) });
+    if(res.completed){ store.progress[lid] = true; } else { delete store.progress[lid]; }
+  } catch(e) { alert("Error: " + e.message); }
+  const open=[...document.querySelectorAll('.acc.open')].map(e=>e.id); render(); open.forEach(id=>{const e=document.getElementById(id);if(e)e.classList.add('open');});
+}
+
+/* ---------- STUDENT TAREAS ---------- */
+function viewTareas(){
+  const u=store.profile;
+  const rows=store.assignments.map(a=>{
+    const s=subFor(a.id,u.id); let status,color;
+    if(!s){status="Pendiente";color="rgba(148,163,184,.15);color:#94a3b8";}
+    else if(s.status==="pending"){status="Entregada";color="rgba(0,169,157,.13);color:var(--cyan)";}
+    else{status="Corregida · "+s.grade+"/10";color="rgba(230,0,126,.15);color:#f472b6";}
+    return `<div class="card p-5 mb-3 cursor-pointer" onclick="go('tarea',{id:'${a.id}'})"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><div class="font-semibold text-white">${esc(a.title)}</div><div class="text-xs text-gray-500 mt-1">Módulo ${a.module_id} · Entrega: ${fmtDate(a.due_date)}</div></div><span class="badge" style="background:${color}">${status}</span></div></div>`;
+  }).join('');
+  return `<h1 class="text-2xl font-bold text-white mb-1">📝 Mis Tareas</h1><p class="text-gray-500 mb-7">Tus consignas, entregas y devoluciones.</p>${rows||'<div class="card p-4 text-sm text-gray-500">No hay tareas aún.</div>'}`;
+}
+function fileLine(s,allowAudio){
+  if(!s.file_path) return "";
+  const dl=s.fileUrl?(allowAudio&&s.file_type&&s.file_type.indexOf("audio")===0?`<audio controls src="${s.fileUrl}" class="ml-2" style="height:30px;vertical-align:middle"></audio>`:`<a class="text-xs ml-2" style="color:var(--cyan)" href="${s.fileUrl}" target="_blank">abrir/descargar</a>`):'';
+  return `<div class="flex items-center gap-2 mt-2 text-sm flex-wrap"><span>📎</span><span class="text-gray-300">${esc(s.file_name)}</span><span class="text-gray-600 text-xs">(${fmtSize(s.file_size)})</span>${dl}</div>`;
+}
+function viewTarea(){
+  const u=store.profile, a=store.assignments.find(x=>x.id===state.route.id); if(!a) return viewTareas();
+  const s=subFor(a.id,u.id); let block;
+  if(!s){
+    block=`<div class="card p-5 mt-5"><h3 class="font-bold text-white mb-3">Entregar tarea</h3>
+      <label class="text-xs text-gray-400 font-semibold">Comentario / texto</label>
+      <textarea id="subText" class="fld mt-1 mb-4" rows="3" placeholder="Contanos sobre tu entrega, o pegá un link..."></textarea>
+      <label class="text-xs text-gray-400 font-semibold">Archivo (audio, PDF, imagen — opcional)</label>
+      <input id="subFile" class="fld mt-1 mb-4" type="file" accept="audio/*,application/pdf,image/*">
+      <button id="subBtn" class="btn btn-primary px-5 py-3" onclick="submitWork('${a.id}')">Enviar entrega</button></div>`;
+  } else {
+    block=`<div class="card p-5 mt-5"><div class="flex items-center justify-between mb-2"><h3 class="font-bold text-white">Tu entrega</h3><span class="text-xs text-gray-500">${fmtDate(s.submitted_at)}</span></div>${s.body?`<p class="text-sm text-gray-300">${esc(s.body)}</p>`:''}${fileLine(s,true)}</div>`;
+    if(s.status==="graded"){
+      block+=`<div class="card p-5 mt-4" style="border-color:rgba(230,0,126,.3)"><div class="flex items-center justify-between mb-2"><h3 class="font-bold text-white">Corrección</h3><div class="text-2xl font-bold" style="color:#f472b6">${s.grade}/10</div></div><div class="rounded-lg p-3" style="background:rgba(230,0,126,.08)"><div class="mono text-[10px] uppercase tracking-widest mb-1" style="color:#f472b6">Feedback del instructor</div><p class="text-sm text-gray-200">${esc(s.feedback)||'Sin comentarios.'}</p></div><div class="text-[10px] text-gray-600 mt-2">Corregida por ${esc(s.graded_by||'')} · ${fmtDate(s.graded_at)}</div></div>`;
+    } else block+=`<div class="card p-4 mt-4 text-sm text-gray-400">⏳ Tu entrega está esperando corrección.</div>`;
+  }
+  return `<button class="text-sm text-gray-500 hover:text-white mb-4" onclick="go('tareas')">← Mis Tareas</button>
+  <div class="card p-6"><div class="mono text-[10px] mb-1" style="color:var(--cyan)">MÓDULO ${a.module_id}</div><h1 class="text-xl font-bold text-white mb-1">${esc(a.title)}</h1><div class="mb-4">${dueBadge(a.due_date)}</div><p class="text-gray-300 leading-relaxed">${esc(a.instructions)}</p></div>${block}`;
+}
+async function submitWork(aid){
+  const u=store.user, body=document.getElementById("subText").value.trim(), fi=document.getElementById("subFile");
+  const btn=document.getElementById("subBtn"); btn.disabled=true; btn.textContent="Enviando…";
+  let meta={};
+  if(fi.files&&fi.files[0]){
+    const f=fi.files[0];
+    if(f.size > 5 * 1024 * 1024) {
+      alert("Para archivos de más de 5 MB usá un link de Google Drive como se explica en la guía.");
+      btn.disabled=false; btn.textContent="Enviar entrega"; return;
+    }
+    const reader = new FileReader();
+    const dataUrl = await new Promise(r => { reader.onload=()=>r(reader.result); reader.readAsDataURL(f); });
+    meta={file_path:dataUrl,file_name:f.name,file_size:f.size,file_type:f.type};
+  } else if(!body){ alert("Escribí un comentario o adjuntá un archivo."); btn.disabled=false; btn.textContent="Enviar entrega"; return; }
+  try {
+    await api("/api/submissions", { method: "POST", body: JSON.stringify({ assignment_id: aid, body, ...meta }) });
+    await refresh();
+    await go("tarea",{id:aid});
+  } catch(err) {
+    alert("Error al entregar: " + err.message);
+    btn.disabled=false; btn.textContent="Enviar entrega";
+  }
+}
+
+/* ---------- INSTRUCTOR GESTION ---------- */
+function viewGestion(){
+  const rows=store.assignments.map(a=>{
+    const subs=store.submissions.filter(s=>s.assignment_id===a.id), pend=subs.filter(s=>s.status==="pending").length;
+    return `<div class="card p-5 mb-3 cursor-pointer" onclick="go('entregas',{id:'${a.id}'})"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><div class="font-semibold text-white">${esc(a.title)}</div><div class="text-xs text-gray-500 mt-1">Módulo ${a.module_id} · Vence ${fmtDate(a.due_date)}</div></div><div class="text-right flex-shrink-0"><div class="text-sm text-white font-semibold">${subs.length} entregas</div>${pend?`<div class="text-xs" style="color:var(--yellow)">${pend} sin corregir</div>`:'<div class="text-xs text-gray-600">al día</div>'}</div></div></div>`;
+  }).join('');
+  return `<div class="flex items-center justify-between mb-6 flex-wrap gap-3"><div><h1 class="text-2xl font-bold text-white">🗂️ Tareas y Entregas</h1><p class="text-gray-500">Creá consignas y corregí entregas.</p></div><button class="btn btn-primary px-5 py-3" onclick="go('nuevaTarea')">+ Crear tarea</button></div>${rows||'<div class="card p-4 text-sm text-gray-500">Todavía no hay tareas.</div>'}`;
+}
+function viewNuevaTarea(){
+  const opts=COURSE.modules.map(m=>`<option value="${m.id}">Módulo ${m.id} — ${esc(m.title)}</option>`).join('');
+  const def=new Date(Date.now()+7*86400000).toISOString().slice(0,10);
+  return `<button class="text-sm text-gray-500 hover:text-white mb-4" onclick="go('gestion')">← Tareas</button>
+  <h1 class="text-2xl font-bold text-white mb-6">Crear nueva tarea</h1>
+  <div class="card p-6 max-w-2xl">
+    <label class="text-xs text-gray-400 font-semibold">Título</label><input id="ntTitle" class="fld mt-1 mb-4" placeholder="Ej: Mini set de 5 canciones">
+    <label class="text-xs text-gray-400 font-semibold">Módulo</label><select id="ntMod" class="fld mt-1 mb-4">${opts}</select>
+    <label class="text-xs text-gray-400 font-semibold">Consigna / instrucciones</label><textarea id="ntInstr" class="fld mt-1 mb-4" rows="4" placeholder="Describí qué tiene que hacer y entregar el alumno..."></textarea>
+    <label class="text-xs text-gray-400 font-semibold">Fecha límite</label><input id="ntDue" type="date" class="fld mt-1 mb-5" value="${def}">
+    <button id="ntBtn" class="btn btn-primary px-5 py-3" onclick="createAssignment()">Crear tarea</button>
+  </div>`;
+}
+async function createAssignment(){
+  const title=document.getElementById("ntTitle").value.trim(), instr=document.getElementById("ntInstr").value.trim();
+  if(!title||!instr){alert("Completá título y consigna.");return;}
+  const btn=document.getElementById("ntBtn"); btn.disabled=true; btn.textContent="Creando…";
+  try {
+    await api("/api/assignments", {
+      method: "POST",
+      body: JSON.stringify({
+        module_id: +document.getElementById("ntMod").value,
+        title,
+        instructions: instr,
+        due_date: document.getElementById("ntDue").value
+      })
+    });
+    await refresh();
+    await go("gestion");
+  } catch(err) {
+    alert("Error: " + err.message);
+    btn.disabled=false; btn.textContent="Crear tarea";
+  }
+}
+function viewEntregas(){
+  const a=store.assignments.find(x=>x.id===state.route.id); if(!a) return viewGestion();
+  const rows=store.students.map(st=>{
+    const s=subFor(a.id,st.id);
+    if(!s) return `<div class="card p-4 mb-3 flex items-center justify-between"><div class="text-sm text-white">${esc(st.name)}</div><span class="badge" style="background:rgba(148,163,184,.12);color:#94a3b8">Sin entregar</span></div>`;
+    const graded=s.status==="graded";
+    return `<div class="card p-5 mb-3"><div class="flex items-center justify-between gap-3"><div class="font-semibold text-white">${esc(st.name)}</div><span class="badge" style="background:${graded?'rgba(230,0,126,.15);color:#f472b6':'rgba(251,186,0,.15);color:var(--yellow)'}">${graded?'Corregida · '+s.grade+'/10':'Pendiente'}</span></div>
+      <div class="text-xs text-gray-500 mt-1">Entregada ${fmtDate(s.submitted_at)}</div>${s.body?`<p class="text-sm text-gray-300 mt-2">${esc(s.body)}</p>`:''}${fileLine(s,true)}
+      <div class="border-t mt-4 pt-4" style="border-color:rgba(255,255,255,.07)"><div class="flex gap-3 items-end flex-wrap">
+        <div><label class="text-xs text-gray-400 font-semibold block mb-1">Nota (0-10)</label><input id="g-${s.id}" type="number" min="0" max="10" step="0.5" value="${s.grade!=null?s.grade:''}" class="fld" style="width:90px"></div>
+        <div class="flex-1 min-w-[180px]"><label class="text-xs text-gray-400 font-semibold block mb-1">Feedback</label><input id="f-${s.id}" class="fld" value="${esc(s.feedback)}" placeholder="Devolución para el alumno..."></div>
+        <button class="btn btn-primary px-4 py-2.5" onclick="grade('${s.id}')">${graded?'Actualizar':'Calificar'}</button>
+      </div></div></div>`;
+  }).join('');
+  return `<button class="text-sm text-gray-500 hover:text-white mb-4" onclick="go('gestion')">← Tareas</button>
+  <div class="card p-5 mb-5"><div class="mono text-[10px]" style="color:var(--cyan)">MÓDULO ${a.module_id}</div><h1 class="text-xl font-bold text-white mt-1">${esc(a.title)}</h1><p class="text-sm text-gray-400 mt-2">${esc(a.instructions)}</p></div>
+  <h2 class="font-bold text-white mb-3">Entregas (${store.students.length} alumnos)</h2>${rows||'<div class="card p-4 text-sm text-gray-500">No hay alumnos registrados todavía.</div>'}`;
+}
+async function grade(sid){
+  const g=document.getElementById("g-"+sid).value; if(g===""){alert("Poné una nota.");return;}
+  try {
+    await api("/api/submissions/grade", {
+      method: "PUT",
+      body: JSON.stringify({
+        id: sid,
+        grade: parseFloat(g),
+        feedback: document.getElementById("f-"+sid).value
+      })
+    });
+    await refresh();
+    await go("entregas",{id:state.route.id});
+  } catch(err) {
+    alert("Error: " + err.message);
+  }
+}
+
+/* ---------- ALUMNOS ---------- */
+function viewAlumnos(){
+  const rows=store.students.map(st=>{
+    const pct=progressPct(st.id), subs=store.submissions.filter(s=>s.student_id===st.id);
+    return `<div class="card p-5 mb-3"><div class="flex items-center justify-between gap-3 mb-3"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm" style="background:linear-gradient(135deg,#00a99d,#e6007e);color:#fff">${initials(st.name)}</div><div><div class="font-semibold text-white text-sm">${esc(st.name)}</div><div class="text-xs text-gray-500">@${esc(st.username||'')}</div></div></div><div class="text-right"><div class="text-sm font-bold text-white">${pct}%</div><div class="text-[10px] text-gray-500">${subs.length} entregas</div></div></div><div class="h-2 rounded-full" style="background:rgba(255,255,255,.08)"><div class="h-2 rounded-full" style="width:${pct}%;background:linear-gradient(90deg,#00a99d,#e6007e)"></div></div></div>`;
+  }).join('');
+  return `<h1 class="text-2xl font-bold text-white mb-1">👥 Alumnos</h1><p class="text-gray-500 mb-7">Progreso y entregas de cada alumno.</p>${rows||'<div class="card p-4 text-sm text-gray-500">Todavía no hay alumnos. Creales una cuenta desde ⚙️ Usuarios.</div>'}`;
+}
+
+/* ---------- ANUNCIOS ---------- */
+function viewAnuncios(){
+  const staff=store.profile.role!=="student";
+  const form=staff?`<div class="card p-5 mb-6"><h3 class="font-bold text-white mb-3">Publicar anuncio</h3><input id="anTitle" class="fld mb-3" placeholder="Título del anuncio"><textarea id="anBody" class="fld mb-3" rows="3" placeholder="Mensaje para el curso..."></textarea><button id="anBtn" class="btn btn-primary px-5 py-2.5" onclick="postAnn()">Publicar</button></div>`:'';
+  const list=store.announcements.map(a=>`<div class="card p-5 mb-3"><div class="flex items-start justify-between gap-3"><div class="font-bold text-white">${esc(a.title)}</div>${staff?`<button class="text-xs text-gray-600 hover:text-red-400" onclick="delAnn('${a.id}')">eliminar</button>`:''}</div><p class="text-sm text-gray-300 mt-2">${esc(a.body)}</p><div class="text-[10px] text-gray-600 mt-3">${esc(a.author)} · ${fmtDate(a.created_at)}</div></div>`).join('');
+  return `<h1 class="text-2xl font-bold text-white mb-1">📢 Anuncios</h1><p class="text-gray-500 mb-7">Novedades del taller.</p>${form}${list||'<div class="card p-4 text-sm text-gray-500">Todavía no hay anuncios.</div>'}`;
+}
+async function postAnn(){
+  const t=document.getElementById("anTitle").value.trim(), b=document.getElementById("anBody").value.trim();
+  if(!t||!b){alert("Completá título y mensaje.");return;}
+  const btn=document.getElementById("anBtn"); btn.disabled=true; btn.textContent="Publicando…";
+  try {
+    await api("/api/announcements", {
+      method: "POST",
+      body: JSON.stringify({ title: t, body: b })
+    });
+    await refresh();
+    await go("anuncios");
+  } catch(err) {
+    alert("Error: " + err.message);
+    btn.disabled=false; btn.textContent="Publicar";
+  }
+}
+async function delAnn(id){
+  if(!confirm("¿Eliminar este anuncio?")) return;
+  try {
+    await api("/api/announcements?id=" + encodeURIComponent(id), { method: "DELETE" });
+    await refresh();
+    await go("anuncios");
+  } catch(err) {
+    alert("Error: " + err.message);
+  }
+}
+
+/* ---------- USUARIOS (admin: crea y gestiona cuentas) ---------- */
+function viewUsuarios(){
+  const me=store.profile;
+  const roleSel=(x)=>{
+    if(x.id===me.id) return `<span class="badge" style="background:rgba(0,169,157,.13);color:var(--cyan)">${({student:'Alumno',instructor:'Instructor',admin:'Admin'})[x.role]} (vos)</span>`;
+    return `<select class="fld" style="width:auto;padding:6px 10px;font-size:12px" onchange="adminSetRole('${x.id}',this.value)">
+      <option value="student" ${x.role==='student'?'selected':''}>Alumno</option>
+      <option value="instructor" ${x.role==='instructor'?'selected':''}>Instructor</option>
+      <option value="admin" ${x.role==='admin'?'selected':''}>Admin</option></select>`;
+  };
+  const delBtn=(x)=>{
+    if(x.id===me.id || x.role==='admin') return '';
+    return `<button class="btn" style="background:rgba(239,68,68,.13);color:#f87171;padding:7px 11px;font-size:13px" onclick="adminDeleteUser('${x.id}')" title="Eliminar usuario">🗑️</button>`;
+  };
+  const rows=store.allUsers.map(x=>`<div class="card p-4 mb-2 flex items-center justify-between gap-3 flex-wrap"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm" style="background:linear-gradient(135deg,#00a99d,#e6007e);color:#fff">${initials(x.name)}</div><div><div class="font-semibold text-white text-sm">${esc(x.name)}</div><div class="text-xs text-gray-500">@${esc(x.username||'')}</div></div></div><div class="flex items-center gap-2">${roleSel(x)}${delBtn(x)}</div></div>`).join('');
+  return `<h1 class="text-2xl font-bold text-white mb-1">⚙️ Usuarios</h1><p class="text-gray-500 mb-6">Creá cuentas y asigná roles.</p>
+  <div class="card p-6 mb-7 max-w-2xl">
+    <h3 class="font-bold text-white mb-4">➕ Crear nuevo usuario</h3>
+    <div id="cuMsg" class="hidden text-sm mb-4 p-3 rounded-lg"></div>
+    <div class="grid sm:grid-cols-2 gap-3 mb-3">
+      <div><label class="text-xs text-gray-400 font-semibold">Usuario</label><input id="cuUser" class="fld mt-1" placeholder="ej: juanperez" autocapitalize="none"></div>
+      <div><label class="text-xs text-gray-400 font-semibold">Nombre completo</label><input id="cuName" class="fld mt-1" placeholder="Juan Pérez"></div>
+    </div>
+    <div class="grid sm:grid-cols-2 gap-3 mb-4">
+      <div><label class="text-xs text-gray-400 font-semibold">Contraseña (mín. 6)</label><input id="cuPw" class="fld mt-1" placeholder="contraseña inicial"></div>
+      <div><label class="text-xs text-gray-400 font-semibold">Rol</label><select id="cuRole" class="fld mt-1"><option value="student">Alumno</option><option value="instructor">Instructor</option><option value="admin">Admin</option></select></div>
+    </div>
+    <button id="cuBtn" class="btn btn-primary px-5 py-2.5" onclick="adminCreateUser()">Crear usuario</button>
+    <p class="text-[11px] text-gray-600 mt-3">El usuario entra con ese <b>usuario + contraseña</b>. Pasale los datos por privado.</p>
+  </div>
+  <h3 class="font-bold text-white mb-3">Usuarios registrados (${store.allUsers.length})</h3>${rows||'<div class="card p-4 text-sm text-gray-500">Sin usuarios.</div>'}`;
+}
+function cuMsg(t,ok){ const el=document.getElementById("cuMsg"); if(!el)return; el.textContent=t; el.className="text-sm mb-4 p-3 rounded-lg"; el.style.background=ok?"rgba(0,169,157,.12)":"rgba(239,68,68,.12)"; el.style.color=ok?"#5eead4":"#f87171"; el.classList.remove("hidden"); }
+async function adminCreateUser(){
+  const user=document.getElementById("cuUser").value.trim().toLowerCase().replace(/\s+/g,""), name=document.getElementById("cuName").value.trim(), pw=document.getElementById("cuPw").value, role=document.getElementById("cuRole").value;
+  if(!user||!name){cuMsg("Completá usuario y nombre.");return;}
+  if(pw.length<6){cuMsg("La contraseña debe tener al menos 6 caracteres.");return;}
+  const btn=document.getElementById("cuBtn"); btn.disabled=true; btn.textContent="Creando…";
+  try{
+    await api("/api/admin/create-user", {
+      method: "POST",
+      body: JSON.stringify({username:user,name,password:pw,role})
+    });
+    document.getElementById("cuUser").value=""; document.getElementById("cuName").value=""; document.getElementById("cuPw").value="";
+    await go("usuarios");
+    cuMsg("✅ Usuario «"+user+"» creado.",true);
+  }catch(e){ cuMsg(e.message || "Error al crear usuario."); btn.disabled=false; btn.textContent="Crear usuario"; }
+}
+async function adminSetRole(id,role){
+  try {
+    await api("/api/admin/change-role", { method: "PUT", body: JSON.stringify({ id, role }) });
+    await go("usuarios");
+  } catch(e) { alert("No se pudo cambiar el rol: "+e.message); }
+}
+async function adminDeleteUser(id){
+  const u=store.allUsers.find(z=>z.id===id);
+  const nm=u?u.name:"este usuario";
+  if(!confirm("¿Eliminar a "+nm+"? Esta acción no se puede deshacer.")) return;
+  try{
+    await api("/api/admin/delete-user", { method: "POST", body: JSON.stringify({ id }) });
+    await go("usuarios");
+  }catch(e){ alert(e.message || "No pude contactar el servidor."); }
+}
+
+/* ---------- HERRAMIENTAS (recursos: software, música, videos, etc.) ---------- */
+const TOOLCATS=[
+  {id:"software",name:"Software DJ",icon:"💿"},
+  {id:"musica",name:"Música",icon:"🎵"},
+  {id:"videos",name:"Videos",icon:"🎬"},
+  {id:"imagenes",name:"Imágenes",icon:"🖼️"},
+  {id:"links",name:"Links",icon:"🔗"},
+  {id:"documentos",name:"Documentos",icon:"📄"}
+];
+function toolCat(c){ return TOOLCATS.find(x=>x.id===c)||{name:c,icon:"📦"}; }
+function viewHerramientas(){
+  const isStaff=store.profile.role==="admin"||store.profile.role==="instructor";
+  const cat=state.route.cat||"all";
+  const all=store.tools||[];
+  const pills=[["all","🛠️","Todas"]].concat(TOOLCATS.map(c=>[c.id,c.icon,c.name]))
+    .map(p=>`<button class="chip" style="cursor:pointer;${cat===p[0]?'background:rgba(0,169,157,.15);color:#fff;border-color:var(--cyan)':''}" onclick="go('herramientas',{cat:'${p[0]}'})">${p[1]} ${p[2]}</button>`).join("");
+  const list=all.filter(t=>cat==="all"||t.category===cat);
+  const cards=list.map(t=>{
+    const m=toolCat(t.category);
+    const del=isStaff?`<button class="btn" style="background:rgba(239,68,68,.13);color:#f87171;padding:6px 9px;font-size:12px" onclick="deleteTool('${t.id}')" title="Eliminar">🗑️</button>`:"";
+    const open=t.url?`<a href="${esc(t.url)}" target="_blank" rel="noopener" onclick="logDownload('${t.id}')" class="btn btn-primary px-4 py-2 text-xs inline-block">${t.file_path?"Descargar":"Abrir"}</a>`:"";
+    return `<div class="card p-5 mb-3"><div class="flex items-start justify-between gap-3 flex-wrap"><div class="flex items-start gap-3 min-w-0"><div class="text-2xl flex-shrink-0">${m.icon}</div><div class="min-w-0"><div class="chip mb-1" style="font-size:10px">${m.name}</div><div class="font-semibold text-white">${esc(t.title)}</div>${t.description?`<p class="text-sm text-gray-400 mt-1 leading-relaxed">${esc(t.description)}</p>`:""}${t.file_name?`<div class="text-xs text-gray-600 mt-1">📎 ${esc(t.file_name)} (${fmtSize(t.file_size)})</div>`:""}</div></div><div class="flex items-center gap-2 flex-shrink-0">${open}${del}</div></div></div>`;
+  }).join("");
+  const addBtn=isStaff?`<button class="btn btn-primary px-5 py-3" onclick="go('nuevaHerramienta')">+ Agregar recurso</button>`:"";
+  const dlBtn=isStaff?`<button class="btn btn-ghost px-4 py-3 text-sm" onclick="go('descargas')">📥 Descargas</button>`:"";
+  return `<div class="flex items-center justify-between mb-2 flex-wrap gap-3"><div><h1 class="text-2xl font-bold text-white">🛠️ Herramientas</h1><p class="text-gray-500">Software, música, videos y recursos del taller.</p></div><div class="flex items-center gap-2 flex-wrap">${dlBtn}${addBtn}</div></div>
+    <div class="flex flex-wrap gap-2 my-5">${pills}</div>
+    ${cards||'<div class="card p-6 text-sm text-gray-500 text-center">No hay recursos en esta categoría todavía.</div>'}`;
+}
+function viewNuevaHerramienta(){
+  const opts=TOOLCATS.map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join("");
+  return `<button class="text-sm text-gray-500 hover:text-white mb-4" onclick="go('herramientas')">← Herramientas</button>
+  <h1 class="text-2xl font-bold text-white mb-6">Agregar recurso</h1>
+  <div class="card p-6 max-w-2xl">
+    <div class="rounded-xl p-4 mb-5" style="background:rgba(251,186,0,.1);border:1px solid rgba(251,186,0,.3)"><div class="font-semibold text-sm mb-1" style="color:var(--yellow)">⚠️ Límite de almacenamiento</div><p class="text-xs text-gray-300 leading-relaxed">El almacenamiento gratis tiene <b>1 GB en total</b> y un <b>límite por archivo</b> (aprox. 50 MB). Para programas pesados (Virtual DJ, Rekordbox, Traktor) usá un <b>link de descarga</b>. Subí archivos solo para fotos, música o PDFs livianos.</p></div>
+    <label class="text-xs text-gray-400 font-semibold">Categoría</label>
+    <select id="htCat" class="fld mt-1 mb-4">${opts}</select>
+    <label class="text-xs text-gray-400 font-semibold">Título</label>
+    <input id="htTitle" class="fld mt-1 mb-4" placeholder="Ej: Virtual DJ 2024 (instalador)">
+    <label class="text-xs text-gray-400 font-semibold">Descripción (opcional)</label>
+    <textarea id="htDesc" class="fld mt-1 mb-4" rows="2" placeholder="Notas, versión, instrucciones..."></textarea>
+    <div class="rounded-xl p-4 mb-4" style="background:rgba(0,169,157,.07);border:1px solid rgba(0,169,157,.18)">
+      <label class="text-xs text-gray-400 font-semibold">Opción A — Pegar un link</label>
+      <input id="htUrl" class="fld mt-1" placeholder="https://... (ideal para software pesado, YouTube, páginas)">
+      <div class="text-center text-xs text-gray-600 my-3">— o —</div>
+      <label class="text-xs text-gray-400 font-semibold">Opción B — Subir un archivo</label>
+      <input id="htFile" class="fld mt-1" type="file">
+      <p class="text-[11px] text-gray-600 mt-2">Para programas grandes (Virtual DJ, Traktor) usá un <b>link</b>. Subí archivos para fotos, música o PDFs livianos.</p>
+    </div>
+    <button id="htBtn" class="btn btn-primary px-5 py-3" onclick="addTool()">Guardar recurso</button>
+  </div>`;
+}
+async function addTool(){
+  const cat=document.getElementById("htCat").value, title=document.getElementById("htTitle").value.trim(), desc=document.getElementById("htDesc").value.trim(), url=document.getElementById("htUrl").value.trim(), fi=document.getElementById("htFile");
+  if(!title){ alert("Poné un título."); return; }
+  const btn=document.getElementById("htBtn"); btn.disabled=true; btn.textContent="Guardando…";
+  let meta={category:cat,title,description:desc||null,url:url||null};
+  if(fi.files&&fi.files[0]){
+    const f=fi.files[0];
+    if(f.size > 5 * 1024 * 1024){
+      alert("Para archivos de más de 5 MB usá un link de Google Drive como se explica en la guía.");
+      btn.disabled=false; btn.textContent="Guardar recurso"; return;
+    }
+    const reader = new FileReader();
+    const dataUrl = await new Promise(r=>{ reader.onload=()=>r(reader.result); reader.readAsDataURL(f); });
+    meta.url = dataUrl; meta.file_name=f.name; meta.file_size=f.size; meta.file_type=f.type;
+  } else if(!url){ alert("Pegá un link o subí un archivo."); btn.disabled=false; btn.textContent="Guardar recurso"; return; }
+  try{
+    await api("/api/tools", { method: "POST", body: JSON.stringify(meta) });
+    await go("herramientas",{cat});
+  } catch(err) { alert("Error: "+err.message); btn.disabled=false; btn.textContent="Guardar recurso"; }
+}
+async function deleteTool(id){
+  const t=(store.tools||[]).find(z=>z.id===id);
+  if(!confirm('¿Eliminar "'+(t?t.title:"este recurso")+'"?')) return;
+  try{
+    await api("/api/tools?id="+encodeURIComponent(id), { method: "DELETE" });
+    await go("herramientas",{cat:state.route.cat||"all"});
+  } catch(err) { alert("Error: "+err.message); }
+}
+function logDownload(id){
+  const t=(store.tools||[]).find(z=>z.id===id);
+  if(!t) return;
+  api("/api/tools/download", { method: "POST", body: JSON.stringify({ tool_id: id, tool_title: t.title }) }).catch(()=>{});
+}
+function viewDescargas(){
+  const logs=store.toolDownloads||[];
+  const rows=logs.map(d=>`<div class="card p-4 mb-2 flex items-center justify-between gap-3 flex-wrap"><div class="min-w-0"><div class="font-semibold text-white text-sm">${esc(d.user_name||"—")}</div><div class="text-xs text-gray-500 mt-0.5">descargó · ${esc(d.tool_title||"—")}</div></div><div class="text-xs text-gray-500 flex-shrink-0">${new Date(d.downloaded_at).toLocaleString("es-AR")}</div></div>`).join("");
+  return `<button class="text-sm text-gray-500 hover:text-white mb-4" onclick="go('herramientas')">← Herramientas</button>
+    <h1 class="text-2xl font-bold text-white mb-1">📥 Registro de descargas</h1>
+    <p class="text-gray-500 mb-6">Quién descargó o abrió cada recurso (${logs.length}).</p>
+    ${rows||'<div class="card p-6 text-sm text-gray-500 text-center">Todavía no hay descargas registradas.</div>'}`;
+}
+
+/* ---------- NOSOTROS (tarjeta del instructor) ---------- */
+function viewNosotros(){
+  const c=store.myCard||{};
+  const photo=c.photo_url?`<img src="${esc(c.photo_url)}" style="width:96px;height:96px;border-radius:50%;object-fit:cover">`:`<div style="width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,#00a99d,#e6007e);display:flex;align-items:center;justify-content:center;font-size:30px;color:#fff;font-weight:700">${initials(store.profile.name)}</div>`;
+  return `<h1 class="text-2xl font-bold text-white mb-1">👤 Mi Tarjeta</h1>
+  <p class="text-gray-500 mb-6">Completá tu tarjeta para la sección <b>"Nosotros"</b> de la web pública. Lo que cargás acá se muestra en la página.</p>
+  <div class="card p-6 max-w-2xl">
+    <div class="flex items-center gap-4 mb-5">
+      <div>${photo}</div>
+      <div class="flex-1"><label class="text-xs text-gray-400 font-semibold">Foto de perfil</label><input id="ndPhoto" class="fld mt-1" type="file" accept="image/*"><p class="text-[11px] text-gray-600 mt-1">Cuadrada se ve mejor. Menos de 5 MB.</p></div>
+    </div>
+    <label class="text-xs text-gray-400 font-semibold">Nombre</label>
+    <input id="ndName" class="fld mt-1 mb-4" value="${esc(c.name||store.profile.name||'')}" placeholder="Tu nombre">
+    <label class="text-xs text-gray-400 font-semibold">Cargo / rol</label>
+    <input id="ndTitle" class="fld mt-1 mb-4" value="${esc(c.title||'')}" placeholder="Ej: Director Académico · Instructor de DJ">
+    <label class="text-xs text-gray-400 font-semibold">Bio (breve)</label>
+    <textarea id="ndBio" class="fld mt-1 mb-5" rows="3" placeholder="Una descripción corta tuya...">${esc(c.bio||'')}</textarea>
+    <p class="text-xs font-semibold text-gray-300 mb-1">Redes y links</p>
+    <p class="text-[11px] text-gray-600 mb-3">Pegá la URL completa. Dejá vacío lo que no uses.</p>
+    <div class="grid sm:grid-cols-2 gap-3 mb-5">
+      <div><label class="text-xs text-gray-500">📸 Instagram</label><input id="ndIg" class="fld mt-1" value="${esc(c.instagram||'')}" placeholder="https://instagram.com/tuusuario"></div>
+      <div><label class="text-xs text-gray-500">🎧 Spotify</label><input id="ndSp" class="fld mt-1" value="${esc(c.spotify||'')}" placeholder="https://open.spotify.com/artist/..."></div>
+      <div><label class="text-xs text-gray-500">☁️ SoundCloud</label><input id="ndSc" class="fld mt-1" value="${esc(c.soundcloud||'')}" placeholder="https://soundcloud.com/..."></div>
+      <div><label class="text-xs text-gray-500">▶️ YouTube</label><input id="ndYt" class="fld mt-1" value="${esc(c.youtube||'')}" placeholder="https://youtube.com/@..."></div>
+      <div><label class="text-xs text-gray-500">🎵 TikTok</label><input id="ndTk" class="fld mt-1" value="${esc(c.tiktok||'')}" placeholder="https://tiktok.com/@..."></div>
+      <div><label class="text-xs text-gray-500">🌐 Sitio web</label><input id="ndWeb" class="fld mt-1" value="${esc(c.website||'')}" placeholder="https://..."></div>
+      <div><label class="text-xs text-gray-500">💬 WhatsApp</label><input id="ndWa" class="fld mt-1" value="${esc(c.whatsapp||'')}" placeholder="https://wa.me/54920..."></div>
+    </div>
+    <button id="ndBtn" class="btn btn-primary px-5 py-3" onclick="saveMyCard()">Guardar mi tarjeta</button>
+  </div>`;
+}
+async function saveMyCard(){
+  const g=id=>document.getElementById(id).value.trim();
+  const btn=document.getElementById("ndBtn"); btn.disabled=true; btn.textContent="Guardando…";
+  let photo_url=(store.myCard&&store.myCard.photo_url)||null;
+  const fi=document.getElementById("ndPhoto");
+  if(fi.files&&fi.files[0]){
+    const f=fi.files[0];
+    if(f.size > 5 * 1024 * 1024){
+      alert("La foto es demasiado pesada (máx 5 MB).");
+      btn.disabled=false; btn.textContent="Guardar mi tarjeta"; return;
+    }
+    const reader = new FileReader();
+    photo_url = await new Promise(r=>{ reader.onload=()=>r(reader.result); reader.readAsDataURL(f); });
+  }
+  const row={name:g("ndName"),title:g("ndTitle"),bio:g("ndBio"),photo_url:photo_url,instagram:g("ndIg")||null,spotify:g("ndSp")||null,soundcloud:g("ndSc")||null,youtube:g("ndYt")||null,tiktok:g("ndTk")||null,website:g("ndWeb")||null,whatsapp:g("ndWa")||null};
+  try{
+    await api("/api/instructors", { method: "PUT", body: JSON.stringify(row) });
+    await go("nosotros");
+    alert("✅ Tu tarjeta se guardó. Ya aparece en la sección Nosotros de la web pública.");
+  } catch(err) {
+    alert("Error al guardar tarjeta: "+err.message);
+    btn.disabled=false; btn.textContent="Guardar mi tarjeta";
+  }
+}
+
+/* ===================== ROUTER ===================== */
+function render(){
+  const app=document.getElementById("app");
+  if(!store.profile || state.route.name==="login"){ app.innerHTML=viewLogin(); return; }
+  let content="";
+  switch(state.route.name){
+    case "dashboard": content=viewDashboard(); break;
+    case "material": content=viewMaterial(); break;
+    case "tareas": content=viewTareas(); break;
+    case "tarea": content=viewTarea(); break;
+    case "gestion": content=viewGestion(); break;
+    case "nuevaTarea": content=viewNuevaTarea(); break;
+    case "entregas": content=viewEntregas(); break;
+    case "alumnos": content=viewAlumnos(); break;
+    case "anuncios": content=viewAnuncios(); break;
+    case "usuarios": content=viewUsuarios(); break;
+    case "herramientas": content=viewHerramientas(); break;
+    case "nuevaHerramienta": content=viewNuevaHerramienta(); break;
+    case "descargas": content=viewDescargas(); break;
+    case "nosotros": content=viewNosotros(); break;
+    default: content=viewDashboard();
+  }
+  app.innerHTML=shell(content);
+}
+
+/* ===================== BOOT ===================== */
+(async()=>{
+  document.getElementById("app").innerHTML=loader("Conectando al Campus…");
+  if(SETUP){ render(); return; }
+  const profile = await loadProfile();
+  if(profile){ state.route={name:"dashboard"}; await refresh(); }
+  else state.route={name:"login"};
+  render();
+})();
+
+Object.assign(window,{go,doLogin,doSetup,logout,toggleLesson,submitWork,createAssignment,grade,postAnn,delAnn,adminCreateUser,adminSetRole,adminDeleteUser,addTool,deleteTool,logDownload,saveMyCard});
+</script>
+</body>
+</html>

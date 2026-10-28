@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Campus Virtual · Taller de DJ</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Outfit:wght@300;400;500;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0a0c0d;--surface:#13171b;--surface2:#1a1f24;--cyan:#00a99d;--magenta:#e6007e;--yellow:#fbba00;--orange:#f39200;--dteal:#0f8a7e;}
@@ -49,17 +48,23 @@ input,textarea,select{font-family:Outfit,sans-serif;}
 
 <script>
 /* ===================== CAMPUS VIRTUAL · TALLER DE DJ =====================
-   Fase 2 — Supabase. Login por USUARIO. El admin crea las cuentas.
+   Versión 2.0 — Vercel Pro + Turso Scaler (libSQL Serverless Edge)
+   SISTEMAS DesarrollAR · Río Gallegos, Santa Cruz, Argentina 🇦🇷
 ========================================================================= */
 
-const SUPABASE_URL  = "https://tmdlgcrgyxcvkonouzsx.supabase.co";
-const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtZGxnY3JneXhjdmtvbm91enN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzNDY4MzgsImV4cCI6MjA5NzkyMjgzOH0.73gtKGs4-fytH6aN-a4NNiS5ELpf-0lhIpdu_PsVLMw";
-const USER_DOMAIN   = "@casadelajuventud.gob";   // dominio interno: el usuario "juan" -> juan@casadelajuventud.gob
-const SB = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 const SETUP = new URLSearchParams(location.search).get("setup") === "1";
-const userToEmail = u => u.trim().toLowerCase().replace(/\s+/g,"") + USER_DOMAIN;
-// Cliente temporal (no persiste sesión) para que el admin cree cuentas sin desloguearse
-function tmpClient(){ return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {auth:{persistSession:false, autoRefreshToken:false, storageKey:"tmp_"+Math.random().toString(36).slice(2)}}); }
+let authToken = localStorage.getItem("cursodj_token") || null;
+
+async function api(path, options = {}) {
+  const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
+  if (authToken) headers["Authorization"] = "Bearer " + authToken;
+  const res = await fetch(path, { credentials: "include", ...options, headers });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data.error || ("Error " + res.status));
+  }
+  return data;
+}
 
 /* ---------- COURSE CONTENT (estático) ---------- */
 const COURSE = {id:"dj", title:"Taller de DJ", modules:[
@@ -123,39 +128,62 @@ function hand(c,w,h){return '<svg width="'+w+'" height="'+h+'" viewBox="0 0 24 2
 function logo(size){return '<img src="JUVENTUD.png" alt="JUVENTUD" style="height:'+size+'px;width:auto">';}
 function loader(msg){return '<div class="min-h-screen flex flex-col items-center justify-center gap-4"><div class="spin"></div><div class="text-sm text-gray-500">'+(msg||"Cargando…")+'</div></div>';}
 
-/* ---------- DATA LOADERS ---------- */
+/* ---------- DATA LOADERS (Turso Scaler) ---------- */
 async function loadProfile(){
-  const {data:{user}}=await SB.auth.getUser();
-  store.user=user;
-  if(!user){ store.profile=null; return null; }
-  let {data}=await SB.from("profiles").select("*").eq("id",user.id).single();
-  if(!data){ await new Promise(r=>setTimeout(r,600)); const r2=await SB.from("profiles").select("*").eq("id",user.id).single(); data=r2.data; }
-  store.profile=data;
-  return data;
+  if (!authToken) { store.user = null; store.profile = null; return null; }
+  try {
+    const data = await api("/api/auth/me");
+    store.user = data.user;
+    store.profile = data.profile;
+    return data.profile;
+  } catch (e) {
+    store.user = null;
+    store.profile = null;
+    authToken = null;
+    localStorage.removeItem("cursodj_token");
+    return null;
+  }
 }
 async function refresh(){
   if(!store.profile) return;
   const role=store.profile.role, uid=store.user.id;
-  const [as,an]=await Promise.all([
-    SB.from("assignments").select("*").order("created_at"),
-    SB.from("announcements").select("*").order("created_at",{ascending:false})
-  ]);
-  store.assignments=as.data||[]; store.announcements=an.data||[];
-  const tl=await SB.from("tools").select("*").order("created_at",{ascending:false});
-  store.tools=tl.data||[];
-  let subQ=SB.from("submissions").select("*").order("submitted_at",{ascending:false});
-  if(role==="student") subQ=subQ.eq("student_id",uid);
-  const subs=await subQ; store.submissions=subs.data||[];
-  for(const s of store.submissions){ if(s.file_path){ const {data:su}=await SB.storage.from("submissions").createSignedUrl(s.file_path,3600); s.fileUrl=su?su.signedUrl:null; } }
-  if(role==="student"){ const pr=await SB.from("progress").select("lesson_id").eq("user_id",uid); store.progress={}; (pr.data||[]).forEach(p=>store.progress[p.lesson_id]=true); }
-  if(role==="instructor"||role==="admin"){
-    const [st,ap]=await Promise.all([ SB.from("profiles").select("*").eq("role","student"), SB.from("progress").select("user_id,lesson_id") ]);
-    store.students=st.data||[]; store.allProgress=ap.data||[];
-    const dl=await SB.from("tool_downloads").select("*").order("downloaded_at",{ascending:false}).limit(500);
-    store.toolDownloads=dl.data||[];
-    store.myCard=(await SB.from("instructors").select("*").eq("user_id",uid).maybeSingle()).data||null;
+  try {
+    const [as, an, tl, subs] = await Promise.all([
+      api("/api/assignments"),
+      api("/api/announcements"),
+      api("/api/tools"),
+      api("/api/submissions")
+    ]);
+    store.assignments = as || [];
+    store.announcements = an || [];
+    store.tools = tl || [];
+    store.submissions = subs || [];
+    for(const s of store.submissions){ s.fileUrl = s.file_path || null; }
+
+    if(role==="student"){
+      const pr = await api("/api/progress");
+      store.progress = {};
+      (pr || []).forEach(p => store.progress[p.lesson_id] = true);
+    }
+    if(role==="instructor"||role==="admin"){
+      const [progData, dl, instList] = await Promise.all([
+        api("/api/progress"),
+        api("/api/tools/downloads"),
+        api("/api/instructors")
+      ]);
+      store.students = progData?.students || [];
+      store.allProgress = progData?.progress || [];
+      store.toolDownloads = dl || [];
+      store.myCard = (instList || []).find(c => c.user_id === uid) || null;
+    }
+    if(role==="admin"){
+      const au = await api("/api/admin/users");
+      store.allUsers = au || [];
+    }
+  } catch(err) {
+    console.error("Error refreshing data:", err);
   }
-  if(role==="admin"){ const au=await SB.from("profiles").select("*").order("created_at"); store.allUsers=au.data||[]; }
+}
 }
 
 /* ---------- NAV ---------- */
@@ -206,29 +234,61 @@ function viewSetup(){
 }
 function authMsg(text,ok){ const el=document.getElementById("authMsg"); if(!el)return; el.textContent=text; el.className="text-sm mb-4 p-3 rounded-lg"; el.style.background=ok?"rgba(0,169,157,.12)":"rgba(239,68,68,.12)"; el.style.color=ok?"#5eead4":"#f87171"; el.classList.remove("hidden"); }
 async function doLogin(){
-  const user=document.getElementById("aUser").value, pw=document.getElementById("aPw").value;
+  const user=document.getElementById("lUser").value.trim().toLowerCase().replace(/\s+/g,""), pw=document.getElementById("lPw").value;
   if(!user||!pw){authMsg("Completá usuario y contraseña.");return;}
   const btn=document.getElementById("authBtn"); btn.disabled=true; btn.textContent="Entrando…";
-  const {error}=await SB.auth.signInWithPassword({email:userToEmail(user),password:pw});
-  if(error){ authMsg(error.message.includes("Invalid")?"Usuario o contraseña incorrectos.":error.message); btn.disabled=false; btn.textContent="Entrar"; return; }
-  await loadProfile(); state.route={name:"dashboard"}; document.getElementById("app").innerHTML=loader(); await refresh(); render();
+  try {
+    const data = await api("/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ username: user, password: pw })
+    });
+    authToken = data.token;
+    localStorage.setItem("cursodj_token", data.token);
+    store.user = data.user;
+    store.profile = data.profile;
+    state.route = { name: "dashboard" };
+    document.getElementById("app").innerHTML = loader();
+    await refresh();
+    render();
+  } catch(err) {
+    authMsg(err.message || "Usuario o contraseña incorrectos.");
+    btn.disabled = false;
+    btn.textContent = "Entrar";
+  }
 }
 async function doSetup(){
   const user=document.getElementById("sUser").value.trim().toLowerCase().replace(/\s+/g,""), name=document.getElementById("sName").value.trim(), pw=document.getElementById("sPw").value;
   if(!user||!name){authMsg("Completá usuario y nombre.");return;}
   if(pw.length<6){authMsg("La contraseña debe tener al menos 6 caracteres.");return;}
   const btn=document.getElementById("authBtn"); btn.disabled=true; btn.textContent="Creando…";
-  const {data,error}=await SB.auth.signUp({email:userToEmail(user),password:pw,options:{data:{name,username:user}}});
-  if(error){ authMsg(error.message); btn.disabled=false; btn.textContent="Crear mi cuenta"; return; }
-  document.getElementById("app").innerHTML=`<div class="min-h-screen flex items-center justify-center p-6"><div class="max-w-md card p-8 fade">
-    <h1 class="text-xl font-bold text-white mb-3">✅ Cuenta «${esc(user)}» creada</h1>
-    <p class="text-sm text-gray-400 mb-4">Último paso para ser administrador: andá a <b class="text-white">Supabase → SQL Editor</b>, pegá esto y dale Run:</p>
-    <div class="rounded-lg p-3 mb-4 mono text-xs" style="background:#0c0f12;border:1px solid rgba(0,169,157,.3);color:#5eead4">update profiles set role = 'admin' where username = '${esc(user)}';</div>
-    <p class="text-sm text-gray-400 mb-5">Después hacé clic abajo para entrar como administrador.</p>
-    <a href="campus.html" class="btn btn-primary inline-block px-6 py-3">Ir al campus</a>
-  </div></div>`;
+  try {
+    const data = await api("/api/auth/setup-admin", {
+      method: "POST",
+      body: JSON.stringify({ username: user, name, password: pw })
+    });
+    authToken = data.token;
+    localStorage.setItem("cursodj_token", data.token);
+    store.user = data.user;
+    store.profile = data.user;
+    state.route = { name: "dashboard" };
+    document.getElementById("app").innerHTML = loader();
+    await refresh();
+    render();
+  } catch(err) {
+    authMsg(err.message || "Error al crear cuenta inicial.");
+    btn.disabled = false;
+    btn.textContent = "Crear mi cuenta";
+  }
 }
-async function logout(){ await SB.auth.signOut(); store.profile=null; store.user=null; state.route={name:"login"}; render(); }
+async function logout(){
+  try { await api("/api/auth/logout", { method: "POST" }); } catch(_) {}
+  authToken = null;
+  localStorage.removeItem("cursodj_token");
+  store.profile = null;
+  store.user = null;
+  state.route = { name: "login" };
+  render();
+}
 
 /* ---------- SHELL ---------- */
 function shell(content){
@@ -250,7 +310,8 @@ function shell(content){
           <div class="min-w-0"><div class="text-sm font-semibold text-white truncate">${esc(u.name)}</div><div class="text-[10px] text-gray-500">${roleLabel}${u.username?' · @'+esc(u.username):''}</div></div>
         </div>
         <button class="btn btn-ghost w-full py-2 text-xs mt-3" onclick="logout()">Cerrar sesión</button>
-        <p class="mono text-[9px] uppercase tracking-widest text-gray-600 text-center mt-4">Sistemas · <span style="color:var(--cyan)">Desarroll</span><span style="color:var(--magenta)">AR</span> · de Jorge Adrian Duarte</p>
+        <p class="mono text-[9px] uppercase tracking-widest text-gray-400 text-center mt-4">Sistemas · <span style="color:var(--cyan)">Desarroll</span><span style="color:var(--magenta)">AR</span> · de Jorge Adrian Duarte</p>
+        <p class="mono text-[9px] text-gray-500 font-semibold text-center mt-1">Hecho con orgullo en Río Gallegos, Santa Cruz, Argentina 🇦🇷</p>
       </div>
     </aside>
     <div class="flex-1 min-w-0">
@@ -319,9 +380,10 @@ function viewMaterial(){
   return `<h1 class="text-2xl font-bold text-white mb-1">📚 Material del curso</h1><p class="text-gray-500 mb-7">${COURSE.modules.length} módulos · ${lessonsAll().length} lecciones.</p>${mods}`;
 }
 async function toggleLesson(lid){
-  const uid=store.user.id;
-  if(store.progress[lid]){ delete store.progress[lid]; await SB.from("progress").delete().eq("user_id",uid).eq("lesson_id",lid); }
-  else { store.progress[lid]=true; await SB.from("progress").upsert({user_id:uid,lesson_id:lid}); }
+  try {
+    const res = await api("/api/progress/toggle", { method: "POST", body: JSON.stringify({ lesson_id: lid }) });
+    if(res.completed){ store.progress[lid] = true; } else { delete store.progress[lid]; }
+  } catch(e) { alert("Error: " + e.message); }
   const open=[...document.querySelectorAll('.acc.open')].map(e=>e.id); render(); open.forEach(id=>{const e=document.getElementById(id);if(e)e.classList.add('open');});
 }
 
@@ -366,14 +428,23 @@ async function submitWork(aid){
   const btn=document.getElementById("subBtn"); btn.disabled=true; btn.textContent="Enviando…";
   let meta={};
   if(fi.files&&fi.files[0]){
-    const f=fi.files[0], path=u.id+"/"+Date.now()+"_"+f.name.replace(/[^\w.\-]/g,"_");
-    const {error:upErr}=await SB.storage.from("submissions").upload(path,f,{upsert:false});
-    if(upErr){ alert("Error subiendo archivo: "+upErr.message); btn.disabled=false; btn.textContent="Enviar entrega"; return; }
-    meta={file_path:path,file_name:f.name,file_size:f.size,file_type:f.type};
+    const f=fi.files[0];
+    if(f.size > 5 * 1024 * 1024) {
+      alert("Para archivos de más de 5 MB usá un link de Google Drive como se explica en la guía.");
+      btn.disabled=false; btn.textContent="Enviar entrega"; return;
+    }
+    const reader = new FileReader();
+    const dataUrl = await new Promise(r => { reader.onload=()=>r(reader.result); reader.readAsDataURL(f); });
+    meta={file_path:dataUrl,file_name:f.name,file_size:f.size,file_type:f.type};
   } else if(!body){ alert("Escribí un comentario o adjuntá un archivo."); btn.disabled=false; btn.textContent="Enviar entrega"; return; }
-  const {error}=await SB.from("submissions").insert({assignment_id:aid,student_id:u.id,body,...meta});
-  if(error){ alert("Error: "+error.message); btn.disabled=false; btn.textContent="Enviar entrega"; return; }
-  await go("tarea",{id:aid});
+  try {
+    await api("/api/submissions", { method: "POST", body: JSON.stringify({ assignment_id: aid, body, ...meta }) });
+    await refresh();
+    await go("tarea",{id:aid});
+  } catch(err) {
+    alert("Error al entregar: " + err.message);
+    btn.disabled=false; btn.textContent="Enviar entrega";
+  }
 }
 
 /* ---------- INSTRUCTOR GESTION ---------- */
@@ -401,9 +472,22 @@ async function createAssignment(){
   const title=document.getElementById("ntTitle").value.trim(), instr=document.getElementById("ntInstr").value.trim();
   if(!title||!instr){alert("Completá título y consigna.");return;}
   const btn=document.getElementById("ntBtn"); btn.disabled=true; btn.textContent="Creando…";
-  const {error}=await SB.from("assignments").insert({module_id:+document.getElementById("ntMod").value,title,instructions:instr,due_date:document.getElementById("ntDue").value,created_by:store.profile.name});
-  if(error){alert("Error: "+error.message); btn.disabled=false; btn.textContent="Crear tarea"; return;}
-  await go("gestion");
+  try {
+    await api("/api/assignments", {
+      method: "POST",
+      body: JSON.stringify({
+        module_id: +document.getElementById("ntMod").value,
+        title,
+        instructions: instr,
+        due_date: document.getElementById("ntDue").value
+      })
+    });
+    await refresh();
+    await go("gestion");
+  } catch(err) {
+    alert("Error: " + err.message);
+    btn.disabled=false; btn.textContent="Crear tarea";
+  }
 }
 function viewEntregas(){
   const a=store.assignments.find(x=>x.id===state.route.id); if(!a) return viewGestion();
@@ -425,9 +509,20 @@ function viewEntregas(){
 }
 async function grade(sid){
   const g=document.getElementById("g-"+sid).value; if(g===""){alert("Poné una nota.");return;}
-  const {error}=await SB.from("submissions").update({grade:parseFloat(g),feedback:document.getElementById("f-"+sid).value,status:"graded",graded_at:new Date().toISOString(),graded_by:store.profile.name}).eq("id",sid);
-  if(error){alert("Error: "+error.message);return;}
-  await go("entregas",{id:state.route.id});
+  try {
+    await api("/api/submissions/grade", {
+      method: "PUT",
+      body: JSON.stringify({
+        id: sid,
+        grade: parseFloat(g),
+        feedback: document.getElementById("f-"+sid).value
+      })
+    });
+    await refresh();
+    await go("entregas",{id:state.route.id});
+  } catch(err) {
+    alert("Error: " + err.message);
+  }
 }
 
 /* ---------- ALUMNOS ---------- */
@@ -450,11 +545,28 @@ async function postAnn(){
   const t=document.getElementById("anTitle").value.trim(), b=document.getElementById("anBody").value.trim();
   if(!t||!b){alert("Completá título y mensaje.");return;}
   const btn=document.getElementById("anBtn"); btn.disabled=true; btn.textContent="Publicando…";
-  const {error}=await SB.from("announcements").insert({title:t,body:b,author:store.profile.name});
-  if(error){alert("Error: "+error.message); btn.disabled=false; btn.textContent="Publicar"; return;}
-  await go("anuncios");
+  try {
+    await api("/api/announcements", {
+      method: "POST",
+      body: JSON.stringify({ title: t, body: b })
+    });
+    await refresh();
+    await go("anuncios");
+  } catch(err) {
+    alert("Error: " + err.message);
+    btn.disabled=false; btn.textContent="Publicar";
+  }
 }
-async function delAnn(id){ if(!confirm("¿Eliminar este anuncio?"))return; const {error}=await SB.from("announcements").delete().eq("id",id); if(error){alert(error.message);return;} await go("anuncios"); }
+async function delAnn(id){
+  if(!confirm("¿Eliminar este anuncio?")) return;
+  try {
+    await api("/api/announcements?id=" + encodeURIComponent(id), { method: "DELETE" });
+    await refresh();
+    await go("anuncios");
+  } catch(err) {
+    alert("Error: " + err.message);
+  }
+}
 
 /* ---------- USUARIOS (admin: crea y gestiona cuentas) ---------- */
 function viewUsuarios(){
@@ -494,42 +606,30 @@ async function adminCreateUser(){
   if(!user||!name){cuMsg("Completá usuario y nombre.");return;}
   if(pw.length<6){cuMsg("La contraseña debe tener al menos 6 caracteres.");return;}
   const btn=document.getElementById("cuBtn"); btn.disabled=true; btn.textContent="Creando…";
-  const {data:{session}}=await SB.auth.getSession();
-  if(!session){ cuMsg("Tu sesión expiró, volvé a iniciar sesión."); btn.disabled=false; btn.textContent="Crear usuario"; return; }
   try{
-    const res=await fetch(SUPABASE_URL+"/functions/v1/admin-create-user",{
-      method:"POST",
-      headers:{ "Authorization":"Bearer "+session.access_token, "apikey":SUPABASE_ANON, "Content-Type":"application/json" },
-      body:JSON.stringify({username:user,name,password:pw,role})
+    await api("/api/admin/create-user", {
+      method: "POST",
+      body: JSON.stringify({username:user,name,password:pw,role})
     });
-    const out=await res.json().catch(()=>({error:"Respuesta inválida del servidor"}));
-    if(!res.ok||out.error){ cuMsg(out.error||("Error "+res.status)); btn.disabled=false; btn.textContent="Crear usuario"; return; }
-  }catch(e){ cuMsg("No pude contactar el servidor: "+e.message); btn.disabled=false; btn.textContent="Crear usuario"; return; }
-  document.getElementById("cuUser").value=""; document.getElementById("cuName").value=""; document.getElementById("cuPw").value="";
-  await go("usuarios");
-  cuMsg("✅ Usuario «"+user+"» creado.",true);
+    document.getElementById("cuUser").value=""; document.getElementById("cuName").value=""; document.getElementById("cuPw").value="";
+    await go("usuarios");
+    cuMsg("✅ Usuario «"+user+"» creado.",true);
+  }catch(e){ cuMsg(e.message || "Error al crear usuario."); btn.disabled=false; btn.textContent="Crear usuario"; }
 }
 async function adminSetRole(id,role){
-  const {error}=await SB.from("profiles").update({role}).eq("id",id);
-  if(error){ alert("No se pudo cambiar el rol: "+error.message); }
-  await go("usuarios");
+  try {
+    await api("/api/admin/change-role", { method: "PUT", body: JSON.stringify({ id, role }) });
+    await go("usuarios");
+  } catch(e) { alert("No se pudo cambiar el rol: "+e.message); }
 }
 async function adminDeleteUser(id){
   const u=store.allUsers.find(z=>z.id===id);
   const nm=u?u.name:"este usuario";
   if(!confirm("¿Eliminar a "+nm+"? Esta acción no se puede deshacer.")) return;
-  const {data:{session}}=await SB.auth.getSession();
-  if(!session){ alert("Tu sesión expiró, volvé a iniciar sesión."); return; }
   try{
-    const res=await fetch(SUPABASE_URL+"/functions/v1/admin-delete-user",{
-      method:"POST",
-      headers:{ "Authorization":"Bearer "+session.access_token, "apikey":SUPABASE_ANON, "Content-Type":"application/json" },
-      body:JSON.stringify({id})
-    });
-    const out=await res.json().catch(()=>({error:"Respuesta inválida del servidor"}));
-    if(!res.ok||out.error){ alert(out.error||("Error "+res.status)); return; }
-  }catch(e){ alert("No pude contactar el servidor: "+e.message); return; }
-  await go("usuarios");
+    await api("/api/admin/delete-user", { method: "POST", body: JSON.stringify({ id }) });
+    await go("usuarios");
+  }catch(e){ alert(e.message || "No pude contactar el servidor."); }
 }
 
 /* ---------- HERRAMIENTAS (recursos: software, música, videos, etc.) ---------- */
@@ -588,31 +688,34 @@ async function addTool(){
   const cat=document.getElementById("htCat").value, title=document.getElementById("htTitle").value.trim(), desc=document.getElementById("htDesc").value.trim(), url=document.getElementById("htUrl").value.trim(), fi=document.getElementById("htFile");
   if(!title){ alert("Poné un título."); return; }
   const btn=document.getElementById("htBtn"); btn.disabled=true; btn.textContent="Guardando…";
-  const meta={category:cat,title,description:desc||null,url:url||null,created_by:store.profile.name};
+  let meta={category:cat,title,description:desc||null,url:url||null};
   if(fi.files&&fi.files[0]){
-    if(!confirm("Recordá: el almacenamiento gratis tiene 1 GB total y límite por archivo. Para programas pesados (Virtual DJ, Traktor) conviene usar un link.\n\n¿Subir este archivo igualmente?")){ btn.disabled=false; btn.textContent="Guardar recurso"; return; }
-    const f=fi.files[0], path=cat+"/"+Date.now()+"_"+f.name.replace(/[^\w.\-]/g,"_");
-    const {error:upErr}=await SB.storage.from("tools").upload(path,f,{upsert:false});
-    if(upErr){ alert("Error subiendo archivo: "+upErr.message); btn.disabled=false; btn.textContent="Guardar recurso"; return; }
-    const {data:pub}=SB.storage.from("tools").getPublicUrl(path);
-    meta.url=pub.publicUrl; meta.file_path=path; meta.file_name=f.name; meta.file_size=f.size; meta.file_type=f.type;
+    const f=fi.files[0];
+    if(f.size > 5 * 1024 * 1024){
+      alert("Para archivos de más de 5 MB usá un link de Google Drive como se explica en la guía.");
+      btn.disabled=false; btn.textContent="Guardar recurso"; return;
+    }
+    const reader = new FileReader();
+    const dataUrl = await new Promise(r=>{ reader.onload=()=>r(reader.result); reader.readAsDataURL(f); });
+    meta.url = dataUrl; meta.file_name=f.name; meta.file_size=f.size; meta.file_type=f.type;
   } else if(!url){ alert("Pegá un link o subí un archivo."); btn.disabled=false; btn.textContent="Guardar recurso"; return; }
-  const {error}=await SB.from("tools").insert(meta);
-  if(error){ alert("Error: "+error.message); btn.disabled=false; btn.textContent="Guardar recurso"; return; }
-  await go("herramientas",{cat});
+  try{
+    await api("/api/tools", { method: "POST", body: JSON.stringify(meta) });
+    await go("herramientas",{cat});
+  } catch(err) { alert("Error: "+err.message); btn.disabled=false; btn.textContent="Guardar recurso"; }
 }
 async function deleteTool(id){
   const t=(store.tools||[]).find(z=>z.id===id);
   if(!confirm('¿Eliminar "'+(t?t.title:"este recurso")+'"?')) return;
-  if(t&&t.file_path){ await SB.storage.from("tools").remove([t.file_path]); }
-  const {error}=await SB.from("tools").delete().eq("id",id);
-  if(error){ alert("Error: "+error.message); return; }
-  await go("herramientas",{cat:state.route.cat||"all"});
+  try{
+    await api("/api/tools?id="+encodeURIComponent(id), { method: "DELETE" });
+    await go("herramientas",{cat:state.route.cat||"all"});
+  } catch(err) { alert("Error: "+err.message); }
 }
 function logDownload(id){
   const t=(store.tools||[]).find(z=>z.id===id);
   if(!t) return;
-  SB.from("tool_downloads").insert({tool_id:id,tool_title:t.title,user_id:store.user.id,user_name:store.profile.name}).then(function(){});
+  api("/api/tools/download", { method: "POST", body: JSON.stringify({ tool_id: id, tool_title: t.title }) }).catch(()=>{});
 }
 function viewDescargas(){
   const logs=store.toolDownloads||[];
@@ -632,7 +735,7 @@ function viewNosotros(){
   <div class="card p-6 max-w-2xl">
     <div class="flex items-center gap-4 mb-5">
       <div>${photo}</div>
-      <div class="flex-1"><label class="text-xs text-gray-400 font-semibold">Foto de perfil</label><input id="ndPhoto" class="fld mt-1" type="file" accept="image/*"><p class="text-[11px] text-gray-600 mt-1">Cuadrada se ve mejor. Menos de 50 MB.</p></div>
+      <div class="flex-1"><label class="text-xs text-gray-400 font-semibold">Foto de perfil</label><input id="ndPhoto" class="fld mt-1" type="file" accept="image/*"><p class="text-[11px] text-gray-600 mt-1">Cuadrada se ve mejor. Menos de 5 MB.</p></div>
     </div>
     <label class="text-xs text-gray-400 font-semibold">Nombre</label>
     <input id="ndName" class="fld mt-1 mb-4" value="${esc(c.name||store.profile.name||'')}" placeholder="Tu nombre">
@@ -660,16 +763,23 @@ async function saveMyCard(){
   let photo_url=(store.myCard&&store.myCard.photo_url)||null;
   const fi=document.getElementById("ndPhoto");
   if(fi.files&&fi.files[0]){
-    const f=fi.files[0], path=store.user.id+"/"+Date.now()+"_"+f.name.replace(/[^\w.\-]/g,"_");
-    const {error:upErr}=await SB.storage.from("avatars").upload(path,f,{upsert:true});
-    if(upErr){ alert("Error subiendo la foto: "+upErr.message); btn.disabled=false; btn.textContent="Guardar mi tarjeta"; return; }
-    photo_url=SB.storage.from("avatars").getPublicUrl(path).data.publicUrl;
+    const f=fi.files[0];
+    if(f.size > 5 * 1024 * 1024){
+      alert("La foto es demasiado pesada (máx 5 MB).");
+      btn.disabled=false; btn.textContent="Guardar mi tarjeta"; return;
+    }
+    const reader = new FileReader();
+    photo_url = await new Promise(r=>{ reader.onload=()=>r(reader.result); reader.readAsDataURL(f); });
   }
-  const row={user_id:store.user.id,name:g("ndName"),title:g("ndTitle"),bio:g("ndBio"),photo_url:photo_url,instagram:g("ndIg")||null,spotify:g("ndSp")||null,soundcloud:g("ndSc")||null,youtube:g("ndYt")||null,tiktok:g("ndTk")||null,website:g("ndWeb")||null,whatsapp:g("ndWa")||null,updated_at:new Date().toISOString()};
-  const {error}=await SB.from("instructors").upsert(row,{onConflict:"user_id"});
-  if(error){ alert("Error: "+error.message); btn.disabled=false; btn.textContent="Guardar mi tarjeta"; return; }
-  await go("nosotros");
-  alert("✅ Tu tarjeta se guardó. Ya aparece en la sección Nosotros de la web pública.");
+  const row={name:g("ndName"),title:g("ndTitle"),bio:g("ndBio"),photo_url:photo_url,instagram:g("ndIg")||null,spotify:g("ndSp")||null,soundcloud:g("ndSc")||null,youtube:g("ndYt")||null,tiktok:g("ndTk")||null,website:g("ndWeb")||null,whatsapp:g("ndWa")||null};
+  try{
+    await api("/api/instructors", { method: "PUT", body: JSON.stringify(row) });
+    await go("nosotros");
+    alert("✅ Tu tarjeta se guardó. Ya aparece en la sección Nosotros de la web pública.");
+  } catch(err) {
+    alert("Error al guardar tarjeta: "+err.message);
+    btn.disabled=false; btn.textContent="Guardar mi tarjeta";
+  }
 }
 
 /* ===================== ROUTER ===================== */
@@ -699,10 +809,10 @@ function render(){
 
 /* ===================== BOOT ===================== */
 (async()=>{
-  document.getElementById("app").innerHTML=loader("Conectando…");
+  document.getElementById("app").innerHTML=loader("Conectando al Campus…");
   if(SETUP){ render(); return; }
-  const {data:{session}}=await SB.auth.getSession();
-  if(session){ await loadProfile(); if(store.profile){ state.route={name:"dashboard"}; await refresh(); } else state.route={name:"login"}; }
+  const profile = await loadProfile();
+  if(profile){ state.route={name:"dashboard"}; await refresh(); }
   else state.route={name:"login"};
   render();
 })();

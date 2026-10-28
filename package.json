@@ -1,0 +1,13 @@
+{
+  "name": "cursodj-desarrollar-online",
+  "version": "1.0.0",
+  "description": "Campus Virtual y Landing del Taller de DJ - Municipalidad de Río Gallegos / Casa de la Juventud - DesarrollAR",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node api/index.js"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.15.15"
+  }
+}

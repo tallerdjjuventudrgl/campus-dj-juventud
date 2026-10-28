@@ -3,10 +3,13 @@ node_modules/
 *.log
 .env
 .env.local
+.env*
+.vercel/
 
 # Secretos / credenciales — NUNCA subir
 CLAVE*.txt
 *SUPABASE*.txt
+*token*.txt
 
 # Config local del agente
 .claude/
@@ -14,3 +17,6 @@ CLAVE*.txt
 # Backups y archivos de trabajo
 campus-local-backup.html
 *.docx
+*.db
+*.db-journal
+*.sqlite*

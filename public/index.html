@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taller de DJ | Casa de la Juventud</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Fredoka:wght@500;600;700&family=Outfit:wght@300;400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0c0d;--surface:#13171b;--cyan:#00a99d;--purple:#e6007e;--pink:#f39200;--green:#0f8a7e;}
+*{box-sizing:border-box;}
+body{font-family:Outfit,sans-serif;background-color:var(--bg);color:#e2e8f0;scroll-behavior:smooth;overflow-x:hidden;}
+body::before{content:\"\";position:fixed;inset:0;background-image:linear-gradient(rgba(0,169,157,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,169,157,0.025) 1px,transparent 1px);background-size:64px 64px;pointer-events:none;z-index:0;}
+.mono{font-family:\"JetBrains Mono\",monospace;}
+.display{font-family:\"Bebas Neue\",sans-serif;letter-spacing:.02em;}
+.glow-cyan{text-shadow:0 0 18px rgba(0,169,157,.30);}
+.brandlogo{font-family:"Fredoka",sans-serif;font-weight:700;line-height:.9;letter-spacing:.5px;}
+.brandsub{font-family:"Fredoka",sans-serif;font-weight:600;font-size:8px;letter-spacing:.34em;color:#8b969d;margin-top:3px;}
+.glow-purple{text-shadow:0 0 18px rgba(230,0,126,.28);}
+nav{background:rgba(6,6,15,.88);backdrop-filter:blur(24px);border-bottom:1px solid rgba(0,169,157,.1);}
+.nav-btn{position:relative;padding-bottom:4px;color:#64748b;transition:color .2s;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;}
+.nav-btn::after{content:\"\";position:absolute;bottom:0;left:0;width:0;height:1px;background:var(--cyan);box-shadow:0 0 8px var(--cyan);transition:width .3s;}
+.nav-btn:hover{color:var(--cyan);}
+.nav-btn:hover::after{width:100%;}
+.active-section{display:block !important;animation:fadeIn .45s ease;}
+.hidden-section{display:none !important;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.module-card{background:var(--surface);border:1px solid rgba(255,255,255,.06);border-radius:18px;transition:all .3s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;}
+.module-card::before{content:\"\";position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);box-shadow:0 0 16px var(--accent);opacity:0;transition:opacity .3s;}
+.module-card:hover::before{opacity:1;}
+.module-card:hover{border-color:rgba(0,169,157,.22);transform:translateY(-6px);box-shadow:0 24px 48px rgba(0,0,0,.5);}
+.waveform{display:flex;align-items:center;gap:6px;height:60px;}
+.waveform span{display:block;width:5px;background:var(--cyan);border-radius:3px;animation:wave 0.9s ease-in-out infinite;opacity:1;box-shadow:0 0 12px var(--cyan),0 0 24px rgba(0,169,157,.5);}
+.waveform span:nth-child(odd){background:var(--magenta);box-shadow:0 0 12px var(--magenta),0 0 24px rgba(230,0,126,.5);}
+.waveform span:nth-child(2){animation-delay:.05s;}
+.waveform span:nth-child(3){animation-delay:.1s;}
+.waveform span:nth-child(4){animation-delay:.15s;}
+.waveform span:nth-child(5){animation-delay:.2s;}
+.waveform span:nth-child(6){animation-delay:.15s;}
+.waveform span:nth-child(7){animation-delay:.1s;}
+.waveform span:nth-child(8){animation-delay:.05s;}
+.waveform span:nth-child(9){animation-delay:0s;}
+@keyframes wave{0%,100%{height:6px;opacity:.6;}50%{height:50px;opacity:1;}}
+.chart-container{position:relative;width:100%;max-width:520px;margin:0 auto;height:300px;}
+.pulse-dot{width:8px;height:8px;background:#0f8a7e;border-radius:50%;animation:puls 1.6s ease-in-out infinite;}
+@keyframes puls{0%{box-shadow:0 0 0 0 rgba(15,138,126,.6);}70%{box-shadow:0 0 0 9px rgba(15,138,126,0);}100%{box-shadow:0 0 0 0 rgba(15,138,126,0);}}
+.section-label{font-family:\"JetBrains Mono\",monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--cyan);opacity:.65;}
+.grad-line{height:1px;background:linear-gradient(90deg,var(--cyan),var(--purple),transparent);}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:rgba(0,169,157,.25);border-radius:3px;}
+</style>
+</head>
+<body class="antialiased">
+<nav class="sticky top-0 z-50">
+<div class="max-w-6xl mx-auto px-6 flex items-center justify-between" style="height:72px">
+  <div class="flex items-center gap-4">
+    <a onclick="show('inicio')" style="cursor:pointer" class="flex flex-col items-start select-none">
+      <img src="JUVENTUD.png" alt="JUVENTUD" style="height:60px;width:auto;margin-bottom:4px">
+      <div class="brandsub">LA&nbsp;&nbsp;CASA</div>
+    </a>
+    <div class="hidden sm:block w-px h-9" style="background:rgba(255,255,255,.12)"></div>
+    <div class="hidden sm:block">
+      <h1 class="text-[13px] font-extrabold leading-none uppercase tracking-tight text-white">Taller de DJ</h1>
+      <p class="mono text-[9px] uppercase tracking-widest mt-1" style="color:#00a99d">R&iacute;o Gallegos &middot; Oficio Digital</p>
+    </div>
+  </div>
+  <div class="hidden md:flex items-center gap-8">
+    <button onclick="show('inicio')" class="nav-btn">Bienvenida</button>
+    <button onclick="show('programa')" class="nav-btn">Programa</button>
+    <button onclick="show('contenido')" class="nav-btn">Contenidos</button>
+    <button onclick="show('tecnica')" class="nav-btn">Tecnolog&iacute;a</button>
+    <button onclick="show('metodologia')" class="nav-btn">Metodolog&iacute;a</button>
+    <button onclick="show('practica')" class="nav-btn">Pasant&iacute;as</button>
+    <button onclick="show('nosotros')" class="nav-btn">Nosotros</button>
+    <a href="campus.html" class="px-4 py-2 rounded-lg font-bold text-[11px] uppercase tracking-widest transition-all hover:scale-105" style="background:var(--cyan);color:#0a0c0d">Ingresar al Campus</a>
+  </div>
+  <button class="md:hidden text-gray-400 hover:text-white" onclick="toggleMob()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+</div>
+<div id="mnav" class="hidden border-t px-6 py-4 flex-col gap-3" style="border-color:rgba(255,255,255,.06)">
+  <button onclick="show('inicio');toggleMob()" class="nav-btn text-left py-2">Bienvenida</button>
+  <button onclick="show('programa');toggleMob()" class="nav-btn text-left py-2">Programa</button>
+  <button onclick="show('contenido');toggleMob()" class="nav-btn text-left py-2">Contenidos</button>
+  <button onclick="show('tecnica');toggleMob()" class="nav-btn text-left py-2">Tecnolog&iacute;a</button>
+  <button onclick="show('metodologia');toggleMob()" class="nav-btn text-left py-2">Metodolog&iacute;a</button>
+  <button onclick="show('practica');toggleMob()" class="nav-btn text-left py-2">Pasant&iacute;as</button>
+  <button onclick="show('nosotros');toggleMob()" class="nav-btn text-left py-2">Nosotros</button>
+  <a href="campus.html" class="mt-1 px-4 py-2.5 rounded-lg font-bold text-xs uppercase tracking-widest text-center" style="background:var(--cyan);color:#0a0c0d">Ingresar al Campus</a>
+</div>
+</nav>
+
+<main id="sec-inicio" class="active-section relative z-10">
+<div class="max-w-6xl mx-auto px-6 pt-16 pb-20">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+    <div>
+      <div class="flex items-center gap-3 mb-8">
+        <div class="pulse-dot"></div>
+        <span class="mono text-[10px] uppercase tracking-widest text-gray-500">Inscripciones Abiertas &middot; +16 a&ntilde;os &middot; Gratuito</span>
+      </div>
+      <h2 class="display leading-[0.88] mb-6 text-white" style="font-size:clamp(72px,11vw,128px)">
+        EL ARTE<br>DE <span style="color:var(--cyan)" class="glow-cyan">CREAR</span><br>LA PISTA.
+      </h2>
+      <p class="text-gray-400 text-lg mb-10 leading-relaxed max-w-md">
+        Convert&iacute; tu pasi&oacute;n por la m&uacute;sica en un oficio real. La <span class="text-white font-semibold">Municipalidad de R&iacute;o Gallegos</span> te brinda herramientas t&eacute;cnicas para dominar el sonido, la mezcla y la energ&iacute;a de cualquier evento.
+      </p>
+      <div class="flex flex-wrap gap-4">
+        <button onclick="show('programa')" class="px-8 py-4 rounded-xl font-bold transition-all hover:scale-105" style="background:var(--cyan);color:#0a0c0d;box-shadow:0 0 28px rgba(0,169,157,.4)">Ver Programa Completo</button>
+        <button onclick="show('tecnica')" class="px-8 py-4 rounded-xl font-bold text-white border transition-all hover:border-purple-500 hover:text-purple-400" style="border-color:rgba(255,255,255,.14)">Ver Tecnolog&iacute;a</button>
+      </div>
+    </div>
+    <div>
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div class="p-6 rounded-2xl border" style="background:var(--surface);border-color:rgba(0,169,157,.18)">
+          <div class="display text-5xl mb-1" style="color:var(--cyan)">6</div>
+          <div class="text-sm text-gray-400">M&oacute;dulos Progresivos</div>
+        </div>
+        <div class="p-6 rounded-2xl border" style="background:var(--surface);border-color:rgba(230,0,126,.18)">
+          <div class="display text-5xl mb-1" style="color:var(--purple)">70%</div>
+          <div class="text-sm text-gray-400">Pr&aacute;ctica Directa</div>
+        </div>
+      </div>
+      <div class="p-8 rounded-2xl border" style="background:var(--surface);border-color:rgba(255,255,255,.07)">
+        <p class="section-label mb-6">// equilibrio del taller</p>
+        <div class="chart-container"><canvas id="focusChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="max-w-6xl mx-auto px-6 pb-20">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="p-8 rounded-2xl border transition-all hover:-translate-y-1" style="background:var(--surface);border-color:rgba(255,255,255,.07)">
+      <div class="waveform mb-6"><span style="height:8px"></span><span style="height:18px"></span><span style="height:26px"></span><span style="height:20px"></span><span style="height:28px"></span><span style="height:16px"></span><span style="height:8px"></span></div>
+      <div class="mono text-xs mb-2" style="color:var(--cyan)">[01]</div>
+      <h5 class="font-bold text-xl mb-3 text-white">T&eacute;cnica Profesional</h5>
+      <p class="text-gray-500 text-sm leading-relaxed">Beatmatching, mezcla arm&oacute;nica, Stems y est&aacute;ndares de industria. De selector a creador.</p>
+    </div>
+    <div class="p-8 rounded-2xl border transition-all hover:-translate-y-1" style="background:var(--surface);border-color:rgba(255,255,255,.07)">
+      <div class="text-3xl mb-6">&#127911;</div>
+      <div class="mono text-xs mb-2" style="color:var(--purple)">[02]</div>
+      <h5 class="font-bold text-xl mb-3 text-white">Psicolog&iacute;a de Pista</h5>
+      <p class="text-gray-500 text-sm leading-relaxed">Le&eacute; al p&uacute;blico, manej&aacute; cl&iacute;max y sosten&eacute; la energ&iacute;a en cada franja horaria.</p>
+    </div>
+    <div class="p-8 rounded-2xl border transition-all hover:-translate-y-1" style="background:var(--surface);border-color:rgba(255,255,255,.07)">
+      <div class="text-3xl mb-6">&#127908;</div>
+      <div class="mono text-xs mb-2" style="color:var(--green)">[03]</div>
+      <h5 class="font-bold text-xl mb-3 text-white">Salida Laboral Real</h5>
+      <p class="text-gray-500 text-sm leading-relaxed">Pasant&iacute;as en eventos municipales con acompa&ntilde;amiento docente en cada presentaci&oacute;n.</p>
+    </div>
+  </div>
+</div>
+</main>
+<section id="sec-programa" class="hidden-section relative z-10 max-w-6xl mx-auto px-6 py-12">
+<div class="mb-16">
+  <p class="section-label mb-3">// mapa acad&eacute;mico</p>
+  <h2 class="display text-white leading-none mb-6" style="font-size:clamp(56px,9vw,104px)">PROGRAMA<br><span style="color:var(--cyan)" class="glow-cyan">COMPLETO</span></h2>
+  <p class="text-gray-400 max-w-2xl text-lg leading-relaxed">Una progresion modular que te lleva desde el primer beat hasta la grabacion de tu propio set profesional. Cada modulo es un escalon hacia tu autonomia como artista.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="module-grid"></div>
+</section>
+
+<section id="sec-contenido" class="hidden-section relative z-10 max-w-6xl mx-auto px-6 py-12">
+<div class="mb-10">
+  <p class="section-label mb-3">// contenidos de clase</p>
+  <h2 class="display text-white leading-none mb-6" style="font-size:clamp(56px,9vw,104px)">CONTENIDOS<br><span style="color:var(--purple)" class="glow-purple">DE CLASE</span></h2>
+  <p class="text-gray-400 max-w-2xl text-lg leading-relaxed">Cada tema del programa, desarrollado. Eleg&iacute; un m&oacute;dulo y record&eacute; los conceptos clave, con un tip pr&aacute;ctico para llevar directo a la cabina.</p>
+</div>
+<div class="flex flex-wrap gap-2 mb-10" id="cont-pills"></div>
+<div id="cont-body"></div>
+</section>
+
+<section id="sec-tecnica" class="hidden-section relative z-10 max-w-6xl mx-auto px-6 py-12">
+<div class="mb-16">
+  <p class="section-label mb-3">// ecosistema digital</p>
+  <h2 class="display text-white leading-none" style="font-size:clamp(56px,9vw,104px)">EL <span style="color:var(--purple)" class="glow-purple">SOFTWARE</span></h2>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20">
+  <div>
+    <p class="text-gray-400 mb-10 leading-relaxed text-lg">Un DJ moderno domina m&uacute;ltiples plataformas. Exploramos el software est&aacute;ndar para distintos escenarios: desde eventos sociales (Open Format) hasta cabinas de alta gama.</p>
+    <div class="space-y-4">
+      <div class="flex items-start gap-4 p-5 rounded-2xl border transition-all hover:-translate-y-0.5" style="background:var(--surface);border-color:rgba(255,255,255,.07)">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center font-black text-lg flex-shrink-0 display" style="background:linear-gradient(135deg,#0e7d74,#00a99d);color:#0a0c0d">V</div>
+        <div>
+          <h4 class="font-bold text-white mb-1">Virtual DJ &amp; Serato DJ</h4>
+          <p class="text-xs text-gray-500 leading-relaxed">Ideal para Open Format. L&iacute;deres en tecnolog&iacute;a <span class="font-semibold" style="color:var(--cyan)">Stems</span> &mdash; separaci&oacute;n en tiempo real de voces, bajos e instrumentales para versiones &uacute;nicas en vivo.</p>
+        </div>
+      </div>
+      <div class="flex items-start gap-4 p-5 rounded-2xl border transition-all hover:-translate-y-0.5" style="background:var(--surface);border-color:rgba(255,255,255,.07)">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white font-black text-lg flex-shrink-0 display" style="background:linear-gradient(135deg,#b30062,#e6007e)">R</div>
+        <div>
+          <h4 class="font-bold text-white mb-1">Rekordbox (Pioneer)</h4>
+          <p class="text-xs text-gray-500 leading-relaxed">Est&aacute;ndar de industria para preparar la biblioteca musical, configurar metadatos y analizar Waveforms. Esencial para cabinas profesionales con CDJs.</p>
+        </div>
+      </div>
+      <div class="flex items-start gap-4 p-5 rounded-2xl border transition-all hover:-translate-y-0.5" style="background:var(--surface);border-color:rgba(255,255,255,.07)">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white font-black text-lg flex-shrink-0 display" style="background:linear-gradient(135deg,#d97a00,#f39200)">T</div>
+        <div>
+          <h4 class="font-bold text-white mb-1">Traktor Pro (Native Instruments)</h4>
+          <p class="text-xs text-gray-500 leading-relaxed">Alternativa robusta con potentes efectos y gesti&oacute;n avanzada de stems. Enfocado en mezcla creativa y performance en vivo.</p>
+        </div>
+      </div>
+      <div class="flex items-start gap-4 p-5 rounded-2xl border transition-all hover:-translate-y-0.5" style="background:var(--surface);border-color:rgba(255,255,255,.07)">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white font-black text-lg flex-shrink-0 display" style="background:linear-gradient(135deg,#c9920a,#fbba00)">M</div>
+        <div>
+          <h4 class="font-bold text-white mb-1">Record Pools &amp; Fuentes de M&uacute;sica</h4>
+          <p class="text-xs text-gray-500 leading-relaxed">SoundCloud, Beatport, Soulseek. Organizaci&oacute;n de carpetas y t&eacute;cnicas de Digging para una curadur&iacute;a extrema de gemas musicales funcionales para eventos.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="p-8 rounded-3xl border" style="background:var(--surface);border-color:rgba(255,255,255,.07)">
+    <p class="section-label mb-6">// comparativa de software</p>
+    <div class="chart-container"><canvas id="softwareRadar"></canvas></div>
+  </div>
+</div>
+<div class="p-8 md:p-12 rounded-3xl relative overflow-hidden" style="background:linear-gradient(135deg,#13171b,#15191d);border:1px solid rgba(0,169,157,.18)">
+  <div class="absolute top-0 left-0 right-0 h-px" style="background:linear-gradient(90deg,transparent,var(--cyan),transparent)"></div>
+  <div class="absolute inset-0 pointer-events-none" style="background:radial-gradient(circle at 80% 50%,rgba(230,0,126,.08) 0%,transparent 60%)"></div>
+  <div class="relative z-10">
+    <p class="section-label mb-3">// recursos personales</p>
+    <h3 class="display text-4xl text-white mb-8">&iquest;QU&Eacute; NECESIT&Aacute;S TRAER?</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="flex items-start gap-4 p-4 rounded-xl" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)">
+        <span class="mono text-sm font-bold flex-shrink-0 mt-0.5" style="color:var(--cyan)">[01]</span>
+        <div><div class="font-semibold text-white text-sm">Notebook</div><div class="text-xs text-gray-500 mt-0.5">Procesador i3 o superior. El taller tambi&eacute;n ense&ntilde;a a mapear el teclado si no ten&eacute;s controlador.</div></div>
+      </div>
+      <div class="flex items-start gap-4 p-4 rounded-xl" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)">
+        <span class="mono text-sm font-bold flex-shrink-0 mt-0.5" style="color:var(--purple)">[02]</span>
+        <div><div class="font-semibold text-white text-sm">Auriculares Cerrados</div><div class="text-xs text-gray-500 mt-0.5">Cualquier modelo sirve para empezar. Consola de DJ opcional.</div></div>
+      </div>
+      <div class="flex items-start gap-4 p-4 rounded-xl" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)">
+        <span class="mono text-sm font-bold flex-shrink-0 mt-0.5" style="color:var(--pink)">[03]</span>
+        <div><div class="font-semibold text-white text-sm">Pendrive 16GB+</div><div class="text-xs text-gray-500 mt-0.5">Para transportar tu biblioteca musical entre el taller y los eventos.</div></div>
+      </div>
+      <div class="flex items-start gap-4 p-4 rounded-xl" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)">
+        <span class="mono text-sm font-bold flex-shrink-0 mt-0.5" style="color:var(--green)">[04]</span>
+        <div><div class="font-semibold text-white text-sm">Ganas de Aprender</div><div class="text-xs text-gray-500 mt-0.5">Software gratuito (versiones intro/lite) disponible para todos los participantes.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+<section id="sec-metodologia" class="hidden-section relative z-10 max-w-6xl mx-auto px-6 py-12">
+<div class="mb-16">
+  <p class="section-label mb-3">// metodologia</p>
+  <h2 class="display text-white leading-none" style="font-size:clamp(56px,9vw,104px)">METODOLOG&Iacute;A</h2>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+  <div>
+    <p class="text-gray-400 text-lg leading-relaxed mb-8">Las clases est&aacute;n enfocadas en la <span class="text-white font-semibold">pr&aacute;ctica constante</span> con ejercicios cortos y din&aacute;micos. La instrucci&oacute;n busca liberar progresivamente a los participantes de la pantalla para conectarlos con su <span style="color:var(--cyan)" class="font-semibold">instinto auditivo</span>.</p>
+    <div class="space-y-4">
+      <div class="p-5 rounded-2xl border" style="background:var(--surface);border-color:rgba(0,169,157,.18)">
+        <div class="flex items-center gap-3 mb-2"><div class="w-2 h-2 rounded-full" style="background:var(--cyan)"></div><h4 class="font-bold text-white">Demostraci&oacute;n en Vivo</h4></div>
+        <p class="text-sm text-gray-500 pl-5 leading-relaxed">El instructor muestra la t&eacute;cnica en tiempo real sobre equipos profesionales, en el aula y en eventos reales.</p>
+      </div>
+      <div class="p-5 rounded-2xl border" style="background:var(--surface);border-color:rgba(230,0,126,.18)">
+        <div class="flex items-center gap-3 mb-2"><div class="w-2 h-2 rounded-full" style="background:var(--purple)"></div><h4 class="font-bold text-white">Individual y Grupal</h4></div>
+        <p class="text-sm text-gray-500 pl-5 leading-relaxed">Trabajo personal en consola m&aacute;s sesiones grupales de escucha activa y cr&iacute;tica constructiva entre pares.</p>
+      </div>
+      <div class="p-5 rounded-2xl border" style="background:var(--surface);border-color:rgba(243,146,0,.18)">
+        <div class="flex items-center gap-3 mb-2"><div class="w-2 h-2 rounded-full" style="background:var(--pink)"></div><h4 class="font-bold text-white">Desaf&iacute;os T&eacute;cnicos Semanales</h4></div>
+        <p class="text-sm text-gray-500 pl-5 leading-relaxed">Challenges de mezcla con retroalimentaci&oacute;n directa del instructor para acelerar el aprendizaje.</p>
+      </div>
+      <div class="p-5 rounded-2xl border" style="background:var(--surface);border-color:rgba(15,138,126,.18)">
+        <div class="flex items-center gap-3 mb-2"><div class="w-2 h-2 rounded-full" style="background:var(--green)"></div><h4 class="font-bold text-white">Curadur&iacute;a Observacional (Digging)</h4></div>
+        <p class="text-sm text-gray-500 pl-5 leading-relaxed">Ejercicios para desarrollar criterio musical propio y seleccionar tracks que funcionen en eventos.</p>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="p-8 rounded-3xl border mb-6" style="background:var(--surface);border-color:rgba(255,255,255,.07)">
+      <p class="section-label mb-6">// criterios de evaluaci&oacute;n</p>
+      <h3 class="font-bold text-white text-xl mb-6">Como te evaluamos?</h3>
+      <div class="space-y-3">
+        <div class="flex items-center gap-3"><div class="w-1.5 h-1.5 rounded-full" style="background:var(--cyan)"></div><span class="text-sm text-gray-400">Participaci&oacute;n activa en clases</span></div>
+        <div class="flex items-center gap-3"><div class="w-1.5 h-1.5 rounded-full" style="background:var(--purple)"></div><span class="text-sm text-gray-400">Creatividad en la selecci&oacute;n musical</span></div>
+        <div class="flex items-center gap-3"><div class="w-1.5 h-1.5 rounded-full" style="background:var(--pink)"></div><span class="text-sm text-gray-400">Responsabilidad y puntualidad</span></div>
+        <div class="flex items-center gap-3"><div class="w-1.5 h-1.5 rounded-full" style="background:#fbba00"></div><span class="text-sm text-gray-400">Manejo del rango sonoro (evitar distorsiones)</span></div>
+        <div class="flex items-center gap-3"><div class="w-1.5 h-1.5 rounded-full" style="background:var(--green)"></div><span class="text-sm text-gray-400">Evoluci&oacute;n y prolijidad de la mezcla</span></div>
+        <div class="flex items-center gap-3"><div class="w-1.5 h-1.5 rounded-full" style="background:#b30062"></div><span class="text-sm text-gray-400">Participaci&oacute;n en eventos con acompa&ntilde;amiento docente</span></div>
+      </div>
+    </div>
+    <div class="p-8 rounded-3xl relative overflow-hidden" style="background:linear-gradient(135deg,rgba(0,169,157,.07),rgba(230,0,126,.07));border:1px solid rgba(0,169,157,.2)">
+      <div class="display text-6xl opacity-20 mb-2" style="color:var(--cyan)">&#8220;</div>
+      <p class="text-white text-base leading-relaxed font-light italic">El taller busca ofrecer herramientas de <strong class="font-bold not-italic">alto est&aacute;ndar</strong> para que los participantes se introduzcan con seguridad y profesionalismo en el entretenimiento musical.</p>
+      <div class="mt-4 pt-4 border-t" style="border-color:rgba(255,255,255,.08)">
+        <p class="mono text-[10px] text-gray-500 uppercase tracking-widest">Programa Oficial &middot; Casa de la Juventud</p>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+<section id="sec-practica" class="hidden-section relative z-10 max-w-6xl mx-auto px-6 py-12">
+<div class="text-center mb-16">
+  <p class="section-label mb-3">// salida laboral</p>
+  <h2 class="display text-white leading-none italic mb-6" style="font-size:clamp(48px,8vw,96px)">DEL AULA<br><span style="color:var(--cyan)" class="glow-cyan">AL EVENTO</span></h2>
+  <p class="text-gray-500 max-w-xl mx-auto text-lg leading-relaxed">La formaci&oacute;n culmina con experiencia real. El objetivo es que los estudiantes participen activamente en la agenda cultural de R&iacute;o Gallegos.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+  <div class="p-8 rounded-3xl border" style="background:var(--surface);border-color:rgba(255,255,255,.07)">
+    <p class="section-label mb-6">// psicolog&iacute;a del set &middot; gesti&oacute;n de energ&iacute;a</p>
+    <div class="chart-container"><canvas id="energyChart"></canvas></div>
+    <p class="text-xs text-gray-600 mt-4 italic text-center">Curva representativa: Opening &rarr; Warm-Up &rarr; Main &rarr; Closing</p>
+  </div>
+  <div>
+    <h3 class="font-bold text-white text-xl mb-6">Destinos de Pasant&iacute;a</h3>
+    <div class="space-y-5">
+      <div class="p-6 rounded-2xl border transition-all hover:-translate-y-1" style="background:var(--surface);border-color:rgba(0,169,157,.2)">
+        <div class="flex gap-5">
+          <div class="display text-3xl flex-shrink-0" style="color:var(--cyan)">01.</div>
+          <div><h4 class="font-bold text-white mb-1">Eventos Municipales</h4><p class="text-sm text-gray-500 leading-relaxed">Asistencia t&eacute;cnica y sets en vivo en festivales y actos p&uacute;blicos. Experiencia ante p&uacute;blico real con respaldo del equipo docente.</p></div>
+        </div>
+      </div>
+      <div class="p-6 rounded-2xl border transition-all hover:-translate-y-1" style="background:var(--surface);border-color:rgba(230,0,126,.2)">
+        <div class="flex gap-5">
+          <div class="display text-3xl flex-shrink-0" style="color:var(--purple)">02.</div>
+          <div><h4 class="font-bold text-white mb-1">Ciclos de la Casa de la Juventud</h4><p class="text-sm text-gray-500 leading-relaxed">Musicalizaci&oacute;n de encuentros juveniles, talleres art&iacute;sticos y ciclos culturales del espacio.</p></div>
+        </div>
+      </div>
+      <div class="p-6 rounded-2xl border transition-all hover:-translate-y-1" style="background:var(--surface);border-color:rgba(15,138,126,.2)">
+        <div class="flex gap-5">
+          <div class="display text-3xl flex-shrink-0" style="color:var(--green)">03.</div>
+          <div><h4 class="font-bold text-white mb-1">Encuentros Culturales</h4><p class="text-sm text-gray-500 leading-relaxed">Milongas, ferias locales y eventos comunitarios para ejercitar la adaptaci&oacute;n a distintos ambientes y audiencias.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+  <div class="p-6 rounded-2xl border text-center" style="background:var(--surface);border-color:rgba(255,255,255,.07)">
+    <div class="display text-2xl mb-2" style="color:var(--cyan)">OPENING</div>
+    <div class="text-xs text-gray-500 leading-relaxed">Apertura suave.<br>BPM bajo, poca densidad.</div>
+  </div>
+  <div class="p-6 rounded-2xl border text-center" style="background:var(--surface);border-color:rgba(255,255,255,.07)">
+    <div class="display text-2xl mb-2" style="color:var(--purple)">WARM-UP</div>
+    <div class="text-xs text-gray-500 leading-relaxed">Calentamiento gradual.<br>Subida de energ&iacute;a.</div>
+  </div>
+  <div class="p-6 rounded-2xl border text-center" style="background:var(--surface);border-color:rgba(255,255,255,.07)">
+    <div class="display text-2xl mb-2" style="color:var(--pink)">MAIN</div>
+    <div class="text-xs text-gray-500 leading-relaxed">Cl&iacute;max del evento.<br>M&aacute;xima energ&iacute;a.</div>
+  </div>
+  <div class="p-6 rounded-2xl border text-center" style="background:var(--surface);border-color:rgba(255,255,255,.07)">
+    <div class="display text-2xl mb-2" style="color:var(--green)">CLOSING</div>
+    <div class="text-xs text-gray-500 leading-relaxed">Cierre progresivo.<br>Gesti&oacute;n de la despedida.</div>
+  </div>
+</div>
+</section>
+<section id="sec-nosotros" class="hidden-section relative z-10 max-w-6xl mx-auto px-6 py-12">
+<div class="text-center mb-16">
+  <p class="section-label mb-3">// el equipo</p>
+  <h2 class="display text-white leading-none mb-6" style="font-size:clamp(48px,8vw,96px)">NOSOTROS</h2>
+  <p class="text-gray-500 max-w-xl mx-auto text-lg leading-relaxed">Los instructores que hacen posible el taller. Conoc&eacute; al equipo de la Casa de la Juventud.</p>
+</div>
+<div id="team-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+</section>
+<footer class="relative z-10 mt-16 border-t" style="border-color:rgba(255,255,255,.06);background:var(--surface)">
+<div class="max-w-6xl mx-auto px-6 py-12">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-10">
+    <div>
+      <img src="JUVENTUD.png" alt="JUVENTUD" style="height:230px;width:auto;display:block;margin:0;padding:0;line-height:1">
+      <div class="brandsub" style="font-size:9px;margin-top:-5px;margin-bottom:0">LA&nbsp;&nbsp;CASA&nbsp;&nbsp;DE&nbsp;&nbsp;LA&nbsp;&nbsp;JUVENTUD</div>
+      <h2 class="display text-4xl text-white leading-none mb-2">TALLER DE DJ</h2>
+      <p class="mono text-[10px] uppercase tracking-widest" style="color:var(--cyan)">Casa de la Juventud &middot; R&iacute;o Gallegos &middot; Santa Cruz</p>
+    </div>
+    <div class="waveform"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+  </div>
+  <div class="grad-line mb-10"></div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
+    <div><p class="mono text-[10px] uppercase tracking-widest mb-3 text-gray-600">Organiza</p><p class="font-bold text-white">Municipalidad de R&iacute;o Gallegos</p><p class="text-gray-500 text-xs uppercase tracking-wide mt-1">Secretar&iacute;a de Ni&ntilde;ez, Adolescencia y Familia</p></div>
+    <div><p class="mono text-[10px] uppercase tracking-widest mb-3 text-gray-600">Lugar</p><p class="font-bold text-white">Casa de la Juventud</p><p class="text-gray-500 text-xs mt-1">R&iacute;o Gallegos, Santa Cruz</p></div>
+    <div><p class="mono text-[10px] uppercase tracking-widest mb-3 text-gray-600">Instructores</p><p class="font-bold text-white">Gisel Duarte &amp; Franco Esquivel</p><p class="text-gray-500 text-xs mt-1">Taller de Oficio Digital</p></div>
+  </div>
+  <div class="mt-10 pt-6 border-t text-center" style="border-color:rgba(255,255,255,.06)">
+    <p class="mono text-[11px] uppercase tracking-widest text-gray-400 mb-1">Sistemas &middot; <span style="color:var(--cyan)">Desarroll</span><span style="color:var(--purple)">AR</span> &middot; de Jorge Adrian Duarte</p>
+    <p class="mono text-xs text-gray-400 font-semibold mt-1">Hecho con orgullo en Río Gallegos, Santa Cruz, Argentina 🇦🇷</p>
+  </div>
+</div>
+</footer>
+<script>
+const D=[
+  {id:1,t:'Introducción y Digging',a:'#00a99d',i:'&#127925;',x:[
+    {l:'Evolución del Rol',d:'De selector musical a remezclador y creador de energía en la pista.'},
+    {l:'Curaduría Extrema (Digging)',d:'Criterio de selección musical propio y funcional para eventos.'},
+    {l:'Software: VDJ, Serato &amp; Rekordbox',d:'Introducción a los tres entornos de trabajo principales del mercado.'},
+    {l:'Stems Technology',d:'Separación en tiempo real de voces, bajos e instrumentales para versiones únicas.'},
+    {l:'Record Pools &amp; Descarga',d:'SoundCloud, Beatport, Soulseek. Organización de carpetas y selección de gemas.'}
+  ]},
+  {id:2,t:'Ritmos y Mezcla',a:'#e6007e',i:'&#129345;',x:[
+    {l:'Regla del 4/4',d:'Pulso (bombo), compás y frases de 32 tiempos. La anatomía de la música contemporánea.'},
+    {l:'BPM y Beatmatching',d:'Compaginación rítmica instintiva y visual. Pitch-Bend y Beat Sync automático.'},
+    {l:'Ruleta de Camelot',d:'Mezcla armónica para que las transiciones no desentonen. Herramientas analíticas.'},
+    {l:'Versiones Extended',d:'Radio vs extended: intros/outros de percusión diseñados para mezcla.'}
+  ]},
+  {id:3,t:'Transiciones y Creatividad',a:'#f39200',i:'&#127643;',x:[
+    {l:'Estructura del Track',d:'Intro, Estribillo, Break y Outro. La conversación entre dos canciones sin interrumpirse.'},
+    {l:'Loops y Sampler',d:'Bucles de percusión. Técnica clave para géneros urbanos, cumbia y ritmos latinos.'},
+    {l:'EQ, Crossfader y Fader',d:'Regla de oro: nunca dos graves al mismo tiempo. Control del rango dinámico.'},
+    {l:'Efectos y Filtros',d:'Down Filters con ruido blanco. Armado y grabación de mini set de 5 canciones.'}
+  ]},
+  {id:4,t:'Hardware y Audio',a:'#fbba00',i:'&#128266;',x:[
+    {l:'Conexiones y Señal',d:'Cables, salidas de audio, calibrado y relación señal/ruido. Cuidado del equipo.'},
+    {l:'Consolas vs Controladores',d:'Diferencias entre controllers básicos y el estándar profesional CDJ Pioneer.'},
+    {l:'Psicología de la Pista',d:'Lectura del público en encuentros sociales y privados.'},
+    {l:'Franjas Horarias',d:'Opening, Warm-Up, Main y Closing. Gestión de energía según el momento del evento.'}
+  ]},
+  {id:5,t:'Práctica y Experiencia',a:'#0f8a7e',i:'&#127908;',x:[
+    {l:'Pasantía Municipal',d:'Participación como DJ o asistente técnico en eventos reales de Río Gallegos.'},
+    {l:'Ciclos Juveniles',d:'Sets en la Casa de la Juventud para encuentros y talleres artísticos.'},
+    {l:'Encuentros Comunitarios',d:'Milongas, ferias y eventos culturales con géneros variados.'},
+    {l:'Acompañamiento Docente',d:'Instructores presentes en cada evento para guiar y corregir en tiempo real.'}
+  ]},
+  {id:6,t:'Proyecto Final',a:'#b30062',i:'&#11088;',x:[
+    {l:'Grabación de Set',d:'Grabación y masterización de tu primer set profesional completo.'},
+    {l:'Identidad Sonora',d:'Desarrollo de tu sello personal: géneros, estilo y propuesta artística.'},
+    {l:'Manejo de Marca',d:'Primeros pasos para proyectar tu carrera como DJ en redes y eventos.'},
+    {l:'Evaluación Final',d:'Presentación ante instructores y pares. Cierre del ciclo formativo.'}
+  ]}
+];
+
+const CONT = [{"id": 1, "t": "Introducción y Digging", "a": "#00a99d", "i": "🎵", "topics": [{"l": "La Evolución del Rol del DJ", "intro": "El DJ dejó de ser quien «pone canciones». Hoy sos un arquitecto de la energía: elegís, intervenís y reconstruís la música en vivo para que una sala respire al ritmo que vos marcás. Pasamos del selector que encadenaba temas al artista que remezcla, corta, superpone y crea momentos únicos que nadie más va a repetir.", "tip": "Tu valor no está en tener las canciones de moda, sino en el orden y el momento en que las soltás. La misma playlist en dos manos distintas produce dos noches distintas.", "terms": ["Selector", "Remezclador", "Open Format"]}, {"l": "Curaduría Extrema (Digging)", "intro": "«Digging» (excavar) es el arte de buscar esas gemas que el resto no tiene. Significa escuchar mucho, guardar con criterio y construir una biblioteca con identidad propia. El criterio de selección no es magia: se entrena hasta que aprendés a detectar qué tema va a funcionar en la pista antes incluso de probarlo.", "tip": "Regla del cavador: por cada 10 temas que escuchás, quizá 1 entra a tu colección. La calidad de tu música pesa más que la cantidad.", "terms": ["Digging", "Gema musical", "Criterio"]}, {"l": "Software: Virtual DJ, Serato y Rekordbox", "intro": "Cada software es una herramienta para un trabajo distinto. Virtual DJ y Serato brillan en eventos sociales (Open Format) por su agilidad; Rekordbox es el estándar para preparar tu biblioteca y tocar en cabinas profesionales con CDJs. No se trata de cuál es «mejor», sino de cuál usar según dónde vas a tocar.", "tip": "Aprendé primero a moverte rápido en UNO solo. Dominar un software a fondo vale más que conocer tres a medias.", "terms": ["Open Format", "CDJ", "Biblioteca"]}, {"l": "Tecnología Stems", "intro": "Los Stems separan una canción en sus capas —voz, batería, bajo, instrumentos— en tiempo real. Esto te permite, por ejemplo, sacar la voz de un tema y montarla sobre la base de otro, creando mashups y versiones únicas en vivo. Es una de las herramientas más creativas y modernas del DJ actual.", "tip": "Usá los Stems con intención, no porque sí. Sacar el bajo de la pista que se va evita que choque con la que entra (lo vemos a fondo en el Módulo 3).", "terms": ["Stem", "Mashup", "Acapella"]}, {"l": "Record Pools y Descarga de Música", "intro": "Los «Record Pools» son bibliotecas por suscripción pensadas para DJs, con versiones extended, intros limpias y buena calidad de audio. Plataformas como Beatport, SoundCloud o Soulseek cumplen cada una su rol. Y tan importante como descargar es ordenar: carpetas por género, energía o tipo de evento.", "tip": "Nombrá y etiquetá tus archivos desde el día uno. Buscar un tema a las 3 AM con la pista llena no es el momento para tener el caos.", "terms": ["Record Pool", "Extended", "Metadatos"]}]}, {"id": 2, "t": "Ritmos y Mezcla", "a": "#e6007e", "i": "🥁", "topics": [{"l": "La Regla del 4/4 (Anatomía del ritmo)", "intro": "Casi toda la música de baile está construida en compases de 4/4: cuatro pulsos marcados por el bombo (el «four on the floor»). Esos pulsos se agrupan en compases, y los compases en «frases» de 8, 16 o 32 tiempos. Entender esta estructura es como aprender a leer: una vez que la ves, la música deja de ser un misterio.", "tip": "Contá en voz baja 1-2-3-4 siguiendo el bombo. Cuando puedas anticipar dónde arranca una frase nueva, ya estás pensando como DJ.", "terms": ["Pulso", "Compás", "Frase de 32"]}, {"l": "BPM y Beatmatching", "intro": "El BPM (golpes por minuto) mide la velocidad de un tema. Para mezclar dos canciones sin que «tropiecen», sus ritmos deben coincidir: eso es el beatmatching. Lo vas a aprender de las dos formas: con sincronización automática (Beat Sync) y, sobre todo, de manera instintiva con el oído y el Pitch-Bend.", "tip": "El Sync es una muleta útil, pero el oído es el músculo. Practicá igualar a mano: el día que falle la tecnología, vos no fallás.", "terms": ["BPM", "Beatmatching", "Pitch-Bend"]}, {"l": "Ruleta de Camelot (Mezcla Armónica)", "intro": "Dos temas pueden estar perfectos de ritmo y aun así sonar mal juntos: el problema es la tonalidad. La mezcla armónica te enseña a combinar canciones en tonos compatibles, y la «Ruleta de Camelot» es un mapa que traduce la teoría musical a números y letras simples para que aciertes sin ser músico.", "tip": "Mezclá hacia tonos vecinos en la rueda (mismo número o ±1). Subir de tono inyecta energía; mantenerlo, da fluidez.", "terms": ["Tonalidad", "Camelot", "Armonía"]}, {"l": "Versiones Extended vs. Radio", "intro": "La versión «de radio» de un tema va al grano: arranca con la voz enseguida. La versión «Extended» agrega una intro y un outro de percusión pensados justamente para el DJ: te dan tiempo y espacio para mezclar sin apuro. Saber distinguirlas y preferir las extended te facilita enormemente la vida en la cabina.", "tip": "Para mezclar, buscá siempre la versión extended o «club mix». Esos 16 compases de intro percusiva son tu zona de aterrizaje.", "terms": ["Radio Edit", "Extended", "Intro/Outro"]}]}, {"id": 3, "t": "Transiciones y Creatividad", "a": "#f39200", "i": "🎛️", "topics": [{"l": "Estructura de la Canción", "intro": "Toda pista tiene partes: intro, desarrollo, estribillo (drop), break (bajada) y outro. Reconocerlas te dice exactamente dónde entrar y dónde salir. La mezcla perfecta logra que el inicio de una frase nueva caiga justo en la «bajada» de la pista que se va: las dos canciones conversan sin interrumpirse.", "tip": "El break de una canción es la puerta de entrada de la próxima. Entrená el oído para anticipar esas bajadas antes de que lleguen.", "terms": ["Intro", "Drop", "Break", "Outro"]}, {"l": "Loops y Sampler", "intro": "Un loop es un bucle: tomás un trozo de música —por ejemplo, 4 tiempos de percusión— y lo repetís. Es una técnica clave para géneros como cumbia, reggaetón o ritmos latinos que casi no tienen intro: creás tu propia base para mezclar. El sampler, además, te deja disparar efectos, golpes o frases sobre la marcha.", "tip": "Un loop de batería bien usado te «compra» tiempo: extendés una salida o armás una intro donde no la había.", "terms": ["Loop", "Bucle", "Sampler"]}, {"l": "El Mixer: EQ, Crossfader y Fader", "intro": "El mixer es tu mesa de control. La ecualización (EQ) separa graves, medios y agudos; el fader controla el volumen; el crossfader cruza entre dos pistas. La regla de oro: nunca dejes sonar dos graves (sub-256 Hz) al mismo tiempo, o el sonido se enturbia y distorsiona.", "tip": "Al entrar un tema nuevo, bajá su grave a cero y subílo recién cuando saques el de la pista que se va. Un grave a la vez, siempre.", "terms": ["EQ", "Crossfader", "Rango dinámico"]}, {"l": "Creatividad: Efectos y Filtros", "intro": "Los efectos son la sal y la pimienta: usados con criterio elevan una mezcla; en exceso, la arruinan. El filtro —sobre todo el «down filter» con ruido blanco— sirve para conectar un clímax con una intro más tranquila, generando tensión y alivio. En este tema grabás tu primer mini set de 5 canciones.", "tip": "Un efecto bien puesto se nota poco y se siente mucho. Si el público mira la cabina confundido, te pasaste de vueltas.", "terms": ["Filtro", "Down Filter", "Ruido blanco"]}]}, {"id": 4, "t": "Hardware y Audio", "a": "#fbba00", "i": "🔊", "topics": [{"l": "Conexiones y Señal de Audio", "intro": "Antes de sonar bien, hay que conectar bien. Vas a conocer los cables (RCA, XLR, jack), las salidas y cómo calibrar los niveles para cuidar la relación señal/ruido. Saturar la señal es el error más común y el que peor suena: aprender a manejar el «gain» es media batalla ganada.", "tip": "Niveles en verde, picos ocasionales en amarillo, nunca clavados en rojo. El rojo es distorsión, no «más fuerte».", "terms": ["Señal/ruido", "Gain", "Saturación"]}, {"l": "Consolas vs. Controladores", "intro": "Un controlador depende de tu computadora y software; una consola profesional (como los Pioneer CDJ + mixer) es autónoma y es lo que vas a encontrar en clubes y eventos grandes. Conocer ambos te vuelve versátil: practicás en casa con un controlador y no quedás paralizado frente a una cabina profesional.", "tip": "Los CDJ son el «idioma universal» de las cabinas del mundo. Familiarizarte con su lógica te abre puertas en cualquier lado.", "terms": ["Controlador", "CDJ", "Mixer"]}, {"l": "Psicología de la Pista", "intro": "Tocar no es solo técnica: es leer personas. Una pista vacía, un cumpleaños de 15 o un after no se musicalizan igual. Aprendés a observar al público —cómo se mueven, qué piden, cuándo se van a la barra— y a responder con tu selección. El mejor DJ no impone su gusto: dialoga con la sala.", "tip": "Si la pista baila, no la «arregles». Si se vacía, cambiá de energía antes de que sea tarde: leé las señales temprano.", "terms": ["Lectura de pista", "Energía", "Contexto"]}, {"l": "Franjas Horarias del Evento", "intro": "Una noche tiene actos: Opening (apertura suave), Warm-Up (calentamiento), Main (el pico) y Closing (cierre). Cada franja pide una energía distinta. Reventar todos los hits a las 23 hs deja la noche sin recorrido; saber dosificar es lo que separa a un principiante de un profesional.", "tip": "Si te toca abrir, tu trabajo NO es llenar la pista: es preparar el terreno para quien sigue. Tocar «menos» también es un arte.", "terms": ["Opening", "Warm-Up", "Main", "Closing"]}]}, {"id": 5, "t": "Práctica y Experiencia", "a": "#0f8a7e", "i": "🎤", "topics": [{"l": "Pasantía en Eventos Municipales", "intro": "La teoría se consolida tocando ante gente real. Vas a participar como DJ o asistente técnico en eventos de la Municipalidad de Río Gallegos: festivales, actos y celebraciones. Es la diferencia entre saber andar en bici y andar de verdad: el nervio, el equipo ajeno, el público que no conocés.", "tip": "En tu primer evento real: llegá temprano, mirá cómo arma el técnico y preguntá todo. La humildad acelera el aprendizaje.", "terms": ["Pasantía", "Asistente técnico", "En vivo"]}, {"l": "Ciclos de la Casa de la Juventud", "intro": "La Casa de la Juventud es tu primer escenario y tu red de contención. Vas a musicalizar encuentros juveniles, talleres y ciclos culturales, enfrentándote a públicos y géneros variados. Cada fecha es una oportunidad de probar cosas nuevas en un entorno que te acompaña.", "tip": "Aprovechá estos espacios para arriesgar: son el lugar ideal para probar esa mezcla rara antes de llevarla a un evento grande.", "terms": ["Ciclo cultural", "Encuentro juvenil"]}, {"l": "Encuentros Comunitarios", "intro": "Milongas, ferias y eventos barriales te enseñan algo que ningún tutorial puede: adaptarte. Públicos de todas las edades, géneros que quizá no son tu fuerte y condiciones técnicas imperfectas. Salir de tu zona de confort musical es lo que te transforma en un DJ completo y empleable.", "tip": "Un DJ que solo toca «lo suyo» trabaja poco. El que se adapta a una feria el sábado y a un after el domingo, no para nunca.", "terms": ["Versatilidad", "Público diverso"]}, {"l": "Acompañamiento Docente", "intro": "Nunca estás solo. En cada presentación hay un instructor que te guía, corrige en el momento y te da devoluciones concretas. Equivocarte con red es la mejor forma de crecer: el error deja de ser un fracaso y se convierte en una clase en vivo.", "tip": "Pedí feedback específico: no «cómo estuve» sino «¿cómo manejé esa transición del minuto 20?». Las preguntas concretas dan respuestas útiles.", "terms": ["Feedback", "Devolución", "Mentoría"]}]}, {"id": 6, "t": "Proyecto Final", "a": "#b30062", "i": "⭐", "topics": [{"l": "Grabación de tu Set", "intro": "Tu proyecto final es un set grabado de principio a fin: tu carta de presentación. Acá juntás todo lo aprendido —selección, beatmatching, mezcla armónica, transiciones y manejo de energía— en una pieza coherente que cuenta una historia desde la primera hasta la última canción.", "tip": "Pensá tu set como un viaje, con un comienzo, un pico y un cierre. Un buen set no es 30 hits seguidos: es un recorrido con sentido.", "terms": ["Set", "Tracklist", "Grabación"]}, {"l": "Identidad Sonora", "intro": "¿Qué te hace VOS y no cualquier DJ? Tu identidad sonora es tu sello: los géneros que elegís, tus transiciones típicas, la energía que te representa. No se copia ni se compra: se construye tocando, escuchando y descubriendo qué te emociona genuinamente.", "tip": "Escuchá a tus DJs favoritos para aprender, no para clonar. Tu firma aparece cuando dejás de imitar y empezás a elegir.", "terms": ["Sello", "Estilo", "Firma"]}, {"l": "Manejo de Marca Personal", "intro": "Hoy un DJ también gestiona su presencia: redes, un nombre artístico, cómo te mostrás. No hace falta ser influencer, pero sí entender lo básico para conseguir fechas, presentarte ante un organizador y construir reputación. El talento abre la puerta; la actitud profesional te mantiene adentro.", "tip": "Tu reputación se construye con cosas simples: llegar a horario, cuidar el equipo ajeno y cumplir lo que prometés. Eso es lo que te vuelve a contratar.", "terms": ["Nombre artístico", "Reputación", "Networking"]}, {"l": "Evaluación Final", "intro": "El cierre del taller es una presentación ante instructores y compañeros. No se evalúa solo la técnica, sino tu evolución: la creatividad de tu selección, la prolijidad de tus mezclas, el manejo del rango sonoro y tu responsabilidad. Es la foto de cuánto creciste desde la primera clase.", "tip": "No busques el set «perfecto»: buscá mostrar todo lo que aprendiste. La evaluación premia tu progreso, no la ausencia de errores.", "terms": ["Evaluación", "Progreso", "Cierre"]}]}];
+function renderContenido(id){
+  const m = CONT.find(x=>x.id===id);
+  if(!m) return;
+  document.getElementById("cont-pills").innerHTML = CONT.map(x=>{
+    const on = x.id===id;
+    return `<button onclick="renderContenido(${x.id})" class="px-4 py-2.5 rounded-xl text-sm font-semibold transition-all border" style="border-color:${on?x.a:"rgba(255,255,255,.08)"};background:${on?x.a+"1f":"transparent"};color:${on?"#fff":"#94a3b8"}"><span class="mono text-xs" style="color:${x.a}">M${x.id}</span> ${x.t}</button>`;
+  }).join("");
+  const cards = m.topics.map((t,i)=>`
+    <div class="rounded-2xl border p-7 mb-5" style="background:var(--surface);border-color:rgba(255,255,255,.07);border-left:3px solid ${m.a}">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="mono text-xs font-bold" style="color:${m.a}">${String(i+1).padStart(2,"0")}</span>
+        <h4 class="text-lg font-bold text-white">${t.l}</h4>
+      </div>
+      <p class="text-gray-400 leading-relaxed mb-4">${t.intro}</p>
+      <div class="rounded-xl p-4 mb-4" style="background:${m.a}14;border:1px solid ${m.a}33">
+        <div class="mono text-[10px] font-bold uppercase tracking-widest mb-1" style="color:${m.a}">&#9656; En la pr&aacute;ctica</div>
+        <p class="text-sm text-gray-300 leading-relaxed">${t.tip}</p>
+      </div>
+      <div class="flex flex-wrap gap-2">${t.terms.map(z=>`<span class="text-[11px] mono px-2.5 py-1 rounded-full" style="background:rgba(255,255,255,.05);color:#94a3b8;border:1px solid rgba(255,255,255,.08)">${z}</span>`).join("")}</div>
+    </div>`).join("");
+  document.getElementById("cont-body").innerHTML = `
+    <div class="flex items-center gap-4 mb-8">
+      <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl" style="background:${m.a}1f;border:1px solid ${m.a}40">${m.i}</div>
+      <div><div class="mono text-xs" style="color:${m.a}">M&Oacute;DULO ${m.id}</div><h3 class="text-2xl font-bold text-white">${m.t}</h3></div>
+    </div>${cards}`;
+}
+
+function renderModules(){
+  const c=document.getElementById("module-grid");
+  D.forEach(m=>{
+    const el=document.createElement("div");
+    el.className="module-card p-8";
+    el.style.setProperty("--accent",m.a);
+    const items=m.x.map(t=>`<li class="text-sm flex items-start gap-2"><span class="font-bold flex-shrink-0 mt-0.5" style="color:${m.a}">&rsaquo;</span><div><span class="text-white font-semibold">${t.l}</span><span class="text-gray-500"> &mdash; ${t.d}</span></div></li>`).join("");
+    el.innerHTML=`<div class="flex justify-between items-start mb-6"><span class="mono text-xs font-bold" style="color:${m.a};opacity:.65">MOD [0${m.id}]</span><span class="text-2xl">${m.i}</span></div><h4 class="text-xl font-bold mb-5 text-white tracking-tight">${m.t}</h4><ul class="space-y-3">${items}</ul>`;
+    c.appendChild(el);
+  });
+}
+
+function show(id){
+  document.querySelectorAll("main,section").forEach(s=>{s.classList.add("hidden-section");s.classList.remove("active-section");});
+  const t=document.getElementById("sec-"+id);
+  t.classList.remove("hidden-section");t.classList.add("active-section");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function toggleMob(){document.getElementById("mnav").classList.toggle("hidden");}
+
+Chart.defaults.color="#64748b";
+
+function initCharts(){
+  new Chart(document.getElementById("focusChart"),{
+    type:"doughnut",
+    data:{labels:["Práctica en Equipos","Software / Tecnología","Teoría Musical","Psicología de Pista"],
+      datasets:[{data:[50,20,15,15],backgroundColor:["#00a99d","#e6007e","#f39200","#fbba00"],borderWidth:0,hoverOffset:10}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:"68%",
+      plugins:{legend:{position:"bottom",labels:{padding:16,usePointStyle:true,pointStyleWidth:8,color:"#94a3b8"}}}}
+  });
+  new Chart(document.getElementById("softwareRadar"),{
+    type:"radar",
+    data:{labels:["Stems","Open Format","Biblioteca","Club / CDJ","Efectos","Rendimiento"],
+      datasets:[
+        {label:"VDJ / Serato",data:[95,90,75,65,80,85],borderColor:"#00a99d",backgroundColor:"rgba(0,169,157,.1)",borderWidth:2,pointBackgroundColor:"#00a99d",pointRadius:4},
+        {label:"Rekordbox",data:[40,60,98,99,70,90],borderColor:"#e6007e",backgroundColor:"rgba(230,0,126,.1)",borderWidth:2,pointBackgroundColor:"#e6007e",pointRadius:4},
+        {label:"Traktor Pro",data:[70,70,80,75,95,88],borderColor:"#f39200",backgroundColor:"rgba(243,146,0,.1)",borderWidth:2,pointBackgroundColor:"#f39200",pointRadius:4}
+      ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      scales:{r:{min:0,max:100,grid:{color:"rgba(255,255,255,.06)"},ticks:{display:false},angleLines:{color:"rgba(255,255,255,.06)"},pointLabels:{color:"#94a3b8"}}},
+      plugins:{legend:{position:"bottom",labels:{padding:16,usePointStyle:true,color:"#94a3b8"}}}}
+  });
+  new Chart(document.getElementById("energyChart"),{
+    type:"line",
+    data:{labels:["22h","23h","00h","01h","02h","03h","04h","05h"],
+      datasets:[{label:"Energia",data:[18,32,50,68,88,95,82,44],borderColor:"#00a99d",backgroundColor:"rgba(0,169,157,.07)",fill:true,tension:0.5,borderWidth:3,pointBackgroundColor:"#00a99d",pointRadius:5,pointHoverRadius:8}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      scales:{x:{grid:{color:"rgba(255,255,255,.04)"},ticks:{color:"#475569"}},
+              y:{min:0,max:100,grid:{color:"rgba(255,255,255,.04)"},ticks:{color:"#475569",callback:function(v){return v+"%";}}}},
+      plugins:{legend:{display:false}}}
+  });
+}
+
+renderModules();
+initCharts();
+renderContenido(1);
+</script>
+<script>
+/* ---------- NOSOTROS: carga las tarjetas de instructores desde API Turso Scaler ---------- */
+(function(){
+  const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"": "&quot;"}[c]));
+  const ic=(url,emoji,label)=>url?`<a href="${esc(url)}" target="_blank" rel="noopener" title="${label}" style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:16px;text-decoration:none">${emoji}</a>`:"";
+  async function loadTeam(){
+    const grid=document.getElementById("team-grid");
+    if(!grid) return;
+    try{
+      const res=await fetch("/api/instructors");
+      const data=await res.json();
+      if(!Array.isArray(data)||!data.length){ grid.innerHTML='<p class="text-gray-600 text-center" style="grid-column:1/-1">Pronto vas a conocer a nuestro equipo.</p>'; return; }
+      grid.innerHTML=data.map(function(p){
+        const photo=p.photo_url?`<img src="${esc(p.photo_url)}" alt="${esc(p.name)}" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid rgba(0,169,157,.3)">`:`<div style="width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#00a99d,#e6007e);display:flex;align-items:center;justify-content:center;font-size:40px;color:#fff;font-weight:700">${esc((p.name||"?").slice(0,1))}</div>`;
+        const socials=[ic(p.instagram,"📸","Instagram"),ic(p.spotify,"🎧","Spotify"),ic(p.soundcloud,"☁️","SoundCloud"),ic(p.youtube,"▶️","YouTube"),ic(p.tiktok,"🎵","TikTok"),ic(p.website,"🌐","Sitio web"),ic(p.whatsapp,"💬","WhatsApp")].join("");
+        return `<div class="p-8 rounded-2xl border text-center" style="background:var(--surface);border-color:rgba(255,255,255,.07)"><div class="flex justify-center mb-5">${photo}</div><h4 class="font-bold text-xl text-white mb-1">${esc(p.name)}</h4>${p.title?`<p class="mono text-[11px] uppercase tracking-widest mb-4" style="color:var(--cyan)">${esc(p.title)}</p>`:""}${p.bio?`<p class="text-sm text-gray-400 leading-relaxed mb-5">${esc(p.bio)}</p>`:'<div class="mb-5"></div>'}<div class="flex justify-center gap-2 flex-wrap">${socials}</div></div>`;
+      }).join("");
+    }catch(e){ grid.innerHTML='<p class="text-gray-600 text-center" style="grid-column:1/-1">No se pudo cargar el equipo.</p>'; }
+  }
+  loadTeam();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía para Instructores · Cargar Herramientas con Google Drive</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Outfit:wght@300;400;500;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0c0d;--surface:#13171b;--surface2:#1a1f24;--cyan:#00a99d;--magenta:#e6007e;--yellow:#fbba00;--orange:#f39200;--green:#0f8a7e;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Outfit,sans-serif;background:var(--bg);color:#e2e8f0;line-height:1.6;padding:0 0 60px;}
+.mono{font-family:"JetBrains Mono",monospace;}
+.wrap{max-width:820px;margin:0 auto;padding:0 22px;}
+header{background:linear-gradient(135deg,rgba(0,169,157,.12),rgba(230,0,126,.10));border-bottom:1px solid rgba(255,255,255,.07);padding:48px 0 40px;margin-bottom:40px;}
+.kick{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--cyan);margin-bottom:14px;}
+h1{font-family:"Fredoka",sans-serif;font-weight:700;font-size:clamp(28px,5vw,42px);color:#fff;line-height:1.1;margin-bottom:12px;}
+.sub{color:#94a3b8;font-size:16px;max-width:560px;}
+h2{font-family:"Fredoka",sans-serif;font-weight:600;font-size:22px;color:#fff;margin:0 0 6px;display:flex;align-items:center;gap:10px;}
+.section{margin-bottom:34px;}
+.lead{color:#94a3b8;margin-bottom:18px;}
+.step{background:var(--surface);border:1px solid rgba(255,255,255,.07);border-left:3px solid var(--cyan);border-radius:14px;padding:20px 22px;margin-bottom:14px;display:flex;gap:16px;align-items:flex-start;}
+.num{flex-shrink:0;width:34px;height:34px;border-radius:50%;background:rgba(0,169,157,.15);color:var(--cyan);font-weight:700;display:flex;align-items:center;justify-content:center;font-family:"Fredoka",sans-serif;}
+.step h3{font-size:16px;color:#fff;font-weight:600;margin-bottom:4px;}
+.step p{color:#94a3b8;font-size:14.5px;}
+.step b{color:#e2e8f0;}
+.callout{border-radius:14px;padding:18px 20px;margin:8px 0 22px;font-size:14.5px;}
+.callout .t{font-weight:700;font-size:14px;margin-bottom:5px;display:flex;align-items:center;gap:8px;}
+.warn{background:rgba(251,186,0,.1);border:1px solid rgba(251,186,0,.3);}
+.warn .t{color:var(--yellow);}
+.info{background:rgba(0,169,157,.08);border:1px solid rgba(0,169,157,.22);}
+.info .t{color:var(--cyan);}
+.tip{background:rgba(230,0,126,.08);border:1px solid rgba(230,0,126,.22);}
+.tip .t{color:var(--magenta);}
+.pill{display:inline-block;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:3px 9px;font-family:"JetBrains Mono",monospace;font-size:13px;color:#cbd5e1;}
+.flow{background:var(--surface2);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:20px 22px;}
+.flow ol{list-style:none;counter-reset:f;}
+.flow li{counter-increment:f;padding:9px 0 9px 38px;position:relative;border-bottom:1px dashed rgba(255,255,255,.07);}
+.flow li:last-child{border-bottom:0;}
+.flow li::before{content:counter(f);position:absolute;left:0;top:8px;width:24px;height:24px;border-radius:50%;background:var(--cyan);color:#06100f;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;}
+ul.bul{list-style:none;}
+ul.bul li{padding:6px 0 6px 22px;position:relative;color:#94a3b8;font-size:14.5px;}
+ul.bul li::before{content:"▸";position:absolute;left:0;color:var(--cyan);font-weight:700;}
+ul.bul li b{color:#e2e8f0;}
+a{color:var(--cyan);}
+.divider{height:1px;background:linear-gradient(90deg,var(--cyan),var(--magenta),transparent);margin:40px 0;}
+footer{text-align:center;color:#475569;font-size:12px;margin-top:50px;font-family:"JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:.12em;}
+@media print{body{background:#fff;color:#111;}header{background:#f3f4f6;}.step,.flow{background:#fafafa;}h1,h2,.step h3{color:#111;}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="kick">Campus Virtual · Taller de DJ · Casa de la Juventud</div>
+    <h1>🛠️ Guía para Instructores<br>Cargar herramientas con Google Drive</h1>
+    <p class="sub">Cómo subir software, música, videos y archivos pesados al campus usando Google Drive — gratis y sin límites molestos.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="callout info">
+    <div class="t">💡 ¿Por qué Google Drive?</div>
+    El campus (Supabase) es perfecto para los datos, pero solo permite archivos de hasta 50 MB. Un programa como Virtual DJ pesa 200–500 MB. La solución: guardamos los archivos pesados en <b>Google Drive (15 GB gratis)</b> y en el campus solo pegamos el <b>link</b>. Así no se llena nada y no hay que pagar.
+  </div>
+
+  <!-- PASO 1 -->
+  <div class="section">
+    <h2>1 · Crear la cuenta de Google del taller</h2>
+    <p class="lead">Importante: <b>NO uses tu cuenta personal de Gmail.</b> Creá una cuenta nueva, exclusiva para el taller, que compartan todos los instructores. Así los archivos quedan en un lugar común y no se pierden si alguien deja el equipo.</p>
+    <div class="step">
+      <div class="num">1</div>
+      <div><h3>Entrá a crear la cuenta</h3><p>Abrí <a href="https://accounts.google.com/signup" target="_blank">accounts.google.com/signup</a> en el navegador.</p></div>
+    </div>
+    <div class="step">
+      <div class="num">2</div>
+      <div><h3>Poné un nombre claro y reconocible</h3><p>Por ejemplo, un correo como <span class="pill">tallerdj.juventud@gmail.com</span> o similar. Que se entienda que es del taller.</p></div>
+    </div>
+    <div class="step">
+      <div class="num">3</div>
+      <div><h3>Guardá el usuario y la contraseña</h3><p>Anotá los datos y <b>compartilos solo entre los instructores</b> del taller (por privado). Esa cuenta es la "mochila" común de archivos.</p></div>
+    </div>
+    <div class="callout warn">
+      <div class="t">⚠️ Importante</div>
+      Usá una contraseña segura y no la compartas con los alumnos. Solo los instructores manejan esta cuenta.
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- PASO 2 -->
+  <div class="section">
+    <h2>2 · Subir un archivo a Google Drive</h2>
+    <div class="step">
+      <div class="num">1</div>
+      <div><h3>Entrá a Drive con la cuenta del taller</h3><p>Andá a <a href="https://drive.google.com" target="_blank">drive.google.com</a> e iniciá sesión con la cuenta que creaste en el Paso 1.</p></div>
+    </div>
+    <div class="step">
+      <div class="num">2</div>
+      <div><h3>Subí el archivo</h3><p>Clic en el botón <span class="pill">+ Nuevo</span> (arriba a la izquierda) → <b>Subir archivo</b>. O simplemente <b>arrastrá</b> el archivo a la ventana de Drive.</p></div>
+    </div>
+    <div class="step">
+      <div class="num">3</div>
+      <div><h3>Esperá a que termine</h3><p>Abajo a la derecha vas a ver la barra de progreso. Cuando llega al 100%, el archivo ya está en Drive.</p></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- PASO 3 -->
+  <div class="section">
+    <h2>3 · Compartir y copiar el link</h2>
+    <p class="lead">Este es el paso clave: hay que poner el archivo como "público con enlace" para que los alumnos puedan descargarlo.</p>
+    <div class="step">
+      <div class="num">1</div>
+      <div><h3>Clic derecho en el archivo</h3><p>Sobre el archivo subido, hacé <b>clic derecho</b> y elegí <span class="pill">Compartir</span> (o el ícono de la personita con un +).</p></div>
+    </div>
+    <div class="step">
+      <div class="num">2</div>
+      <div><h3>Cambiá el acceso a "Cualquiera con el enlace"</h3><p>En la parte de abajo, donde dice <b>"Acceso general"</b>, cambiá de <span class="pill">Restringido</span> a <span class="pill">Cualquier persona con el enlace</span>.</p></div>
+    </div>
+    <div class="step">
+      <div class="num">3</div>
+      <div><h3>Dejalo como "Lector"</h3><p>Al lado, asegurate de que diga <b>Lector</b> (no "Editor"). Así pueden descargar pero no modificar ni borrar tu archivo.</p></div>
+    </div>
+    <div class="step">
+      <div class="num">4</div>
+      <div><h3>Copiá el enlace</h3><p>Clic en <span class="pill">Copiar enlace</span> y después en <b>Listo</b>. El link ya está en tu portapapeles, listo para pegar.</p></div>
+    </div>
+    <div class="callout warn">
+      <div class="t">⚠️ Si no hacés esto</div>
+      Si dejás el acceso en "Restringido", a los alumnos les va a aparecer "Necesitas permiso" y no van a poder descargar. Verificá siempre que diga <b>"Cualquier persona con el enlace"</b>.
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- PASO 4 -->
+  <div class="section">
+    <h2>4 · Pegar el link en el campus</h2>
+    <div class="step">
+      <div class="num">1</div>
+      <div><h3>Entrá al campus como instructor</h3><p>Iniciá sesión y en el menú lateral hacé clic en <span class="pill">🛠️ Herramientas</span>.</p></div>
+    </div>
+    <div class="step">
+      <div class="num">2</div>
+      <div><h3>Agregá el recurso</h3><p>Clic en <span class="pill">+ Agregar recurso</span>. Elegí la <b>categoría</b> (Software DJ, Música, Videos…), poné un <b>título</b> claro y una <b>descripción</b> si querés.</p></div>
+    </div>
+    <div class="step">
+      <div class="num">3</div>
+      <div><h3>Pegá el link en "Opción A"</h3><p>En el campo <b>"Opción A — Pegar un link"</b> pegá el enlace de Google Drive que copiaste. <b>No</b> uses el botón de subir archivo.</p></div>
+    </div>
+    <div class="step">
+      <div class="num">4</div>
+      <div><h3>Guardar</h3><p>Clic en <span class="pill">Guardar recurso</span>. ¡Listo! Ya aparece la tarjeta con su botón "Descargar" para los alumnos.</p></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- RESUMEN -->
+  <div class="section">
+    <h2>📋 El flujo, en resumen</h2>
+    <div class="flow">
+      <ol>
+        <li>Subís el archivo <b>una vez</b> a la Google Drive del taller.</li>
+        <li>En Drive: clic derecho → <b>Compartir</b> → <b>"Cualquiera con el enlace"</b> → <b>Copiar enlace</b>.</li>
+        <li>En el campus: <b>Herramientas → + Agregar recurso → "Opción A — Pegar un link"</b>.</li>
+        <li>Guardar. Tenés <b>15 GB gratis</b> al instante, sin migrar nada, sin pagar.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- TIPS -->
+  <div class="section">
+    <h2>✅ Recomendaciones</h2>
+    <div class="callout tip">
+      <div class="t">Consejos para que quede prolijo</div>
+      <ul class="bul">
+        <li>Para <b>software</b> (Virtual DJ, Rekordbox, Traktor) lo ideal es pegar el <b>link de la página oficial</b> de descarga: siempre actualizado y legal.</li>
+        <li><b>Nombrá bien</b> los archivos antes de subirlos (ej: "Virtual DJ 2024 - instalador"). Así los alumnos entienden qué es.</li>
+        <li>Para <b>fotos, música suelta o PDFs livianos</b> (menos de 50 MB) podés subirlos directo en el campus, sin Drive.</li>
+        <li>En la sección <b>📥 Descargas</b> del campus podés ver <b>quién descargó qué y cuándo</b>.</li>
+        <li><b>Alternativas a Drive</b> si necesitás aún más espacio: MEGA (20 GB gratis) o MediaFire (10 GB). El paso de "compartir link" es parecido.</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>Casa de la Juventud · Río Gallegos · Santa Cruz · Taller de DJ</footer>
+
+</div>
+</body>
+</html>
