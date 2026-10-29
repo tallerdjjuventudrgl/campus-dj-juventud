@@ -115,6 +115,7 @@ export function buildPinMessage({ name, username, pin, origin }) {
   const nombre = name || "Alumno/a";
 
   return (
+    `${enlaceAcceso}\n\n` +
     `🏛️ *MUNICIPALIDAD DE RÍO GALLEGOS*\n` +
     `🤝 *SECRETARÍA DE NIÑEZ, ADOLESCENCIA Y FAMILIA*\n` +
     `✨ *CASA DE LA JUVENTUD*\n` +
