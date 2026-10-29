@@ -112,24 +112,44 @@ export function normalizePhone(texto) {
 export function buildPinMessage({ name, username, pin, origin }) {
   const urlBase = (origin || "https://cursodj.desarrollar.online").replace(/\/$/, "");
   const enlaceAcceso = `${urlBase}/campus`;
-  const nombre = name || "Alumno";
+  const nombre = name || "Alumno/a";
 
   return (
-    `🎧 *CAMPUS VIRTUAL · TALLER DE DJ*\n` +
-    `Hola ${nombre}, te enviamos tus credenciales para acceder o restablecer tu cuenta:\n\n` +
-    `👤 *Usuario:* ${username}\n` +
-    `🔑 *PIN Temporal:* ${pin}\n` +
-    `🌐 *Enlace directo:* ${enlaceAcceso}\n\n` +
-    `⏳ *Información importante:*\n` +
-    `• Este PIN es temporal y tiene una vigencia máxima de 24 horas.\n` +
-    `• Es de UN SOLO USO: al definir tu nueva clave quedará desactivado automáticamente.\n\n` +
-    `📋 *Pasos para ingresar:*\n` +
-    `1. Ingresá al enlace: ${enlaceAcceso}\n` +
-    `2. Hacé clic en "¿Olvidaste tu contraseña o tenés un PIN?"\n` +
-    `3. Escribí tu usuario (${username}) y el PIN (${pin})\n` +
-    `4. Definí tu nueva contraseña personal\n\n` +
-    `🔒 *Seguridad:* Nunca compartas este PIN con nadie.\n\n` +
-    `_SISTEMAS DesarrollAR · Río Gallegos, Santa Cruz, Argentina 🇦🇷_`
+    `🏛️ *MUNICIPALIDAD DE RÍO GALLEGOS*\n` +
+    `🤝 *SECRETARÍA DE NIÑEZ, ADOLESCENCIA Y FAMILIA*\n` +
+    `✨ *CASA DE LA JUVENTUD*\n` +
+    `🎧 *TALLER DE DJ · CAMPUS VIRTUAL v3.0*\n` +
+    `_Waveform & Rúbrica 4 Ejes · Asistencia QR · Certificados · Camelot & BPM_\n` +
+    `══════════════════════════════\n\n` +
+    `👋 *Hola ${nombre}!*\n` +
+    `Te enviamos tu PIN temporal y las instrucciones para acceder o restablecer tu cuenta en el campus:\n\n` +
+    `👤 *Tu Usuario:* ${username}\n` +
+    `🔑 *PIN Temporal de Seguridad:* ${pin}\n` +
+    `🌐 *Enlace de Acceso:* ${enlaceAcceso}\n\n` +
+    `──────────────────────────────\n` +
+    `📋 *PASO A PASO PARA ACTIVAR O BLANQUEAR TU CUENTA:*\n\n` +
+    `1️⃣ Ingresá al enlace oficial: ${enlaceAcceso}\n` +
+    `2️⃣ Debajo del formulario de ingreso, tocá el botón:\n` +
+    `   *«🔑 ¿Olvidaste tu contraseña o tenés un PIN?»*\n` +
+    `3️⃣ Escribí tu usuario (*${username}*) y tu PIN de 4 dígitos (*${pin}*).\n` +
+    `4️⃣ Presioná *«Validar PIN temporal»*.\n` +
+    `5️⃣ El sistema te pedirá que crees tu contraseña definitiva y la confirmes.\n\n` +
+    `──────────────────────────────\n` +
+    `🔐 *REQUISITOS DE TU NUEVA CONTRASEÑA:*\n` +
+    `• Longitud mínima: *al menos 6 caracteres* (se recomienda combinar letras y números).\n` +
+    `• Confirmación: tenés que escribirla exactamente igual en ambos campos.\n` +
+    `• Por seguridad, *no puede ser idéntica al PIN de 4 dígitos*.\n` +
+    `• Guardala en un lugar seguro: a partir de ahora ingresarás siempre con tu usuario y esta nueva contraseña.\n\n` +
+    `──────────────────────────────\n` +
+    `⚠️ *INFORMACIÓN DE SEGURIDAD IMPORTANTE:*\n` +
+    `• ⏳ *Vigencia:* Este PIN vence automáticamente a las *24 horas* de haber sido generado.\n` +
+    `• 🔥 *De un solo uso:* Una vez que guardes tu nueva contraseña, el PIN queda quemado y desactivado permanentemente.\n` +
+    `• 🛡️ *Límite de intentos:* Disponés de un máximo de *5 intentos* de ingreso. Si se agotan, se bloquea por protección y deberás solicitar uno nuevo al instructor.\n` +
+    `• 🚫 *Privacidad:* No compartas este mensaje ni tu PIN con terceras personas.\n\n` +
+    `💬 _Ante cualquier duda o inconveniente en el ingreso, consultá con tus instructores Gisel Duarte o Franco Esquivel en la Casa de la Juventud._\n\n` +
+    `══════════════════════════════\n` +
+    `💻 *SISTEMAS DesarrollAR*\n` +
+    `*Hecho con orgullo en Río Gallegos, Santa Cruz, Argentina 🇦🇷*`
   );
 }
 
