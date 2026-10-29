@@ -324,8 +324,70 @@ async function refresh(){
 async function go(name,params={}){ state.route={name,...params}; document.getElementById("app").innerHTML=loader(); await refresh(); render(); window.scrollTo(0,0); }
 
 /* ===================== AUTH VIEWS ===================== */
+let authFlow = { mode: "login", username: "", pin: "", name: "" };
+
+function switchAuthMode(mode) {
+  authFlow.mode = mode;
+  render();
+}
+
 function viewLogin(){
   if(SETUP) return viewSetup();
+
+  // Paso 2 del PIN: Crear nueva contraseña
+  if (authFlow.mode === "pin_step2") {
+    return `<div class="min-h-screen flex items-center justify-center p-6" style="background:radial-gradient(circle at 50% 0%,rgba(0,169,157,.08),transparent 60%)">
+      <div class="w-full max-w-sm fade">
+        <div class="flex flex-col items-center mb-8">
+          <div class="flex items-end gap-[3px] mb-1">${hand("#e6007e",13,16)}${hand("#00a99d",13,18)}${hand("#fbba00",13,16)}${hand("#f39200",13,18)}</div>
+          ${logo(30)}<div class="brandsub">CAMPUS&nbsp;&nbsp;VIRTUAL</div>
+        </div>
+        <div class="card p-7">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-xl">✅</span>
+            <h1 class="text-xl font-bold text-white">Hola, ${esc(authFlow.name || authFlow.username)}</h1>
+          </div>
+          <p class="text-xs text-teal-400 mb-5">PIN verificado con éxito. Definí tu nueva contraseña personal.</p>
+          <div id="authMsg" class="hidden text-sm mb-4 p-3 rounded-lg"></div>
+          <label class="text-xs text-gray-400 font-semibold">Nueva contraseña (mín. 6)</label>
+          <input id="pinNewPw" class="fld mt-1 mb-4" type="password" placeholder="al menos 6 caracteres" autocomplete="new-password">
+          <label class="text-xs text-gray-400 font-semibold">Confirmar contraseña</label>
+          <input id="pinConfirmPw" class="fld mt-1 mb-5" type="password" placeholder="repetí la contraseña" autocomplete="new-password" onkeydown="if(event.key==='Enter')doResetPasswordWithPin()">
+          <button id="authBtn" class="btn btn-primary w-full py-3 font-bold mb-3" onclick="doResetPasswordWithPin()">Guardar contraseña e ingresar</button>
+          <button type="button" class="btn w-full py-2.5 text-xs text-gray-400 hover:text-white" onclick="switchAuthMode('login')">← Cancelar y volver</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // Paso 1 del PIN: Ingresar Usuario + PIN de 4 dígitos
+  if (authFlow.mode === "pin_step1") {
+    return `<div class="min-h-screen flex items-center justify-center p-6" style="background:radial-gradient(circle at 50% 0%,rgba(0,169,157,.08),transparent 60%)">
+      <div class="w-full max-w-sm fade">
+        <div class="flex flex-col items-center mb-8">
+          <div class="flex items-end gap-[3px] mb-1">${hand("#e6007e",13,16)}${hand("#00a99d",13,18)}${hand("#fbba00",13,16)}${hand("#f39200",13,18)}</div>
+          ${logo(30)}<div class="brandsub">CAMPUS&nbsp;&nbsp;VIRTUAL</div>
+        </div>
+        <div class="card p-7">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-xl">🔑</span>
+            <h1 class="text-xl font-bold text-white">Ingresar con PIN</h1>
+          </div>
+          <p class="text-xs text-gray-400 mb-6 leading-relaxed">Escribí tu usuario y el PIN temporal de 4 dígitos recibido por WhatsApp o por tu instructor.</p>
+          <div id="authMsg" class="hidden text-sm mb-4 p-3 rounded-lg"></div>
+          <label class="text-xs text-gray-400 font-semibold">Usuario</label>
+          <input id="pinUser" class="fld mt-1 mb-4" placeholder="ej: juanperez" value="${esc(authFlow.username)}" autocapitalize="none" autocomplete="username">
+          <label class="text-xs text-gray-400 font-semibold">PIN temporal (4 dígitos)</label>
+          <input id="pinCode" class="fld mt-1 mb-5 text-center font-mono text-xl tracking-[8px] font-bold" maxlength="4" placeholder="••••" pattern="[0-9]*" inputmode="numeric" onkeydown="if(event.key==='Enter')doValidatePin()">
+          <button id="authBtn" class="btn btn-primary w-full py-3 font-bold mb-3" onclick="doValidatePin()">Validar PIN temporal</button>
+          <button type="button" class="btn w-full py-2.5 text-xs text-gray-400 hover:text-white" onclick="switchAuthMode('login')">← Volver al login normal</button>
+        </div>
+        <p class="text-center text-xs text-gray-600 mt-5">El PIN tiene 24 horas de vigencia y es de un solo uso.</p>
+      </div>
+    </div>`;
+  }
+
+  // Login normal
   return `<div class="min-h-screen flex items-center justify-center p-6" style="background:radial-gradient(circle at 50% 0%,rgba(0,169,157,.08),transparent 60%)">
     <div class="w-full max-w-sm fade">
       <div class="flex flex-col items-center mb-8">
@@ -341,6 +403,11 @@ function viewLogin(){
         <label class="text-xs text-gray-400 font-semibold">Contraseña</label>
         <input id="aPw" class="fld mt-1 mb-5" type="password" placeholder="tu contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
         <button id="authBtn" class="btn btn-primary w-full py-3 font-bold" onclick="doLogin()">Ingresar al campus</button>
+        <div class="mt-4 pt-4 border-t border-gray-800/80 text-center">
+          <button type="button" class="text-xs font-semibold text-teal-400 hover:text-teal-300 transition inline-flex items-center gap-1.5" onclick="switchAuthMode('pin_step1')">
+            <span>🔑</span> ¿Olvidaste tu contraseña o tenés un PIN?
+          </button>
+        </div>
       </div>
       <p class="text-center text-xs text-gray-600 mt-5">¿No tenés usuario? Pedíselo a tu instructor.</p>
       <p class="text-center text-[11px] text-gray-700 mt-2"><a href="index.html" class="hover:text-gray-400">← Volver al sitio público</a></p>
@@ -392,6 +459,69 @@ async function doLogin(){
   } catch(err) {
     authMsg(err.message || "Usuario o contraseña incorrectos.");
     if(btn){ btn.disabled = false; btn.textContent = "Ingresar al campus"; }
+  }
+}
+async function doValidatePin(){
+  const userEl = document.getElementById("pinUser");
+  const pinEl = document.getElementById("pinCode");
+  if(!userEl || !pinEl) return;
+  const username = userEl.value.trim().toLowerCase().replace(/\s+/g,"");
+  const pin = pinEl.value.trim();
+  if(!username || !pin){ authMsg("Completá usuario y el PIN de 4 dígitos."); return; }
+  const btn = document.getElementById("authBtn");
+  if(btn){ btn.disabled = true; btn.textContent = "Verificando PIN…"; }
+  try {
+    const data = await api("/api/auth/pin/validate", {
+      method: "POST",
+      body: JSON.stringify({ username, pin })
+    });
+    authFlow.username = username;
+    authFlow.pin = pin;
+    authFlow.name = data.name || username;
+    authFlow.mode = "pin_step2";
+    render();
+  } catch(err) {
+    authMsg(err.message || "El PIN no es correcto o ha expirado.");
+    if(btn){ btn.disabled = false; btn.textContent = "Validar PIN temporal"; }
+  }
+}
+async function doResetPasswordWithPin(){
+  const pwEl = document.getElementById("pinNewPw");
+  const confirmEl = document.getElementById("pinConfirmPw");
+  if(!pwEl || !confirmEl) return;
+  const password = pwEl.value;
+  const confirmPassword = confirmEl.value;
+  if(!password || password.length < 6){
+    authMsg("La nueva contraseña debe tener al menos 6 caracteres.");
+    return;
+  }
+  if(password !== confirmPassword){
+    authMsg("Las contraseñas no coinciden.");
+    return;
+  }
+  const btn = document.getElementById("authBtn");
+  if(btn){ btn.disabled = true; btn.textContent = "Guardando contraseña…"; }
+  try {
+    const data = await api("/api/auth/pin/reset-password", {
+      method: "POST",
+      body: JSON.stringify({
+        username: authFlow.username,
+        pin: authFlow.pin,
+        password,
+        confirmPassword
+      })
+    });
+    authToken = data.token;
+    localStorage.setItem("cursodj_token", data.token);
+    store.user = data.user;
+    store.profile = data.profile;
+    state.route = { name: "dashboard" };
+    document.getElementById("app").innerHTML = loader("¡Contraseña guardada! Ingresando al campus…");
+    await refresh();
+    render();
+  } catch(err) {
+    authMsg(err.message || "No se pudo actualizar la contraseña.");
+    if(btn){ btn.disabled = false; btn.textContent = "Guardar contraseña e ingresar"; }
   }
 }
 async function doSetup(){
@@ -1172,6 +1302,141 @@ async function delAnn(id){
 }
 
 /* ---------- USUARIOS (admin: crea y gestiona cuentas) ---------- */
+let currentPinData = null;
+
+function adminClosePinModal() {
+  const m = document.getElementById("adminPinModal");
+  if (m) m.remove();
+}
+
+function adminOpenPinModal(userId) {
+  const u = store.allUsers.find(z => z.id === userId);
+  if (!u) return;
+
+  adminClosePinModal();
+  const modalHtml = `
+    <div id="adminPinModal" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(4,6,15,0.85);backdrop-filter:blur(6px)">
+      <div class="card p-6 w-full max-w-md border border-teal-500/40 shadow-2xl relative fade">
+        <button class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg font-bold" onclick="adminClosePinModal()">✕</button>
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm" style="background:linear-gradient(135deg,#00a99d,#e6007e);color:#fff">${initials(u.name)}</div>
+          <div>
+            <h3 class="font-bold text-white text-base">Restablecer clave con PIN</h3>
+            <div class="text-xs text-gray-400">${esc(u.name)} (@${esc(u.username)})</div>
+          </div>
+        </div>
+
+        <div id="apmAlert" class="hidden text-xs p-3 rounded-lg mb-4"></div>
+
+        <div class="mb-4">
+          <label class="text-xs text-gray-400 font-semibold block mb-1">Teléfono / WhatsApp para envío directo</label>
+          <div class="flex gap-2">
+            <input id="apmPhone" class="fld text-sm" placeholder="ej: 2966123456" value="${esc(u.phone || '')}">
+            <button class="btn btn-secondary px-3 py-2 text-xs" onclick="adminSavePhone('${u.id}')" title="Guardar teléfono">💾</button>
+          </div>
+          <p class="text-[11px] text-gray-500 mt-1">Se normaliza automáticamente para WhatsApp (549...).</p>
+        </div>
+
+        <div id="apmPinResult" class="hidden mb-5">
+          <div class="p-4 rounded-xl border border-teal-500/40 text-center mb-3" style="background:rgba(0,169,157,0.08)">
+            <div class="text-[11px] text-teal-300 font-bold uppercase tracking-wider mb-1">PIN Temporal de 4 Dígitos (Vigencia 24 hs)</div>
+            <div id="apmPinDigits" class="font-mono text-3xl font-extrabold text-white tracking-[10px] my-2">0000</div>
+            <div class="text-[11px] text-gray-400">De un solo uso: se cancela al definir la nueva contraseña.</div>
+          </div>
+          <div class="grid grid-cols-2 gap-2 mb-3">
+            <button id="apmCopyPinBtn" class="btn btn-secondary py-2 text-xs font-semibold" onclick="adminCopyPin()">
+              📋 Copiar PIN
+            </button>
+            <button id="apmCopyMsgBtn" class="btn btn-secondary py-2 text-xs font-semibold" onclick="adminCopyFullMessage()">
+              📄 Copiar Mensaje
+            </button>
+          </div>
+          <a id="apmWspLink" href="#" target="_blank" rel="noopener noreferrer" class="btn w-full py-2.5 text-xs font-bold flex items-center justify-center gap-2" style="background:#25D366;color:#000;box-shadow:0 0 15px rgba(37,211,102,0.3)">
+            💬 Enviar por WhatsApp Web
+          </a>
+        </div>
+
+        <div class="flex items-center justify-between gap-2 pt-2 border-t border-gray-800">
+          <button id="apmGenerateBtn" class="btn btn-primary px-4 py-2.5 text-xs font-bold" onclick="adminGeneratePin('${u.id}')">
+            🔑 Generar PIN de 4 dígitos
+          </button>
+          <button class="btn py-2 px-3 text-xs text-gray-400 hover:text-white" onclick="adminClosePinModal()">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML("beforeend", modalHtml);
+}
+
+function apmMsg(text, ok) {
+  const el = document.getElementById("apmAlert");
+  if (!el) return;
+  el.textContent = text;
+  el.className = "text-xs p-3 rounded-lg mb-4";
+  el.style.background = ok ? "rgba(0,169,157,.15)" : "rgba(239,68,68,.15)";
+  el.style.color = ok ? "#5eead4" : "#f87171";
+  el.classList.remove("hidden");
+}
+
+async function adminSavePhone(userId) {
+  const phone = document.getElementById("apmPhone")?.value.trim() || "";
+  try {
+    await api("/api/admin/users/phone", {
+      method: "POST",
+      body: JSON.stringify({ id: userId, phone })
+    });
+    const u = store.allUsers.find(z => z.id === userId);
+    if (u) u.phone = phone;
+    apmMsg("Teléfono actualizado correctamente.", true);
+  } catch (e) {
+    apmMsg("No se pudo guardar el teléfono: " + e.message, false);
+  }
+}
+
+async function adminGeneratePin(userId) {
+  const btn = document.getElementById("apmGenerateBtn");
+  const phone = document.getElementById("apmPhone")?.value.trim() || "";
+  if (btn) { btn.disabled = true; btn.textContent = "Generando PIN…"; }
+  try {
+    const res = await api("/api/admin/users/pin", {
+      method: "POST",
+      body: JSON.stringify({ id: userId, phone })
+    });
+    currentPinData = res;
+    const u = store.allUsers.find(z => z.id === userId);
+    if (u) u.phone = res.phone;
+
+    document.getElementById("apmPinDigits").textContent = res.pin;
+    document.getElementById("apmWspLink").href = res.whatsapp_url;
+    document.getElementById("apmPinResult").classList.remove("hidden");
+    apmMsg("✅ PIN generado exitosamente. Válido por 24 horas.", true);
+    if (btn) { btn.disabled = false; btn.textContent = "🔑 Regenerar PIN"; }
+  } catch (e) {
+    apmMsg("Error al generar PIN: " + e.message, false);
+    if (btn) { btn.disabled = false; btn.textContent = "🔑 Generar PIN de 4 dígitos"; }
+  }
+}
+
+function adminCopyPin() {
+  if (!currentPinData?.pin) return;
+  navigator.clipboard.writeText(currentPinData.pin);
+  const btn = document.getElementById("apmCopyPinBtn");
+  if (btn) {
+    btn.textContent = "✅ ¡PIN Copiado!";
+    setTimeout(() => { btn.textContent = "📋 Copiar PIN"; }, 2000);
+  }
+}
+
+function adminCopyFullMessage() {
+  if (!currentPinData?.message) return;
+  navigator.clipboard.writeText(currentPinData.message);
+  const btn = document.getElementById("apmCopyMsgBtn");
+  if (btn) {
+    btn.textContent = "✅ ¡Mensaje Copiado!";
+    setTimeout(() => { btn.textContent = "📄 Copiar Mensaje"; }, 2000);
+  }
+}
+
 function viewUsuarios(){
   const me=store.profile;
   const roleSel=(x)=>{
@@ -1181,12 +1446,31 @@ function viewUsuarios(){
       <option value="instructor" ${x.role==='instructor'?'selected':''}>Instructor</option>
       <option value="admin" ${x.role==='admin'?'selected':''}>Admin</option></select>`;
   };
+  const pinBtn=(x)=>{
+    return `<button class="btn" style="background:rgba(0,169,157,.15);color:var(--cyan);border:1px solid rgba(0,169,157,.3);padding:6px 11px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:5px" onclick="adminOpenPinModal('${x.id}')" title="Generar PIN temporal y enviar por WhatsApp">🔑 <span class="hidden sm:inline">PIN</span></button>`;
+  };
   const delBtn=(x)=>{
     if(x.id===me.id) return '';
     return `<button class="btn" style="background:rgba(239,68,68,.13);color:#f87171;padding:7px 11px;font-size:13px" onclick="adminDeleteUser('${x.id}')" title="Eliminar usuario">🗑️</button>`;
   };
-  const rows=store.allUsers.map(x=>`<div class="card p-4 mb-2 flex items-center justify-between gap-3 flex-wrap"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm" style="background:linear-gradient(135deg,#00a99d,#e6007e);color:#fff">${initials(x.name)}</div><div><div class="font-semibold text-white text-sm">${esc(x.name)}</div><div class="text-xs text-gray-500">@${esc(x.username||'')}</div></div></div><div class="flex items-center gap-2">${roleSel(x)}${delBtn(x)}</div></div>`).join('');
-  return `<div class="flex items-center gap-2.5 mb-1"><h1 class="text-2xl font-bold text-white">⚙️ Usuarios</h1>${helpBtn('usuarios','¿Cómo funciona?')}</div><p class="text-gray-500 mb-6">Creá cuentas y asigná roles.</p>
+  const rows=store.allUsers.map(x=>`<div class="card p-4 mb-2 flex items-center justify-between gap-3 flex-wrap">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm" style="background:linear-gradient(135deg,#00a99d,#e6007e);color:#fff">${initials(x.name)}</div>
+      <div>
+        <div class="font-semibold text-white text-sm">${esc(x.name)}</div>
+        <div class="text-xs text-gray-500 flex items-center gap-2 flex-wrap">
+          <span>@${esc(x.username||'')}</span>
+          ${x.phone ? `<span class="text-teal-400 font-mono text-[11px] bg-teal-950/40 px-1.5 py-0.5 rounded border border-teal-500/20">📱 ${esc(x.phone)}</span>` : ''}
+        </div>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      ${pinBtn(x)}
+      ${roleSel(x)}
+      ${delBtn(x)}
+    </div>
+  </div>`).join('');
+  return `<div class="flex items-center gap-2.5 mb-1"><h1 class="text-2xl font-bold text-white">⚙️ Usuarios</h1>${helpBtn('usuarios','¿Cómo funciona?')}</div><p class="text-gray-500 mb-6">Creá cuentas, asigná roles y generá PINs de recuperación.</p>
   <div class="card p-6 mb-7 max-w-2xl">
     <h3 class="font-bold text-white mb-4">➕ Crear nuevo usuario</h3>
     <div id="cuMsg" class="hidden text-sm mb-4 p-3 rounded-lg"></div>
@@ -1194,18 +1478,33 @@ function viewUsuarios(){
       <div><label class="text-xs text-gray-400 font-semibold">Usuario</label><input id="cuUser" class="fld mt-1" placeholder="ej: juanperez" autocapitalize="none"></div>
       <div><label class="text-xs text-gray-400 font-semibold">Nombre completo</label><input id="cuName" class="fld mt-1" placeholder="Juan Pérez"></div>
     </div>
-    <div class="grid sm:grid-cols-2 gap-3 mb-4">
+    <div class="grid sm:grid-cols-3 gap-3 mb-4">
       <div><label class="text-xs text-gray-400 font-semibold">Contraseña (mín. 6)</label><input id="cuPw" class="fld mt-1" placeholder="contraseña inicial"></div>
+      <div><label class="text-xs text-gray-400 font-semibold">Teléfono / WhatsApp (opcional)</label><input id="cuPhone" class="fld mt-1" placeholder="ej: 2966123456" type="tel"></div>
       <div><label class="text-xs text-gray-400 font-semibold">Rol</label><select id="cuRole" class="fld mt-1"><option value="student">Alumno</option><option value="instructor">Instructor</option><option value="admin">Admin</option></select></div>
     </div>
     <button id="cuBtn" class="btn btn-primary px-5 py-2.5" onclick="adminCreateUser()">Crear usuario</button>
-    <p class="text-[11px] text-gray-600 mt-3">El usuario entra con ese <b>usuario + contraseña</b>. Pasale los datos por privado.</p>
+    <p class="text-[11px] text-gray-600 mt-3">El usuario entra con ese <b>usuario + contraseña</b> o con un <b>PIN temporal</b> si olvidó su clave.</p>
   </div>
   <h3 class="font-bold text-white mb-3">Usuarios registrados (${store.allUsers.length})</h3>${rows||'<div class="card p-4 text-sm text-gray-500">Sin usuarios.</div>'}`;
 }
 function cuMsg(t,ok){ const el=document.getElementById("cuMsg"); if(!el)return; el.textContent=t; el.className="text-sm mb-4 p-3 rounded-lg"; el.style.background=ok?"rgba(0,169,157,.12)":"rgba(239,68,68,.12)"; el.style.color=ok?"#5eead4":"#f87171"; el.classList.remove("hidden"); }
 async function adminCreateUser(){
-  const user=document.getElementById("cuUser").value.trim().toLowerCase().replace(/\s+/g,""), name=document.getElementById("cuName").value.trim(), pw=document.getElementById("cuPw").value, role=document.getElementById("cuRole").value;
+  const user=document.getElementById("cuUser").value.trim().toLowerCase().replace(/\s+/g,""), name=document.getElementById("cuName").value.trim(), pw=document.getElementById("cuPw").value, phone=document.getElementById("cuPhone")?.value.trim()||"", role=document.getElementById("cuRole").value;
+  if(!user||!name){cuMsg("Completá usuario y nombre.");return;}
+  if(pw.length<6){cuMsg("La contraseña debe tener al menos 6 caracteres.");return;}
+  const btn=document.getElementById("cuBtn"); btn.disabled=true; btn.textContent="Creando…";
+  try{
+    await api("/api/admin/create-user", {
+      method: "POST",
+      body: JSON.stringify({username:user,name,password:pw,phone,role})
+    });
+    document.getElementById("cuUser").value=""; document.getElementById("cuName").value=""; document.getElementById("cuPw").value="";
+    if(document.getElementById("cuPhone")) document.getElementById("cuPhone").value="";
+    await go("usuarios");
+    cuMsg("✅ Usuario «"+user+"» creado.",true);
+  }catch(e){ cuMsg(e.message || "Error al crear usuario."); btn.disabled=false; btn.textContent="Crear usuario"; }
+}
   if(!user||!name){cuMsg("Completá usuario y nombre.");return;}
   if(pw.length<6){cuMsg("La contraseña debe tener al menos 6 caracteres.");return;}
   const btn=document.getElementById("cuBtn"); btn.disabled=true; btn.textContent="Creando…";
