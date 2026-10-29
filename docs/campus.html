@@ -1505,19 +1505,6 @@ async function adminCreateUser(){
     cuMsg("✅ Usuario «"+user+"» creado.",true);
   }catch(e){ cuMsg(e.message || "Error al crear usuario."); btn.disabled=false; btn.textContent="Crear usuario"; }
 }
-  if(!user||!name){cuMsg("Completá usuario y nombre.");return;}
-  if(pw.length<6){cuMsg("La contraseña debe tener al menos 6 caracteres.");return;}
-  const btn=document.getElementById("cuBtn"); btn.disabled=true; btn.textContent="Creando…";
-  try{
-    await api("/api/admin/create-user", {
-      method: "POST",
-      body: JSON.stringify({username:user,name,password:pw,role})
-    });
-    document.getElementById("cuUser").value=""; document.getElementById("cuName").value=""; document.getElementById("cuPw").value="";
-    await go("usuarios");
-    cuMsg("✅ Usuario «"+user+"» creado.",true);
-  }catch(e){ cuMsg(e.message || "Error al crear usuario."); btn.disabled=false; btn.textContent="Crear usuario"; }
-}
 async function adminSetRole(id,role){
   try {
     await api("/api/admin/change-role", { method: "PUT", body: JSON.stringify({ id, role }) });
