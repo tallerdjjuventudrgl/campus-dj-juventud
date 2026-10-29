@@ -7,6 +7,7 @@ Web estática con backend **Supabase** (auth + datos) y Edge Functions para admi
 
 - **HTML/CSS/JS estático** (`index.html`, `campus.html`, `GUIA-INSTRUCTORES-*.html`).
 - **Turso LibSQL** como base de datos en el edge y API serverless en Vercel.
+- **Autenticación y Recuperación:** Arquitectura S.A.R.A. con PIN temporal (4 dígitos, 24 hs) y WhatsApp Web.
 - Hosting y despliegue continuo en **Vercel** (`cursodj.desarrollar.online`) vinculado a GitHub `tallerdjjuventudrgl/campus-dj-juventud`.
 
 ## Estructura

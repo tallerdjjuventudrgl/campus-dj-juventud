@@ -406,10 +406,18 @@ footer small{display:block;margin-top:6px;color:var(--mute)}
 </section>
 
 <section class="blk rv step" id="usuarios" data-label="Gestión de Usuarios y Tarjeta" data-n="07">
-  <div class="sh"><div class="num">07</div><h2>Gestión de Usuarios y Tarjeta Pública del Instructor</h2><label class="done-toggle"><input type="checkbox"> Hecho</label></div>
+  <div class="sh"><div class="num">07</div><h2>Gestión de Usuarios, Blanqueo por PIN y Tarjeta del Instructor</h2><label class="done-toggle"><input type="checkbox"> Hecho</label></div>
   <p class="why">Permite administrar altas, bajas y roles sin tocar código, y mantiene actualizada la sección pública de instructores en la portada web.</p>
   <ol class="steps">
-    <li><b>Para crear cuentas (solo rol Admin):</b> entrá a <b>⚙️ Usuarios</b>, completá el nombre de usuario (sin espacios, ej. <code>juanperez</code>), nombre completo, contraseña inicial (mínimo 6 caracteres) y rol (<code>Alumno</code>, <code>Instructor</code> o <code>Admin</code>), y pulsá <b>Crear usuario</b>.</li>
+    <li><b>Para crear cuentas (solo rol Admin):</b> entrá a <b>⚙️ Usuarios</b>, completá el nombre de usuario (sin espacios, ej. <code>juanperez</code>), nombre completo, contraseña inicial (mínimo 6 caracteres), teléfono/WhatsApp opcional (ej. <code>2966123456</code>) y rol (<code>Alumno</code>, <code>Instructor</code> o <code>Admin</code>), y pulsá <b>Crear usuario</b>.</li>
+    <li><b>Para recuperar o blanquear contraseña con PIN temporal (Envío por WhatsApp):</b> en la lista de usuarios registrados, pulsá el botón <b>🔑 PIN</b> al lado del alumno. Se abrirá el modal interactivo para:
+      <ul>
+        <li>Verificar o editar su número de celular (se normaliza automáticamente a formato internacional <code>549...</code>).</li>
+        <li>Generar un <b>PIN temporal criptográfico de 4 dígitos</b> con vigencia estricta de 24 horas y límite de 5 intentos.</li>
+        <li>Copiar el PIN de 4 dígitos o el <b>mensaje oficial completo formateado</b>.</li>
+        <li>Pulsar <b>💬 Enviar por WhatsApp Web</b> para despachar las instrucciones directamente al alumno con el header oficial de la Casa de la Juventud.</li>
+      </ul>
+    </li>
     <li><b>Para editar tu perfil público (Instructores y Admin):</b> entrá a <b>👤 Mi Tarjeta</b>, subí tu foto cuadrada, completá tu cargo, biografía breve y tus redes (Instagram, Spotify, SoundCloud, YouTube, TikTok, WhatsApp) y pulsá <b>Guardar mi tarjeta</b>.</li>
   </ol>
   <div class="note ok"><span class="ic">✅</span><p><b>Comprobación:</b> Los cambios en <b>👤 Mi Tarjeta</b> se actualizan en vivo en la sección <i>Nosotros</i> de la página pública principal.</p></div>
@@ -417,6 +425,7 @@ footer small{display:block;margin-top:6px;color:var(--mute)}
 
 <section class="blk rv" id="faq" data-label="Preguntas Frecuentes" data-n="?">
   <div class="sh"><div class="num">?</div><h2>Preguntas Frecuentes (Admin e Instructores)</h2></div>
+  <details open><summary>¿Cómo recupera un alumno su contraseña si la olvidó?</summary><div class="in"><p>No hace falta cambiarle la contraseña a mano: entrá a <b>⚙️ Usuarios</b>, buscá al alumno y tocá el botón <b>🔑 PIN</b>. Pulsá <b>Generar PIN de 4 dígitos</b> y luego <b>Enviar por WhatsApp Web</b>. El alumno recibirá el mensaje preformateado con su PIN temporal (24 hs) para ingresar al enlace oficial y definir su propia clave secreta.</p></div></details>
   <details open><summary>¿Qué pasa si un alumno sube un set MP3 pesado de 40 MB o 80 MB?</summary><div class="in"><p>El cargador híbrido v3.0 lo divide automáticamente en bloques seguros o lo envía por URL pre-firmada, evitando el límite estándar de 4.5 MB de los servidores serverless. El instructor lo escucha en streaming inmediato con soporte de adelanto rápido (HTTP 206).</p></div></details>
   <details><summary>¿Se puede modificar una nota o rúbrica después de calificar?</summary><div class="in"><p>Sí. Podés entrar en cualquier momento a <b>🗂️ Tareas y Rúbricas</b>, ajustar los puntajes de los 4 ejes o agregar nuevos marcadores en la onda sonora y pulsar <b>Actualizar Rúbrica</b>.</p></div></details>
   <details><summary>¿Cómo evito que un alumno le pase el código de asistencia por WhatsApp a otro que faltó?</summary><div class="in"><p>En <b>📲 Asistencia QR</b> tenés dos herramientas: podés pulsar <b>🔄 Rotar Código</b> para cambiar el código al instante frente a los presentes, y al terminar los primeros minutos de clase pulsar <b>🔒 Cerrar QR</b> para bloquear nuevos ingresos automáticos.</p></div></details>
