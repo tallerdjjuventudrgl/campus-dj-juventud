@@ -85,3 +85,60 @@ export async function getSessionUser(req) {
 
   return session || null;
 }
+
+export function generatePin() {
+  return String(crypto.randomInt(1000, 10000));
+}
+
+export function normalizePhone(texto) {
+  if (!texto) return "";
+  const soloDigitos = String(texto).replace(/\D/g, "");
+  if (!soloDigitos) return "";
+  // Si tiene 10 dígitos (celular argentino sin prefijo internacional)
+  if (soloDigitos.length === 10 && !soloDigitos.startsWith("54")) {
+    return "549" + soloDigitos;
+  }
+  // Si tiene 11 dígitos y empieza con 0 (ej: 02966123456 -> 5492966123456)
+  if (soloDigitos.length === 11 && soloDigitos.startsWith("0")) {
+    return "549" + soloDigitos.slice(1);
+  }
+  // Si tiene 11 dígitos (ej: 542966123456 sin el 9)
+  if (soloDigitos.length === 12 && soloDigitos.startsWith("54") && !soloDigitos.startsWith("549")) {
+    return "549" + soloDigitos.slice(2);
+  }
+  return soloDigitos;
+}
+
+export function buildPinMessage({ name, username, pin, origin }) {
+  const urlBase = (origin || "https://cursodj.desarrollar.online").replace(/\/$/, "");
+  const enlaceAcceso = `${urlBase}/campus`;
+  const nombre = name || "Alumno";
+
+  return (
+    `🎧 *CAMPUS VIRTUAL · TALLER DE DJ*\n` +
+    `Hola ${nombre}, te enviamos tus credenciales para acceder o restablecer tu cuenta:\n\n` +
+    `👤 *Usuario:* ${username}\n` +
+    `🔑 *PIN Temporal:* ${pin}\n` +
+    `🌐 *Enlace directo:* ${enlaceAcceso}\n\n` +
+    `⏳ *Información importante:*\n` +
+    `• Este PIN es temporal y tiene una vigencia máxima de 24 horas.\n` +
+    `• Es de UN SOLO USO: al definir tu nueva clave quedará desactivado automáticamente.\n\n` +
+    `📋 *Pasos para ingresar:*\n` +
+    `1. Ingresá al enlace: ${enlaceAcceso}\n` +
+    `2. Hacé clic en "¿Olvidaste tu contraseña o tenés un PIN?"\n` +
+    `3. Escribí tu usuario (${username}) y el PIN (${pin})\n` +
+    `4. Definí tu nueva contraseña personal\n\n` +
+    `🔒 *Seguridad:* Nunca compartas este PIN con nadie.\n\n` +
+    `_SISTEMAS DesarrollAR · Río Gallegos, Santa Cruz, Argentina 🇦🇷_`
+  );
+}
+
+export function buildWhatsAppLink({ phone, name, username, pin, origin }) {
+  const norm = normalizePhone(phone);
+  const msg = buildPinMessage({ name, username, pin, origin });
+  const encoded = encodeURIComponent(msg);
+  if (!norm) {
+    return `https://api.whatsapp.com/send?text=${encoded}`;
+  }
+  return `https://wa.me/${norm}?text=${encoded}`;
+}

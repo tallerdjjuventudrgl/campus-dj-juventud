@@ -8,8 +8,13 @@ CREATE TABLE IF NOT EXISTS users (
   username TEXT UNIQUE NOT NULL COLLATE NOCASE,
   name TEXT NOT NULL,
   email TEXT,
+  phone TEXT,
   password_hash TEXT NOT NULL,
   role TEXT NOT NULL DEFAULT 'student' CHECK (role IN ('student', 'instructor', 'admin')),
+  pin_hash TEXT,
+  pin_expira_en TEXT,
+  pin_intentos INTEGER DEFAULT 0,
+  must_change_password INTEGER DEFAULT 0,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 

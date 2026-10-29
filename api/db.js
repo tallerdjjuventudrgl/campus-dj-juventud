@@ -47,8 +47,13 @@ export async function initDatabase() {
       username TEXT UNIQUE NOT NULL COLLATE NOCASE,
       name TEXT NOT NULL,
       email TEXT,
+      phone TEXT,
       password_hash TEXT NOT NULL,
       role TEXT NOT NULL DEFAULT 'student' CHECK (role IN ('student', 'instructor', 'admin')),
+      pin_hash TEXT,
+      pin_expira_en TEXT,
+      pin_intentos INTEGER DEFAULT 0,
+      must_change_password INTEGER DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );`,
     `CREATE INDEX IF NOT EXISTS idx_users_username ON users (username);`,
@@ -212,5 +217,21 @@ export async function initDatabase() {
 
   for (const stmt of statements) {
     await client.execute(stmt);
+  }
+
+  // Migraciones automáticas seguras de columnas para el sistema de recuperación por PIN
+  const safeColumns = [
+    "ALTER TABLE users ADD COLUMN phone TEXT;",
+    "ALTER TABLE users ADD COLUMN pin_hash TEXT;",
+    "ALTER TABLE users ADD COLUMN pin_expira_en TEXT;",
+    "ALTER TABLE users ADD COLUMN pin_intentos INTEGER DEFAULT 0;",
+    "ALTER TABLE users ADD COLUMN must_change_password INTEGER DEFAULT 0;"
+  ];
+  for (const sql of safeColumns) {
+    try {
+      await client.execute(sql);
+    } catch (_) {
+      // Ignorar si la columna ya existe
+    }
   }
 }

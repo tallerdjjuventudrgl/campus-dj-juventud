@@ -5,7 +5,18 @@
 
 import crypto from "crypto";
 import { query, queryOne, execute, initDatabase } from "./db.js";
-import { hashPassword, verifyPassword, createSession, deleteSession, getSessionUser, parseCookies } from "./auth.js";
+import {
+  hashPassword,
+  verifyPassword,
+  createSession,
+  deleteSession,
+  getSessionUser,
+  parseCookies,
+  generatePin,
+  normalizePhone,
+  buildPinMessage,
+  buildWhatsAppLink
+} from "./auth.js";
 import { isR2Configured, generateR2PresignedPutUrl } from "./r2.js";
 
 // Helper para parsear JSON en Node http serverless
@@ -284,6 +295,133 @@ export default async function handler(req, res) {
       }
       return sendJson(res, 200, { ok: true }, {
         "Set-Cookie": "cursodj_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Secure"
+      });
+    }
+
+    // ----------------------------------------------------
+    // RECUPERACIÓN / BLANQUEO DE CONTRASEÑA POR PIN (S.A.R.A.)
+    // ----------------------------------------------------
+    if (pathname === "/api/auth/pin/validate" && method === "POST") {
+      const body = await readJson(req);
+      const username = String(body.username || "").trim().toLowerCase().replace(/\s+/g, "");
+      const pin = String(body.pin || "").trim();
+
+      if (!username || !pin) {
+        return sendJson(res, 400, { error: "Ingresá tu usuario y el PIN de 4 dígitos." });
+      }
+
+      const user = await queryOne("SELECT * FROM users WHERE lower(username) = ?", [username]);
+      if (!user) {
+        return sendJson(res, 400, { error: "El usuario o el PIN son incorrectos o ya expiraron." });
+      }
+
+      if (!user.pin_hash || !user.pin_expira_en) {
+        return sendJson(res, 400, { error: "No hay un PIN temporal activo para este usuario. Solicitale uno a tu instructor o administrador." });
+      }
+
+      const expira = new Date(user.pin_expira_en);
+      if (isNaN(expira.getTime()) || expira.getTime() <= Date.now()) {
+        await execute("UPDATE users SET pin_hash = NULL, pin_expira_en = NULL, pin_intentos = 0 WHERE id = ?", [user.id]);
+        return sendJson(res, 400, { error: "El PIN temporal ha expirado (validez 24 hs). Solicitá uno nuevo al administrador." });
+      }
+
+      const intentos = Number(user.pin_intentos || 0);
+      if (intentos >= 5) {
+        await execute("UPDATE users SET pin_hash = NULL, pin_expira_en = NULL, pin_intentos = 0 WHERE id = ?", [user.id]);
+        return sendJson(res, 400, { error: "Límite máximo de 5 intentos superado. El PIN fue invalidado por seguridad. Solicitá uno nuevo." });
+      }
+
+      const esValido = verifyPassword(pin, user.pin_hash);
+      if (!esValido) {
+        const nuevosIntentos = intentos + 1;
+        if (nuevosIntentos >= 5) {
+          await execute("UPDATE users SET pin_hash = NULL, pin_expira_en = NULL, pin_intentos = 0 WHERE id = ?", [user.id]);
+          return sendJson(res, 400, { error: "PIN incorrecto. Límite de 5 intentos alcanzado; PIN cancelado por seguridad." });
+        }
+        await execute("UPDATE users SET pin_intentos = ? WHERE id = ?", [nuevosIntentos, user.id]);
+        return sendJson(res, 400, { error: `PIN incorrecto (intento ${nuevosIntentos} de 5). Verificá los 4 dígitos recibidos.` });
+      }
+
+      return sendJson(res, 200, {
+        ok: true,
+        username: user.username,
+        name: user.name,
+        message: "PIN verificado correctamente."
+      });
+    }
+
+    if (pathname === "/api/auth/pin/reset-password" && method === "POST") {
+      const body = await readJson(req);
+      const username = String(body.username || "").trim().toLowerCase().replace(/\s+/g, "");
+      const pin = String(body.pin || "").trim();
+      const newPassword = String(body.password || "");
+      const confirmPassword = String(body.confirmPassword || "");
+
+      if (!username || !pin) {
+        return sendJson(res, 400, { error: "Faltan credenciales del PIN." });
+      }
+      if (!newPassword || newPassword.length < 6) {
+        return sendJson(res, 400, { error: "La nueva contraseña debe tener al menos 6 caracteres." });
+      }
+      if (newPassword !== confirmPassword) {
+        return sendJson(res, 400, { error: "Las contraseñas no coinciden." });
+      }
+      if (newPassword === pin) {
+        return sendJson(res, 400, { error: "La nueva contraseña no puede ser igual al PIN temporal." });
+      }
+
+      const user = await queryOne("SELECT * FROM users WHERE lower(username) = ?", [username]);
+      if (!user || !user.pin_hash || !user.pin_expira_en) {
+        return sendJson(res, 400, { error: "El PIN temporal es inválido o ya ha sido utilizado." });
+      }
+
+      const expira = new Date(user.pin_expira_en);
+      if (isNaN(expira.getTime()) || expira.getTime() <= Date.now()) {
+        await execute("UPDATE users SET pin_hash = NULL, pin_expira_en = NULL, pin_intentos = 0 WHERE id = ?", [user.id]);
+        return sendJson(res, 400, { error: "El PIN temporal expiró. Solicitá uno nuevo." });
+      }
+
+      const intentos = Number(user.pin_intentos || 0);
+      if (intentos >= 5) {
+        await execute("UPDATE users SET pin_hash = NULL, pin_expira_en = NULL, pin_intentos = 0 WHERE id = ?", [user.id]);
+        return sendJson(res, 400, { error: "El PIN fue cancelado por exceso de intentos erróneos." });
+      }
+
+      const esValido = verifyPassword(pin, user.pin_hash);
+      if (!esValido) {
+        const nuevosIntentos = intentos + 1;
+        await execute("UPDATE users SET pin_intentos = ? WHERE id = ?", [nuevosIntentos, user.id]);
+        return sendJson(res, 400, { error: "El PIN ingresado es incorrecto." });
+      }
+
+      // Hasheamos la nueva contraseña y quemamos el PIN de forma irreversible (Single Use)
+      const newHash = hashPassword(newPassword);
+      await execute(
+        "UPDATE users SET password_hash = ?, pin_hash = NULL, pin_expira_en = NULL, pin_intentos = 0, must_change_password = 0 WHERE id = ?",
+        [newHash, user.id]
+      );
+
+      // Crear sesión inmediata para el usuario logueado
+      const { token, expiresAt } = await createSession(user.id);
+      const profile = {
+        id: user.id,
+        username: user.username,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone || null,
+        created_at: user.created_at,
+      };
+
+      return sendJson(res, 200, {
+        ok: true,
+        token,
+        expiresAt,
+        user: profile,
+        profile,
+        message: "¡Contraseña actualizada con éxito! Ingresando al campus..."
+      }, {
+        "Set-Cookie": `cursodj_session=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000; Secure`
       });
     }
 
@@ -994,7 +1132,7 @@ export default async function handler(req, res) {
       if (!user || user.role !== "admin") {
         return sendJson(res, 403, { error: "Solo administradores pueden gestionar usuarios." });
       }
-      const rows = await query("SELECT id, username, name, email, role, created_at FROM users ORDER BY created_at ASC");
+      const rows = await query("SELECT id, username, name, email, phone, role, created_at FROM users ORDER BY created_at ASC");
       return sendJson(res, 200, rows);
     }
 
@@ -1008,6 +1146,7 @@ export default async function handler(req, res) {
       const username = String(body.username || "").trim().toLowerCase().replace(/\s+/g, "");
       const name = String(body.name || "").trim();
       const password = String(body.password || "");
+      const phone = String(body.phone || "").trim();
       const role = ["student", "instructor", "admin"].includes(body.role) ? body.role : "student";
 
       if (!username || !name) {
@@ -1027,11 +1166,78 @@ export default async function handler(req, res) {
       const hash = hashPassword(password);
 
       await execute(
-        "INSERT INTO users (id, username, name, email, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)",
-        [id, username, name, email, hash, role]
+        "INSERT INTO users (id, username, name, email, phone, password_hash, role) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [id, username, name, email, phone || null, hash, role]
       );
 
-      return sendJson(res, 200, { ok: true, id, username, name, email, role });
+      return sendJson(res, 200, { ok: true, id, username, name, email, phone, role });
+    }
+
+    if (pathname === "/api/admin/users/pin" && method === "POST") {
+      const user = await getSessionUser(req);
+      if (!user || user.role !== "admin") {
+        return sendJson(res, 403, { error: "Solo administradores pueden generar PIN de recuperación." });
+      }
+
+      const body = await readJson(req);
+      const targetId = String(body.id || "");
+      const customPhone = body.phone !== undefined ? String(body.phone).trim() : null;
+
+      if (!targetId) {
+        return sendJson(res, 400, { error: "Falta el ID del usuario." });
+      }
+
+      const target = await queryOne("SELECT * FROM users WHERE id = ?", [targetId]);
+      if (!target) {
+        return sendJson(res, 404, { error: "Usuario no encontrado." });
+      }
+
+      const pin = generatePin();
+      const pinHash = hashPassword(pin);
+      const expira = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+      const finalPhone = customPhone !== null ? customPhone : (target.phone || "");
+
+      await execute(
+        "UPDATE users SET pin_hash = ?, pin_expira_en = ?, pin_intentos = 0, must_change_password = 1, phone = ? WHERE id = ?",
+        [pinHash, expira, finalPhone, target.id]
+      );
+
+      const origin = req.headers["origin"] || (req.headers["host"] ? `https://${req.headers["host"]}` : "https://cursodj.desarrollar.online");
+      const message = buildPinMessage({ name: target.name, username: target.username, pin, origin });
+      const whatsappUrl = buildWhatsAppLink({ phone: finalPhone, name: target.name, username: target.username, pin, origin });
+
+      return sendJson(res, 200, {
+        ok: true,
+        pin,
+        expires_at: expira,
+        phone: finalPhone,
+        message,
+        whatsapp_url: whatsappUrl,
+        user: {
+          id: target.id,
+          username: target.username,
+          name: target.name,
+          phone: finalPhone
+        }
+      });
+    }
+
+    if (pathname === "/api/admin/users/phone" && method === "POST") {
+      const user = await getSessionUser(req);
+      if (!user || user.role !== "admin") {
+        return sendJson(res, 403, { error: "Solo administradores pueden editar el teléfono." });
+      }
+
+      const body = await readJson(req);
+      const targetId = String(body.id || "");
+      const phone = String(body.phone || "").trim();
+
+      if (!targetId) {
+        return sendJson(res, 400, { error: "Falta el ID del usuario." });
+      }
+
+      await execute("UPDATE users SET phone = ? WHERE id = ?", [phone, targetId]);
+      return sendJson(res, 200, { ok: true, phone });
     }
 
     if (pathname === "/api/admin/change-role" && method === "PUT") {
