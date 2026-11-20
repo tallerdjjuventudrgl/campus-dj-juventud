@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /campus
+Disallow: /verificar
+Disallow: /manual-admin
+Disallow: /manual-alumno
+Disallow: /guia
+Disallow: /GUIA-INSTRUCTORES
+
+Sitemap: https://cursodj.desarrollar.online/sitemap.xml
